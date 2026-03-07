@@ -1,0 +1,215 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Configuracion from '../components/config/Config-admin';
+import Users from '../components/users/Users';
+import Especial from '../components/especiales/Especiales';
+import Ordenes from '../components/ordenes/Ordenes';
+import Notificaciones from '../components/notificaciones/Notificaciones';
+import Respaldos  from '../components/Backup/Backup';
+import Ingredientes from '../components/Ingredientes/Ingredientes';
+
+import { FaBars, FaTimes, FaCog, FaUsers } from 'react-icons/fa';
+import { FaBowlFood } from 'react-icons/fa6';
+import { HiClipboardList } from "react-icons/hi";
+import { MdNotificationsActive } from "react-icons/md";
+import { BsDatabaseFillGear } from "react-icons/bs";
+import { MdFoodBank } from "react-icons/md";
+
+import { ConfigProvider, useConfig } from '../context/config';
+import '../css/Home/home-admin.css';
+
+const HomeAdmin = () => {
+  return (
+    <ConfigProvider>
+      <Main />
+    </ConfigProvider>
+  );
+};
+
+const Main = () => {
+  const navigate = useNavigate();
+  const { t, darkMode } = useConfig();
+  const [userData, setUserData] = useState(null);
+  const [activeContent, setActiveContent] = useState(null);
+  const [activeContentType, setActiveContentType] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    const user = JSON.parse(localStorage.getItem('user'));
+    console.log('User data from localStorage:', user);
+    setUserData(user);
+  }, [navigate]);
+
+  const loadContent = (contentType) => {
+    setActiveContentType(contentType);
+    
+    switch(contentType) {
+      case 'users':
+        setActiveContent(<Users />);
+        break;
+        
+      case 'configuracion':
+        setActiveContent(<Configuracion />);
+        break;
+
+      case 'ingredientes':
+        setActiveContent(<Ingredientes />);
+        break;
+
+      case 'especiales':
+        setActiveContent(<Especial />);
+        break;
+
+      case 'Ordenes':
+        setActiveContent(<Ordenes />);
+        break;
+
+      case 'Notificaciones':
+        setActiveContent(<Notificaciones />);
+        break;
+
+      case 'Respaldos':
+        setActiveContent(<Respaldos />);
+        break;
+
+      default:
+        setActiveContent(null);
+        setActiveContentType(null);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    navigate('/login');
+  };
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  return (
+    <div className={`dashboard-container ${darkMode ? 'dark-mode' : ''}`}>
+      <button 
+        className={`sidebar-toggle ${sidebarOpen ? 'open' : ''}`}
+        onClick={toggleSidebar}
+      >
+        {sidebarOpen ? <FaTimes /> : <FaBars />}
+      </button>
+
+      <aside className={`sidebar ${sidebarOpen ? 'open' : 'closed'} ${darkMode ? 'dark-mode' : ''}`}>
+        <div className="sidebar-header">
+          <div className="user-info">
+            <h1>
+              <span className="crazy-cursive">Diet</span> Lettuces
+            </h1>
+            <h2 className="user-name">{userData?.nombre || userData?.name || t('user')}</h2>
+            <p className="user-email">{userData?.correo || userData?.email || ''}</p>
+            <span className="user-role">
+              {userData?.rol === 1 ? t('administrator') : t('user')}
+            </span>
+          </div>
+        </div>
+        
+        <nav className="sidebar-nav">
+          <button 
+            className={`nav-btn ${activeContentType === 'users' ? 'active' : ''}`}
+            onClick={() => loadContent('users')}
+          >
+            <FaUsers className="nav-icon" />
+            {t('users')}
+          </button>
+
+          <button
+            className={`nav-btn ${activeContentType === 'ingredientes' ? 'active' : ''}`}
+            onClick={() => loadContent('ingredientes')}
+          >
+            <MdFoodBank className="nav-icon" />
+            {t('ingredientes')}
+          </button>
+
+          <button 
+            className={`nav-btn ${activeContentType === 'especiales' ? 'active' : ''}`}
+            onClick={() => loadContent('especiales')}
+          >
+            <FaBowlFood className="nav-icon" />
+            {t('specials')}
+          </button>
+
+          <button 
+            className={`nav-btn ${activeContentType === 'Ordenes' ? 'active' : ''}`}
+            onClick={() => loadContent('Ordenes')}
+          >
+            <HiClipboardList className="nav-icon" />
+            {t('Orders')}
+          </button>
+
+          <button 
+            className={`nav-btn ${activeContentType === 'Notificaciones' ? 'active' : ''}`}
+            onClick={() => loadContent('Notificaciones')}
+          >
+            <MdNotificationsActive className="nav-icon" />
+            {t('Notifications')}
+          </button>
+
+          <button 
+            className={`nav-btn ${activeContentType === 'Respaldos' ? 'active' : ''}`}
+            onClick={() => loadContent('Respaldos')}
+          >
+            <BsDatabaseFillGear className="nav-icon" />
+            {t('Respaldos')}
+          </button>
+
+          <button 
+            className={`nav-btn ${activeContentType === 'configuracion' ? 'active' : ''}`}
+            onClick={() => loadContent('configuracion')}
+          >
+            <FaCog className="nav-icon" />
+            {t('settings')}
+          </button>
+
+          <button 
+            className="nav-btn"
+            onClick={handleLogout}
+          >
+            {t('logout')}
+          </button>
+        </nav>
+      </aside>
+
+      <main className={`main-content ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+        <div className="content-wrapper">
+          <div className="header-section">
+            <h2 className="section-title">
+              <span className="crazy-cursive">Diet</span> Lettuces
+            </h2>
+            
+            <button 
+              className="logout-btn-header" 
+              onClick={handleLogout}
+            >
+              {t('logout')}
+            </button>
+          </div>
+          
+          <div className="dynamic-content">
+            {activeContent || (
+              <div className="welcome-message">
+                <h3>{t('welcomeAdmin')}</h3>
+                <p>{t('selectOption')}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default HomeAdmin;

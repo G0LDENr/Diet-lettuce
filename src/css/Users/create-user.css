@@ -1,0 +1,944 @@
+/* Contenedor principal */
+.create-user-form {
+  width: 100%;
+}
+
+.create-user-form-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ========== INDICADOR DE PASOS EN FILA ========== */
+.create-form-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.create-step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  text-align: center;
+}
+
+.create-step-number {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-bottom: 5px;
+  transition: all 0.3s;
+}
+
+.create-step-label {
+  font-size: 0.9rem;
+  color: #666;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.create-step-indicator.active .create-step-number {
+  background-color: #28a745;
+  color: white;
+}
+
+.create-step-indicator.active .create-step-label {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.create-step-indicator.completed .create-step-number {
+  background-color: #28a745;
+  color: white;
+}
+
+.create-step-line {
+  flex: 1;
+  height: 2px;
+  background-color: #e0e0e0;
+  margin: 0 10px;
+}
+
+/* ========== ESTILOS DE FORMULARIO BASE ========== */
+.create-form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-bottom: 15px;
+}
+
+.create-form-group.create-half {
+  flex: 0 0 calc(50% - 7.5px);
+}
+
+.create-form-label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.create-required {
+  color: #dc3545;
+  margin-left: 3px;
+}
+
+.create-form-control,
+.create-select {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+.create-form-control:focus,
+.create-select:focus {
+  border-color: #28a745;
+  outline: none;
+}
+
+.create-input-error,
+.create-select-error {
+  border-color: #dc3545 !important;
+}
+
+.create-error-message {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  min-height: 1rem;
+}
+
+/* Filas del formulario */
+.create-form-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
+/* Campos de contraseña */
+.create-password-fields {
+  display: flex;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.create-password-fields .create-form-group {
+  flex: 1;
+}
+
+/* Campos de rol y sexo */
+.create-role-sex-fields {
+  display: flex;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.create-role-sex-fields .create-form-group {
+  flex: 1;
+}
+
+/* Información del usuario */
+.create-user-info {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 6px;
+  border-left: 4px solid #28a745;
+  margin-bottom: 1rem;
+}
+
+.create-user-info h4 {
+  margin: 0;
+  color: #333;
+  font-size: 1rem;
+}
+
+/* Nota informativa */
+.create-info-note {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.create-info-note p {
+  margin: 0;
+  color: #856404;
+  font-size: 0.9rem;
+}
+
+/* ========== BOTONES DE NAVEGACIÓN ========== */
+.create-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.create-form-actions-step {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  width: 100%;
+}
+
+.create-btn-cancel {
+  padding: 0.75rem 1.5rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.create-btn-cancel:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.create-btn-next {
+  padding: 0.75rem 1.5rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.create-btn-next:hover {
+  background-color: #218838;
+}
+
+.create-btn-back {
+  padding: 0.75rem 1.5rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.create-btn-back:hover {
+  background-color: #5a6268;
+}
+
+.create-btn-submit {
+  padding: 0.75rem 1.5rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.create-btn-submit:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.create-btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========== ESTILOS PARA DIRECCIONES ========== */
+.create-direcciones-section {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.create-direcciones-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.create-direcciones-title {
+  font-size: 1.1rem;
+  color: #333;
+  margin: 0;
+  font-weight: 500;
+}
+
+.create-btn-add-direccion {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.create-btn-add-direccion:hover {
+  background-color: #218838;
+}
+
+/* Lista de direcciones */
+.create-direcciones-list {
+  display: grid;
+  gap: 15px;
+  margin-bottom: 20px;
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.create-direccion-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 15px;
+  position: relative;
+  transition: all 0.3s;
+  background-color: #fff;
+}
+
+.create-direccion-item:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.create-direccion-item.predeterminada {
+  border-color: #28a745;
+  background-color: #f0fff0;
+}
+
+.create-direccion-header {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.create-direccion-tipo {
+  background-color: #f0f0f0;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+  font-weight: 500;
+}
+
+.create-predeterminada-badge {
+  background-color: #28a745;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.create-direccion-contenido {
+  font-size: 0.95rem;
+  color: #555;
+  padding-right: 80px;
+}
+
+.create-direccion-contenido p {
+  margin: 5px 0;
+}
+
+.create-direccion-contenido strong {
+  color: #333;
+}
+
+.create-referencias {
+  font-style: italic;
+  color: #777;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #eee;
+}
+
+.create-direccion-acciones {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  gap: 8px;
+}
+
+.create-btn-set-predeterminada {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  color: #ffc107;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.3s;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.create-btn-set-predeterminada:hover {
+  background-color: #f0f0f0;
+  transform: scale(1.1);
+}
+
+.create-btn-remove-direccion {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #dc3545;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.3s;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.create-btn-remove-direccion:hover {
+  background-color: #ffe6e6;
+}
+
+/* Formulario de nueva dirección */
+.create-direccion-form {
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.create-form-subtitle {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 20px 0;
+  font-weight: 500;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.create-direccion-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.create-btn-cancel-small {
+  padding: 8px 20px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.create-btn-cancel-small:hover {
+  background-color: #5a6268;
+}
+
+.create-btn-save-direccion {
+  padding: 8px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.create-btn-save-direccion:hover {
+  background-color: #218838;
+}
+
+/* Checkbox para dirección predeterminada */
+.create-checkbox-group {
+  margin: 15px 0;
+}
+
+.create-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.create-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Estado sin direcciones */
+.create-no-direcciones {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 6px;
+  color: #666;
+  margin: 20px 0;
+}
+
+.create-no-direcciones p {
+  margin: 8px 0;
+  font-size: 1rem;
+}
+
+.create-no-direcciones-sub {
+  font-size: 0.9rem;
+  color: #999;
+}
+
+/* Mensaje de éxito */
+.create-success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border: 1px solid #c3e6cb;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: createFadeIn 0.3s ease-in;
+}
+
+.create-success-message::before {
+  content: "✓";
+  font-weight: bold;
+}
+
+/* Mensaje de éxito */
+.create-success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 15px 20px;
+  border-radius: 6px;
+  border: 1px solid #c3e6cb;
+  margin-bottom: 20px;
+  font-weight: 500;
+  font-size: 1rem;
+  text-align: center;
+  animation: createFadeIn 0.3s ease-in;
+}
+
+/* Mensaje de error */
+.create-error-message-box {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 15px 20px;
+  border-radius: 6px;
+  border: 1px solid #f5c6cb;
+  margin-bottom: 20px;
+  font-weight: 500;
+  font-size: 1rem;
+  text-align: center;
+  animation: createFadeIn 0.3s ease-in;
+}
+
+@keyframes createFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Modo oscuro para mensajes */
+.create-user-form-dark-mode .create-success-message {
+  background-color: #1e3a2c;
+  color: #4ade80;
+  border-color: #2d5a3d;
+}
+
+.create-user-form-dark-mode .create-error-message-box {
+  background-color: #491c1c;
+  color: #ff6b6b;
+  border-color: #6b2e2e;
+}
+
+@keyframes createFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== MODO OSCURO ========== */
+.create-user-form-dark-mode .create-user-info {
+  background-color: #1a1a1a;
+  border-left-color: #D4AF37;
+}
+
+.create-user-form-dark-mode .create-user-info h4 {
+  color: #e2e8f0;
+}
+
+.create-user-form-dark-mode .create-form-label,
+.create-user-form-dark-mode .create-direcciones-title,
+.create-user-form-dark-mode .create-form-subtitle {
+  color: #D4AF37;
+}
+
+.create-user-form-dark-mode .create-form-control,
+.create-user-form-dark-mode .create-select {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.create-user-form-dark-mode .create-form-control:focus,
+.create-user-form-dark-mode .create-select:focus {
+  border-color: #D4AF37;
+}
+
+.create-user-form-dark-mode .create-input-error,
+.create-user-form-dark-mode .create-select-error {
+  border-color: #dc3545 !important;
+}
+
+.create-user-form-dark-mode .create-info-note {
+  background-color: #332701;
+  border-color: #665002;
+}
+
+.create-user-form-dark-mode .create-info-note p {
+  color: #e2b014;
+}
+
+/* Modo oscuro - Pasos */
+.create-user-form-dark-mode .create-step-number {
+  background-color: #2a2a2a;
+  color: #999;
+}
+
+.create-user-form-dark-mode .create-step-label {
+  color: #999;
+}
+
+.create-user-form-dark-mode .create-step-indicator.active .create-step-number {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.create-user-form-dark-mode .create-step-indicator.active .create-step-label {
+  color: #D4AF37;
+}
+
+.create-user-form-dark-mode .create-step-indicator.completed .create-step-number {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.create-user-form-dark-mode .create-step-line {
+  background-color: #333;
+}
+
+/* Modo oscuro - Botones de navegación */
+.create-user-form-dark-mode .create-btn-next {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.create-user-form-dark-mode .create-btn-next:hover {
+  background-color: #b8941f;
+}
+
+.create-user-form-dark-mode .create-btn-submit {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.create-user-form-dark-mode .create-btn-submit:hover:not(:disabled) {
+  background-color: #b8941f;
+}
+
+.create-user-form-dark-mode .create-btn-back,
+.create-user-form-dark-mode .create-btn-cancel {
+  background-color: #6c757d;
+}
+
+.create-user-form-dark-mode .create-btn-back:hover,
+.create-user-form-dark-mode .create-btn-cancel:hover {
+  background-color: #5a6268;
+}
+
+/* Modo oscuro - Direcciones */
+.create-user-form-dark-mode .create-btn-add-direccion {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.create-user-form-dark-mode .create-btn-add-direccion:hover {
+  background-color: #b8941f;
+}
+
+.create-user-form-dark-mode .create-direccion-item {
+  background-color: #1a1a1a;
+  border-color: #333;
+}
+
+.create-user-form-dark-mode .create-direccion-item.predeterminada {
+  border-color: #D4AF37;
+  background-color: #2a2a2a;
+}
+
+.create-user-form-dark-mode .create-direccion-tipo {
+  background-color: #2a2a2a;
+  color: #D4AF37;
+}
+
+.create-user-form-dark-mode .create-predeterminada-badge {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.create-user-form-dark-mode .create-direccion-contenido {
+  color: #999;
+}
+
+.create-user-form-dark-mode .create-direccion-contenido strong {
+  color: #e2e8f0;
+}
+
+.create-user-form-dark-mode .create-referencias {
+  color: #777;
+  border-top-color: #333;
+}
+
+.create-user-form-dark-mode .create-btn-set-predeterminada {
+  color: #D4AF37;
+}
+
+.create-user-form-dark-mode .create-btn-set-predeterminada:hover {
+  background-color: #2a2a2a;
+}
+
+.create-user-form-dark-mode .create-btn-remove-direccion {
+  color: #ff6b6b;
+}
+
+.create-user-form-dark-mode .create-btn-remove-direccion:hover {
+  background-color: #2a2a2a;
+}
+
+.create-user-form-dark-mode .create-direccion-form {
+  background-color: #1a1a1a;
+  border-color: #333;
+}
+
+.create-user-form-dark-mode .create-form-subtitle {
+  border-bottom-color: #333;
+}
+
+.create-user-form-dark-mode .create-direccion-form-actions {
+  border-top-color: #333;
+}
+
+.create-user-form-dark-mode .create-btn-cancel-small {
+  background-color: #6c757d;
+}
+
+.create-user-form-dark-mode .create-btn-cancel-small:hover {
+  background-color: #5a6268;
+}
+
+.create-user-form-dark-mode .create-btn-save-direccion {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.create-user-form-dark-mode .create-btn-save-direccion:hover {
+  background-color: #b8941f;
+}
+
+.create-user-form-dark-mode .create-checkbox-label {
+  color: #999;
+}
+
+.create-user-form-dark-mode .create-no-direcciones {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #999;
+}
+
+.create-user-form-dark-mode .create-no-direcciones-sub {
+  color: #777;
+}
+
+.create-user-form-dark-mode .create-form-actions,
+.create-user-form-dark-mode .create-form-actions-step {
+  border-top-color: #333;
+}
+
+.create-user-form-dark-mode .create-success-message {
+  background-color: #1e3a2c;
+  color: #4ade80;
+  border-color: #2d5a3d;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .create-form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .create-form-group.create-half {
+    flex: 1;
+    width: 100%;
+  }
+
+  .create-password-fields,
+  .create-role-sex-fields {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .create-form-actions,
+  .create-form-actions-step {
+    flex-direction: column;
+  }
+
+  .create-btn-cancel,
+  .create-btn-submit,
+  .create-btn-back,
+  .create-btn-next {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .create-direcciones-list {
+    max-height: 300px;
+  }
+
+  .create-direccion-item {
+    padding: 12px;
+  }
+
+  .create-direccion-contenido {
+    padding-right: 70px;
+    font-size: 0.9rem;
+  }
+
+  .create-direccion-acciones {
+    top: 12px;
+    right: 12px;
+  }
+
+  .create-form-steps {
+    padding: 0;
+  }
+
+  .create-step-label {
+    white-space: normal;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .create-user-form-form {
+    gap: 1rem;
+  }
+  
+  .create-form-control,
+  .create-select {
+    padding: 0.65rem;
+  }
+
+  .create-step-number {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+
+  .create-step-label {
+    font-size: 0.7rem;
+  }
+
+  .create-direcciones-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .create-btn-add-direccion {
+    width: 100%;
+  }
+
+  .create-direccion-form-actions {
+    flex-direction: column;
+  }
+
+  .create-btn-cancel-small,
+  .create-btn-save-direccion {
+    width: 100%;
+  }
+
+  .create-direccion-header {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .create-direccion-tipo,
+  .create-predeterminada-badge {
+    align-self: flex-start;
+  }
+}

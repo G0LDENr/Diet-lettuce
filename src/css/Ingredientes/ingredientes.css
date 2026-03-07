@@ -1,0 +1,1129 @@
+/* Estilos generales */
+.ingredientes-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.ingredientes-content {
+  padding: 2rem;
+}
+
+/* Header con título y botón */
+.ingredientes-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.ingredientes-section-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+/* BOTÓN DE AGREGAR INGREDIENTE */
+.ingredientes-add-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.75rem 1.5rem;
+  background-color: #96bd44;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.ingredientes-add-btn:hover {
+  background-color: #3e4e1d;
+}
+
+.ingredientes-btn-icon {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Buscador */
+.ingredientes-search-section {
+  margin-bottom: 1.5rem;
+}
+
+.ingredientes-filters-row {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.ingredientes-search-container {
+  position: relative;
+}
+
+.ingredientes-search-container.ingredientes-main-search {
+  flex: 1;
+  min-width: 300px;
+}
+
+.ingredientes-search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.ingredientes-search-input:focus {
+  border-color: #1abb01;
+  outline: none;
+}
+
+.ingredientes-clear-search {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #666;
+}
+
+.ingredientes-clear-search:hover {
+  color: #333;
+}
+
+/* Filtros */
+.ingredientes-filter-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+}
+
+.ingredientes-filter-select {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  background-color: white;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.ingredientes-filter-select:focus {
+  border-color: #1abb01;
+  outline: none;
+}
+
+/* Modal - Estilos base */
+.ingredientes-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.ingredientes-modal-content {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  animation: ingredientes-fadeIn 0.3s ease;
+}
+
+@keyframes ingredientes-fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ingredientes-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.ingredientes-modal-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.ingredientes-close-modal {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.ingredientes-close-modal:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.ingredientes-modal-body {
+  padding: 1.5rem;
+}
+
+.ingredientes-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.ingredientes-btn-cancel {
+  padding: 0.75rem 1.5rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.ingredientes-btn-cancel:hover {
+  background-color: #5a6268;
+}
+
+.ingredientes-btn-save {
+  padding: 0.75rem 1.5rem;
+  background-color: #1abb01;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.ingredientes-btn-save:hover {
+  background-color: #1abb01;
+}
+
+/* Tabla de ingredientes */
+.ingredientes-table-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.ingredientes-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ingredientes-table th,
+.ingredientes-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.ingredientes-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.ingredientes-actions-header {
+  width: 150px;
+  text-align: center;
+}
+
+.ingredientes-actions-cell {
+  width: 150px;
+  text-align: center;
+}
+
+.ingredientes-actions-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.ingredientes-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ingredientes-action-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.ingredientes-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ingredientes-action-btn:disabled:hover {
+  background-color: transparent;
+}
+
+.ingredientes-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.ingredientes-no-results {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.ingredientes-id {
+  text-align: center;
+  font-weight: bold;
+  color: #000000;
+}
+
+.ingredientes-name {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.ingredientes-categoria {
+  max-width: 150px;
+  color: #718096;
+}
+
+.ingredientes-precio {
+  font-weight: 600;
+  color: #48bb78;
+}
+
+/* Badges de estado */
+.ingredientes-status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.ingredientes-status-badge.active {
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.ingredientes-status-badge.inactive {
+  background-color: #fed7d7;
+  color: #742a2a;
+}
+
+/* Badges de categoría */
+.ingredientes-categoria-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.ingredientes-categoria-badge.success {
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.ingredientes-categoria-badge.danger {
+  background-color: #fed7d7;
+  color: #742a2a;
+}
+
+.ingredientes-categoria-badge.info {
+  background-color: #bee3f8;
+  color: #2c5282;
+}
+
+.ingredientes-categoria-badge.warning {
+  background-color: #feebc8;
+  color: #744210;
+}
+
+.ingredientes-categoria-badge.primary {
+  background-color: #e9d8fd;
+  color: #553c9a;
+}
+
+.ingredientes-categoria-badge.secondary {
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+.ingredientes-categoria-badge.purple {
+  background-color: #e9d8fd;
+  color: #553c9a;
+}
+
+.ingredientes-categoria-badge.default {
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+.ingredientes-categoria-badge.sin-categoria {
+  background-color: #e2e8f0;
+  color: #718096;
+  font-style: italic;
+}
+
+/* Paginación */
+.ingredientes-pagination-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding: 20px;
+  border-top: 1px solid #eee;
+}
+
+.ingredientes-pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ingredientes-pagination-numbers {
+  display: flex;
+  gap: 5px;
+}
+
+.ingredientes-pagination-btn {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  background-color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.ingredientes-pagination-btn:hover:not(:disabled) {
+  background-color: #f8f9fa;
+}
+
+.ingredientes-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ingredientes-pagination-btn.active {
+  background-color: #1abb01;
+  color: white;
+  border-color: #1abb01;
+}
+
+.ingredientes-pagination-ellipsis {
+  padding: 8px 5px;
+  color: #666;
+}
+
+.ingredientes-count-info {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  width: 100%;
+}
+
+.ingredientes-action-icon {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0.8);
+  transition: filter 0.2s;
+}
+
+.ingredientes-action-btn:hover .ingredientes-action-icon {
+  filter: brightness(1);
+}
+
+.ingredientes-action-btn:disabled .ingredientes-action-icon {
+  filter: brightness(0.4);
+}
+
+/* Spinner de carga */
+.ingredientes-loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #1abb01;
+  width: 40px;
+  height: 40px;
+  animation: ingredientes-spin 1s linear infinite;
+  margin: 50px auto;
+}
+
+@keyframes ingredientes-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ========== MODO OSCURO ========== */
+.dark-mode .ingredientes-container {
+  background-color: #000000;
+  color: #e2e8f0;
+}
+
+.dark-mode .ingredientes-content {
+  background-color: #000000;
+}
+
+.dark-mode .ingredientes-section-header h3 {
+  color: #D4AF37;
+}
+
+.dark-mode .ingredientes-add-btn {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.dark-mode .ingredientes-add-btn:hover {
+  background-color: #b8941f;
+}
+
+.dark-mode .ingredientes-search-input {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .ingredientes-search-input:focus {
+  border-color: #D4AF37;
+  outline: none;
+}
+
+.dark-mode .ingredientes-search-input::placeholder {
+  color: #666;
+}
+
+.dark-mode .ingredientes-clear-search {
+  color: #666;
+}
+
+.dark-mode .ingredientes-clear-search:hover {
+  color: #D4AF37;
+}
+
+.dark-mode .ingredientes-filter-select {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .ingredientes-filter-select:focus {
+  border-color: #D4AF37;
+}
+
+.dark-mode .ingredientes-modal-content {
+  background-color: #000000;
+  border: 1px solid #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .ingredientes-modal-header {
+  border-bottom: 1px solid #333;
+}
+
+.dark-mode .ingredientes-modal-header h3 {
+  color: #D4AF37;
+}
+
+.dark-mode .ingredientes-close-modal {
+  color: #666;
+}
+
+.dark-mode .ingredientes-close-modal:hover {
+  background-color: #1a1a1a;
+  color: #e2e8f0;
+}
+
+.dark-mode .ingredientes-modal-footer {
+  border-top: 1px solid #333;
+}
+
+.dark-mode .ingredientes-btn-cancel {
+  background-color: #6c757d;
+}
+
+.dark-mode .ingredientes-btn-cancel:hover {
+  background-color: #5a6268;
+}
+
+.dark-mode .ingredientes-btn-save {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.dark-mode .ingredientes-btn-save:hover {
+  background-color: #b8941f;
+}
+
+.dark-mode .ingredientes-table-container {
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 1px solid #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .ingredientes-table {
+  color: #e2e8f0;
+}
+
+.dark-mode .ingredientes-table th {
+  background-color: #1a1a1a;
+  color: #D4AF37;
+  border-bottom: 1px solid #333;
+}
+
+.dark-mode .ingredientes-table td {
+  border-bottom: 1px solid #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .ingredientes-table tr:hover {
+  background-color: #1a1a1a;
+}
+
+.dark-mode .ingredientes-action-btn:hover {
+  background-color: #1a1a1a;
+}
+
+.dark-mode .ingredientes-no-results {
+  color: #999;
+}
+
+.dark-mode .ingredientes-pagination-container {
+  border-top: 1px solid #333;
+}
+
+.dark-mode .ingredientes-pagination-btn {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .ingredientes-pagination-btn:hover:not(:disabled) {
+  background-color: #2a2a2a;
+  border-color: #D4AF37;
+}
+
+.dark-mode .ingredientes-pagination-btn.active {
+  background-color: #D4AF37;
+  color: #000000;
+  border-color: #D4AF37;
+}
+
+.dark-mode .ingredientes-pagination-ellipsis {
+  color: #666;
+}
+
+.dark-mode .ingredientes-count-info {
+  color: #999;
+}
+
+.dark-mode .ingredientes-loading-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #D4AF37;
+}
+
+.dark-mode .ingredientes-action-icon {
+  filter: invert(1) brightness(0.8);
+}
+
+.dark-mode .ingredientes-action-btn:hover .ingredientes-action-icon {
+  filter: invert(1) brightness(1);
+}
+
+.dark-mode .ingredientes-action-btn:disabled .ingredientes-action-icon {
+  filter: invert(1) brightness(0.3);
+}
+
+/* Estilos específicos para ingredientes en modo oscuro */
+.dark-mode .ingredientes-id {
+  color: #D4AF37;
+}
+
+.dark-mode .ingredientes-name {
+  color: #e2e8f0;
+}
+
+.dark-mode .ingredientes-categoria {
+  color: #a0aec0;
+}
+
+.dark-mode .ingredientes-precio {
+  color: #68d391;
+}
+
+.dark-mode .ingredientes-status-badge.active {
+  background-color: #22543d;
+  color: #c6f6d5;
+}
+
+.dark-mode .ingredientes-status-badge.inactive {
+  background-color: #742a2a;
+  color: #fed7d7;
+}
+
+/* Badges de categoría en modo oscuro */
+.dark-mode .ingredientes-categoria-badge.success {
+  background-color: #22543d;
+  color: #c6f6d5;
+}
+
+.dark-mode .ingredientes-categoria-badge.danger {
+  background-color: #742a2a;
+  color: #fed7d7;
+}
+
+.dark-mode .ingredientes-categoria-badge.info {
+  background-color: #2c5282;
+  color: #bee3f8;
+}
+
+.dark-mode .ingredientes-categoria-badge.warning {
+  background-color: #744210;
+  color: #feebc8;
+}
+
+.dark-mode .ingredientes-categoria-badge.primary {
+  background-color: #553c9a;
+  color: #e9d8fd;
+}
+
+.dark-mode .ingredientes-categoria-badge.secondary {
+  background-color: #4a5568;
+  color: #e2e8f0;
+}
+
+.dark-mode .ingredientes-categoria-badge.purple {
+  background-color: #553c9a;
+  color: #e9d8fd;
+}
+
+.dark-mode .ingredientes-categoria-badge.default {
+  background-color: #4a5568;
+  color: #e2e8f0;
+}
+
+.dark-mode .ingredientes-categoria-badge.sin-categoria {
+  background-color: #4a5568;
+  color: #a0aec0;
+}
+
+/* ========== MODALES DE CONFIRMACIÓN ========== */
+.ingredientes-delete-modal,
+.ingredientes-status-modal {
+  max-width: 450px;
+}
+
+.ingredientes-delete-icon,
+.ingredientes-status-icon {
+  font-size: 4rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  animation: ingredientes-pulse 1.5s infinite;
+}
+
+@keyframes ingredientes-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.ingredientes-delete-question,
+.ingredientes-status-question {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.ingredientes-delete-info,
+.ingredientes-status-info {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.ingredientes-delete-info p,
+.ingredientes-status-info p {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.ingredientes-delete-info strong,
+.ingredientes-status-info strong {
+  color: #333;
+  width: 100px;
+  display: inline-block;
+}
+
+.ingredientes-delete-warning {
+  color: #dc3545;
+  font-size: 0.9rem;
+  background-color: #f8d7da;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin: 0;
+  border: 1px solid #f5c6cb;
+  text-align: center;
+}
+
+/* Estados de carga y éxito */
+.ingredientes-delete-loading,
+.ingredientes-status-loading {
+  text-align: center;
+  padding: 2rem;
+}
+
+.ingredientes-delete-spinner,
+.ingredientes-status-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #96bd44;
+  width: 50px;
+  height: 50px;
+  animation: ingredientes-spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+.ingredientes-delete-loading-text,
+.ingredientes-status-loading-text {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.ingredientes-delete-success,
+.ingredientes-status-success {
+  text-align: center;
+  padding: 2rem;
+}
+
+.ingredientes-delete-success-icon,
+.ingredientes-status-success-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #28a745;
+}
+
+.ingredientes-delete-success-message,
+.ingredientes-status-success-message {
+  color: #28a745;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.ingredientes-delete-error,
+.ingredientes-status-error {
+  text-align: center;
+  padding: 2rem;
+}
+
+.ingredientes-delete-error-icon,
+.ingredientes-status-error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #dc3545;
+}
+
+.ingredientes-delete-error-message,
+.ingredientes-status-error-message {
+  color: #dc3545;
+  font-size: 1rem;
+  background-color: #f8d7da;
+  border-radius: 4px;
+  padding: 1rem;
+  border: 1px solid #f5c6cb;
+}
+
+/* Botones específicos */
+.ingredientes-btn-delete {
+  padding: 0.75rem 1.5rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.ingredientes-btn-delete:hover:not(:disabled) {
+  background-color: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.ingredientes-btn-status {
+  padding: 0.75rem 1.5rem;
+  background-color: #ffc107;
+  color: #212529;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.ingredientes-btn-status:hover:not(:disabled) {
+  background-color: #e0a800;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+}
+
+/* Modo oscuro para modales */
+.dark-mode .ingredientes-delete-question,
+.dark-mode .ingredientes-status-question {
+  color: #e2e8f0;
+}
+
+.dark-mode .ingredientes-delete-info,
+.dark-mode .ingredientes-status-info {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+}
+
+.dark-mode .ingredientes-delete-info p,
+.dark-mode .ingredientes-status-info p {
+  color: #999;
+}
+
+.dark-mode .ingredientes-delete-info strong,
+.dark-mode .ingredientes-status-info strong {
+  color: #D4AF37;
+}
+
+.dark-mode .ingredientes-delete-warning {
+  background-color: #491c1c;
+  color: #ff6b6b;
+  border-color: #6b2e2e;
+}
+
+.dark-mode .ingredientes-delete-spinner,
+.dark-mode .ingredientes-status-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #D4AF37;
+}
+
+.dark-mode .ingredientes-delete-loading-text,
+.dark-mode .ingredientes-status-loading-text {
+  color: #999;
+}
+
+.dark-mode .ingredientes-delete-success-message,
+.dark-mode .ingredientes-status-success-message {
+  color: #4ade80;
+}
+
+.dark-mode .ingredientes-delete-error-message,
+.dark-mode .ingredientes-status-error-message {
+  background-color: #491c1c;
+  color: #ff6b6b;
+  border-color: #6b2e2e;
+}
+
+.dark-mode .ingredientes-btn-delete {
+  background-color: #dc3545;
+}
+
+.dark-mode .ingredientes-btn-delete:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.dark-mode .ingredientes-btn-status {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.dark-mode .ingredientes-btn-status:hover:not(:disabled) {
+  background-color: #b8941f;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ingredientes-content {
+    padding: 1rem;
+  }
+  
+  .ingredientes-section-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .ingredientes-add-btn {
+    align-self: stretch;
+    justify-content: center;
+  }
+  
+  .ingredientes-filters-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .ingredientes-search-container.ingredientes-main-search {
+    min-width: auto;
+  }
+  
+  .ingredientes-table th,
+  .ingredientes-table td {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+  
+  .ingredientes-search-container {
+    max-width: 100%;
+  }
+
+  .ingredientes-pagination-controls {
+    gap: 5px;
+  }
+
+  .ingredientes-pagination-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .ingredientes-modal-content {
+    width: 95%;
+    margin: 1rem;
+  }
+
+  .ingredientes-categoria {
+    max-width: 100px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ingredientes-search-section h3 {
+    font-size: 1.1rem;
+  }
+  
+  .ingredientes-pagination-controls {
+    flex-wrap: wrap;
+  }
+
+  .ingredientes-actions-buttons {
+    gap: 5px;
+  }
+
+  .ingredientes-action-btn {
+    padding: 4px;
+  }
+
+  .ingredientes-modal-footer {
+    flex-direction: column;
+  }
+
+  .ingredientes-btn-cancel, 
+  .ingredientes-btn-save {
+    width: 100%;
+  }
+
+  .ingredientes-table {
+    font-size: 12px;
+  }
+
+  .ingredientes-categoria {
+    max-width: 80px;
+  }
+
+  .ingredientes-status-badge {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+  
+  .ingredientes-categoria-badge {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+}
+
+/* Estilos para tablas responsive */
+@media (max-width: 768px) {
+  .ingredientes-table-container {
+    overflow-x: auto;
+  }
+  
+  .ingredientes-table {
+    min-width: 600px;
+  }
+}
+
+/* Mejoras visuales para elementos específicos */
+.ingredientes-categoria span {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Efectos hover mejorados */
+.ingredientes-action-btn {
+  transition: all 0.3s ease;
+}
+
+.ingredientes-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .ingredientes-action-btn:hover {
+  box-shadow: 0 2px 4px rgba(212, 175, 55, 0.2);
+}
+
+/* Estilos para el botón de eliminar */
+.ingredientes-delete-btn:hover {
+  background-color: #fed7d7;
+}
+
+.dark-mode .ingredientes-delete-btn:hover {
+  background-color: #742a2a;
+}
+
+/* Estilos para el botón de editar */
+.ingredientes-edit-btn:hover {
+  background-color: #bee3f8;
+}
+
+.dark-mode .ingredientes-edit-btn:hover {
+  background-color: #2a4365;
+}

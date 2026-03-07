@@ -1,0 +1,428 @@
+/* Contenedor principal */
+.edit-especial-form {
+  width: 100%;
+}
+
+.edit-especial-form-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Grupo del formulario */
+.edit-especial-form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+}
+
+.edit-especial-form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+  display: block;
+}
+
+/* Filas del formulario */
+.edit-especial-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+/* Inputs */
+.edit-especial-input,
+.edit-especial-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: all 0.3s ease;
+  background-color: white;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.edit-especial-input:focus,
+.edit-especial-select:focus {
+  border-color: #96bd44;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(150, 189, 68, 0.2);
+}
+
+.edit-especial-input:disabled,
+.edit-especial-select:disabled {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.edit-especial-input::placeholder,
+.edit-especial-select::placeholder {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* Input con error */
+.edit-especial-input-error {
+  border-color: #dc3545 !important;
+}
+
+.edit-especial-input-error:focus {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2) !important;
+}
+
+.edit-especial-error-message {
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  padding-left: 0.25rem;
+}
+
+.edit-especial-error-message-box {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #f5c6cb;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+/* Campos de precio y estado */
+.edit-especial-price-status-fields {
+  display: flex;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.edit-especial-price-status-fields .edit-especial-form-group {
+  flex: 1;
+}
+
+/* Contenedor de ingredientes */
+.edit-especial-ingredientes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.edit-especial-ingrediente-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  animation: edit-especial-fade-in-up 0.3s ease-out;
+}
+
+@keyframes edit-especial-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.edit-especial-ingrediente-row .edit-especial-select {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.edit-especial-remove-ingrediente-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.edit-especial-remove-ingrediente-btn:hover:not(:disabled) {
+  background: #c82333;
+  transform: scale(1.05);
+}
+
+.edit-especial-remove-ingrediente-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading de ingredientes */
+.edit-especial-loading-ingredientes {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  color: #666;
+}
+
+.edit-especial-spinner-small {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #96bd44;
+  animation: edit-especial-spin 0.6s linear infinite;
+}
+
+.edit-especial-loading-text {
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* Botones de acción */
+.edit-especial-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.edit-especial-btn-cancel {
+  padding: 0.75rem 1.5rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.edit-especial-btn-cancel:hover:not(:disabled) {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(108, 117, 125, 0.2);
+}
+
+.edit-especial-btn-submit {
+  padding: 0.75rem 1.5rem;
+  background-color: #96bd44;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.edit-especial-btn-submit:hover:not(:disabled) {
+  background-color: #3e4e1d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(150, 189, 68, 0.3);
+}
+
+.edit-especial-btn-cancel:disabled,
+.edit-especial-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Spinner para botón */
+.edit-especial-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: edit-especial-spin 0.6s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes edit-especial-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Mensaje de éxito */
+.edit-especial-success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+  border: 1px solid #c3e6cb;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: edit-especial-fade-in 0.3s ease-in;
+}
+
+.edit-especial-success-message::before {
+  content: "✓";
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+@keyframes edit-especial-fade-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== MODO OSCURO ========== */
+.edit-especial-form-dark-mode .edit-especial-form-group label {
+  color: #e2e8f0;
+}
+
+.edit-especial-form-dark-mode .edit-especial-input,
+.edit-especial-form-dark-mode .edit-especial-select {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.edit-especial-form-dark-mode .edit-especial-input:focus,
+.edit-especial-form-dark-mode .edit-especial-select:focus {
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+.edit-especial-form-dark-mode .edit-especial-input::placeholder,
+.edit-especial-form-dark-mode .edit-especial-select::placeholder {
+  color: #718096;
+}
+
+.edit-especial-form-dark-mode .edit-especial-input:disabled,
+.edit-especial-form-dark-mode .edit-especial-select:disabled {
+  background-color: #2a2a2a;
+}
+
+.edit-especial-form-dark-mode .edit-especial-input-error {
+  border-color: #dc3545 !important;
+}
+
+.edit-especial-form-dark-mode .edit-especial-remove-ingrediente-btn {
+  background: #dc3545;
+}
+
+.edit-especial-form-dark-mode .edit-especial-remove-ingrediente-btn:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.edit-especial-form-dark-mode .edit-especial-loading-ingredientes {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  color: #999;
+}
+
+.edit-especial-form-dark-mode .edit-especial-loading-text {
+  color: #a0aec0;
+}
+
+.edit-especial-form-dark-mode .edit-especial-spinner-small {
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #D4AF37;
+}
+
+.edit-especial-form-dark-mode .edit-especial-form-actions {
+  border-top-color: #333;
+}
+
+.edit-especial-form-dark-mode .edit-especial-btn-cancel {
+  background-color: #6c757d;
+}
+
+.edit-especial-form-dark-mode .edit-especial-btn-cancel:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.edit-especial-form-dark-mode .edit-especial-btn-submit {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.edit-especial-form-dark-mode .edit-especial-btn-submit:hover:not(:disabled) {
+  background-color: #b8941f;
+}
+
+.edit-especial-form-dark-mode .edit-especial-success-message {
+  background-color: #1e3a2c;
+  color: #4ade80;
+  border-color: #2d5a3d;
+}
+
+.edit-especial-form-dark-mode .edit-especial-error-message-box {
+  background-color: #491c1c;
+  color: #ff6b6b;
+  border-color: #6b2e2e;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .edit-especial-form-form {
+    gap: 1.25rem;
+  }
+
+  .edit-especial-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .edit-especial-price-status-fields {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .edit-especial-ingrediente-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .edit-especial-remove-ingrediente-btn {
+    align-self: flex-start;
+    width: auto;
+    padding: 0.5rem 1rem;
+  }
+
+  .edit-especial-form-actions {
+    flex-direction: column;
+    margin-top: 1.5rem;
+    gap: 0.75rem;
+  }
+
+  .edit-especial-btn-cancel,
+  .edit-especial-btn-submit {
+    width: 100%;
+    min-width: auto;
+    padding: 0.85rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .edit-especial-form-form {
+    gap: 1rem;
+  }
+  
+  .edit-especial-input,
+  .edit-especial-select {
+    padding: 0.65rem 0.9rem;
+    font-size: 0.95rem;
+  }
+}

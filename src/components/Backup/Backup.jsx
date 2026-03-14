@@ -28,7 +28,7 @@ const Backup = () => {
   const [messageData, setMessageData] = useState({
     title: '',
     message: '',
-    type: 'success' // success, error, warning, info
+    type: 'success'
   });
   const [selectedTables, setSelectedTables] = useState([]);
   const [availableTables, setAvailableTables] = useState([]);
@@ -37,21 +37,18 @@ const Backup = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   
-  // Estados para el autocomplete
   const [sugerencias, setSugerencias] = useState([]);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
   
-  // Estado modificado para programación por días
   const [scheduleData, setScheduleData] = useState({
-    // Configuración por día: día index (0=domingo, 6=sábado)
     dias: {
-      0: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] }, // Domingo
-      1: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] }, // Lunes
-      2: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] }, // Martes
-      3: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] }, // Miércoles
-      4: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] }, // Jueves
-      5: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] }, // Viernes
-      6: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] }, // Sábado
+      0: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] },
+      1: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] },
+      2: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] },
+      3: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] },
+      4: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] },
+      5: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] },
+      6: { seleccionado: false, hora: 2, tipo: 'full', tablas: [] },
     }
   });
   
@@ -60,18 +57,15 @@ const Backup = () => {
   const [backupToRestore, setBackupToRestore] = useState(null);
   const backupsPerPage = 7;
 
-  // Generar horas de 00 a 23
   const horasDisponibles = Array.from({ length: 24 }, (_, i) => {
     const hora = i.toString().padStart(2, '0');
     return { valor: i, label: `${hora}:00` };
   });
 
-  // Función para mostrar mensajes con estilo
   const showMessage = (title, message, type = 'success') => {
     setMessageData({ title, message, type });
     setShowMessageModal(true);
     
-    // Auto-cerrar después de 3 segundos para mensajes de éxito
     if (type === 'success') {
       setTimeout(() => {
         setShowMessageModal(false);
@@ -198,7 +192,6 @@ const Backup = () => {
     );
   };
 
-  // Función para buscar sugerencias de respaldos
   const buscarSugerencias = (texto) => {
     if (!texto || texto.trim() === '') {
       setSugerencias(backups.slice(0, 10));
@@ -633,48 +626,98 @@ const Backup = () => {
     }
   };
 
-  const handleDownload = async (backupId, filename) => {
-    try {
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch(`http://127.0.0.1:5000/backups/${backupId}/download`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+// Función para descargar con selector de ubicación usando File System Access API
+const handleDownload = async (backupId, filename) => {
+  try {
+    const token = localStorage.getItem('token');
+    
+    showMessage(
+      'Preparando descarga',
+      'Obteniendo el archivo de respaldo...',
+      'info'
+    );
+    
+    const response = await fetch(`http://127.0.0.1:5000/backups/${backupId}/download`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
 
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+    if (!response.ok) {
+      throw new Error('Error en la descarga');
+    }
+
+    const blob = await response.blob();
+
+    // Verificar si el navegador soporta la API File System Access
+    if ('showSaveFilePicker' in window) {
+      try {
+        // Mostrar diálogo para elegir ubicación
+        const fileHandle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{
+            description: 'SQL Backup',
+            accept: {
+              'application/sql': ['.sql', '.sql.gz', '.gz'],
+              'application/gzip': ['.gz', '.sql.gz'],
+              'application/octet-stream': ['.sql', '.gz', '.sql.gz']
+            }
+          }]
+        });
+        
+        // Crear un archivo escribible
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
         
         showMessage(
-          'Descarga iniciada',
-          `El archivo "${filename}" se está descargando`,
+          'Archivo guardado',
+          `El respaldo se guardó correctamente en la ubicación seleccionada.`,
           'success'
         );
-      } else {
-        showMessage(
-          'Error al descargar',
-          'No se pudo descargar el respaldo',
-          'error'
-        );
+      } catch (err) {
+        // Usuario canceló la selección
+        if (err.name !== 'AbortError') {
+          console.error('Error al guardar:', err);
+          showMessage(
+            'Error',
+            'No se pudo guardar el archivo',
+            'error'
+          );
+        }
       }
-    } catch (error) {
-      console.error('Error al descargar:', error);
+    } else {
+      // Fallback para navegadores que no soportan File System Access
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      
+      // Forzar el diálogo de guardado
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 100);
+      
       showMessage(
-        'Error de conexión',
-        'No se pudo conectar con el servidor',
-        'error'
+        'Descarga iniciada',
+        'El archivo se está descargando. Revisa tu carpeta de descargas.',
+        'success'
       );
     }
-  };
+  } catch (error) {
+    console.error('Error al descargar:', error);
+    showMessage(
+      'Error al descargar',
+      'No se pudo descargar el respaldo',
+      'error'
+    );
+  }
+};
 
   const handleCancelSchedule = async (jobId) => {
     try {

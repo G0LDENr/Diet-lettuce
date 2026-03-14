@@ -8,9 +8,9 @@ import '../../css/Productos/carrito.css';
 import backIcon from '../../img/atras.png';
 import deleteIcon from '../../img/delete.png';
 import trashIcon from '../../img/delete.png';
-import lechugaIcon from '../../img/ensalada.png';
-import arrowRightIcon from '../../img/izquierda.png';
-import arrowLeftIcon from '../../img/derecha.png';
+import suplementoGenericoIcon from '../../img/DietLettuce.png';
+import arrowRightIcon from '../../img/derecha.png';
+import arrowLeftIcon from '../../img/izquierda.png';
 import homeIcon from '../../img/casa.png';
 import workIcon from '../../img/trabajo.png';
 import otherIcon from '../../img/ubicacion.png';
@@ -19,6 +19,8 @@ import addIcon from '../../img/mas.png';
 import visaIcon from '../../img/visa.png';
 import mastercardIcon from '../../img/mastercard.png';
 import amexIcon from '../../img/amex.png';
+import defaultCardIcon from '../../img/tarjeta.png';
+import estrellaIcon from '../../img/estrella.png';
 
 const Carrito = () => {
   const navigate = useNavigate();
@@ -62,19 +64,27 @@ const Carrito = () => {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
 
-  // Estados para formulario de tarjeta
+  // Estados para tarjetas guardadas
+  const [userTarjetas, setUserTarjetas] = useState([]);
+  const [loadingTarjetas, setLoadingTarjetas] = useState(false);
+  const [selectedTarjetaId, setSelectedTarjetaId] = useState(null);
+  const [useSavedCard, setUseSavedCard] = useState(true);
+  const [showNewCardForm, setShowNewCardForm] = useState(false);
+
+  // Estados para formulario de tarjeta (nueva)
   const [tarjetaForm, setTarjetaForm] = useState({
     nombre_titular: '',
     numero_tarjeta: '',
-    fecha_vencimiento: '',
-    cvv: '',
+    mes_expiracion: '',
+    anio_expiracion: '',
     tipo_tarjeta: 'visa'
   });
   const [aceptoTerminos, setAceptoTerminos] = useState(false);
   const [showPoliticaSeguridad, setShowPoliticaSeguridad] = useState(false);
+  const [showTarjetaNumber, setShowTarjetaNumber] = useState(false);
 
   // Clave para localStorage
-  const carritoKey = 'carrito_crazylettuces';
+  const carritoKey = 'carrito_suplementos';
 
   // ========== FUNCIONES DEL CARRITO ==========
   const getCarritoFromStorage = () => {
@@ -214,6 +224,42 @@ const Carrito = () => {
     }
   };
 
+  const fetchUserTarjetas = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    try {
+      setLoadingTarjetas(true);
+      const response = await fetch('http://127.0.0.1:5000/tarjetas/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const tarjetasData = data.tarjetas || [];
+        setUserTarjetas(tarjetasData);
+        
+        if (tarjetasData.length > 0) {
+          const predeterminada = tarjetasData.find(t => t.predeterminada);
+          if (predeterminada) {
+            setSelectedTarjetaId(predeterminada.id);
+          } else {
+            setSelectedTarjetaId(tarjetasData[0].id);
+          }
+          setUseSavedCard(true);
+          setShowNewCardForm(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error al obtener tarjetas:', error);
+    } finally {
+      setLoadingTarjetas(false);
+    }
+  };
+
   // ========== MANEJADORES DE FORMULARIOS ==========
   const handleInfoChange = (e) => {
     if (!isAuthenticated) {
@@ -233,41 +279,6 @@ const Carrito = () => {
     }));
   };
 
-  const handleTarjetaChange = (e) => {
-    const { name, value } = e.target;
-    let newValue = value;
-    
-    if (name === 'numero_tarjeta') {
-      newValue = value.replace(/\D/g, '').slice(0, 16);
-      if (newValue.length > 0) {
-        newValue = newValue.match(/.{1,4}/g).join(' ');
-      }
-      
-      const firstDigit = newValue.charAt(0);
-      if (firstDigit === '4') {
-        setTarjetaForm(prev => ({ ...prev, tipo_tarjeta: 'visa' }));
-      } else if (firstDigit === '5') {
-        setTarjetaForm(prev => ({ ...prev, tipo_tarjeta: 'mastercard' }));
-      } else if (firstDigit === '3') {
-        setTarjetaForm(prev => ({ ...prev, tipo_tarjeta: 'amex' }));
-      }
-    } else if (name === 'fecha_vencimiento') {
-      newValue = value.replace(/\D/g, '').slice(0, 4);
-      if (newValue.length >= 2) {
-        newValue = newValue.slice(0, 2) + '/' + newValue.slice(2);
-      }
-    } else if (name === 'cvv') {
-      newValue = value.replace(/\D/g, '');
-      const maxLength = tarjetaForm.tipo_tarjeta === 'amex' ? 4 : 3;
-      newValue = newValue.slice(0, maxLength);
-    }
-    
-    setTarjetaForm(prev => ({
-      ...prev,
-      [name]: newValue
-    }));
-  };
-
   const handleAddressSelect = (direccion) => {
     setSelectedAddressId(direccion.id);
     setDireccionForm({
@@ -281,6 +292,36 @@ const Carrito = () => {
       referencias: direccion.referencias || '',
       tipo: direccion.tipo || 'casa'
     });
+  };
+
+  const handleCardSelect = (tarjeta) => {
+    setSelectedTarjetaId(tarjeta.id);
+  };
+
+  const handleTarjetaChange = (e) => {
+    const { name, value } = e.target;
+    
+    if (name === 'numero_tarjeta') {
+      const formatted = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim().slice(0, 19);
+      setTarjetaForm(prev => ({ ...prev, [name]: formatted }));
+      
+      const firstDigit = formatted.charAt(0);
+      if (firstDigit === '4') {
+        setTarjetaForm(prev => ({ ...prev, tipo_tarjeta: 'visa' }));
+      } else if (firstDigit === '5') {
+        setTarjetaForm(prev => ({ ...prev, tipo_tarjeta: 'mastercard' }));
+      } else if (firstDigit === '3') {
+        setTarjetaForm(prev => ({ ...prev, tipo_tarjeta: 'amex' }));
+      }
+    } else if (name === 'mes_expiracion') {
+      const mes = value.replace(/[^0-9]/g, '').slice(0, 2);
+      setTarjetaForm(prev => ({ ...prev, [name]: mes }));
+    } else if (name === 'anio_expiracion') {
+      const anio = value.replace(/[^0-9]/g, '').slice(0, 4);
+      setTarjetaForm(prev => ({ ...prev, [name]: anio }));
+    } else {
+      setTarjetaForm(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   // ========== FUNCIONES PARA PASOS ==========
@@ -297,45 +338,39 @@ const Carrito = () => {
   const validateTarjeta = () => {
     const errors = {};
     
-    const numeroLimpio = tarjetaForm.numero_tarjeta.replace(/\s/g, '');
-    if (numeroLimpio.length !== 16) {
-      errors.numero_tarjeta = 'El número de tarjeta debe tener 16 dígitos';
-    } else if (!/^\d+$/.test(numeroLimpio)) {
-      errors.numero_tarjeta = 'El número de tarjeta solo debe contener dígitos';
-    }
-    
     if (!tarjetaForm.nombre_titular.trim()) {
       errors.nombre_titular = 'El nombre del titular es requerido';
-    } else if (tarjetaForm.nombre_titular.trim().length < 3) {
-      errors.nombre_titular = 'El nombre debe tener al menos 3 caracteres';
     }
     
-    const fechaRegex = /^(0[1-9]|1[0-2])\/?([0-9]{2})$/;
-    if (!fechaRegex.test(tarjetaForm.fecha_vencimiento)) {
-      errors.fecha_vencimiento = 'Formato inválido (MM/YY)';
+    const numero = tarjetaForm.numero_tarjeta.replace(/\s/g, '');
+    if (!numero) {
+      errors.numero_tarjeta = 'El número de tarjeta es requerido';
+    } else if (!/^\d{13,19}$/.test(numero)) {
+      errors.numero_tarjeta = 'Número de tarjeta inválido';
+    }
+    
+    if (!tarjetaForm.mes_expiracion) {
+      errors.mes_expiracion = 'El mes es requerido';
     } else {
-      const [mes, año] = tarjetaForm.fecha_vencimiento.split('/');
-      const ahora = new Date();
-      const añoActual = ahora.getFullYear() % 100;
-      const mesActual = ahora.getMonth() + 1;
-      
-      const añoNum = parseInt(año, 10);
-      const mesNum = parseInt(mes, 10);
-      
-      if (añoNum < añoActual || (añoNum === añoActual && mesNum < mesActual)) {
-        errors.fecha_vencimiento = 'La tarjeta está vencida';
+      const mes = parseInt(tarjetaForm.mes_expiracion);
+      if (mes < 1 || mes > 12) {
+        errors.mes_expiracion = 'Mes inválido';
       }
     }
     
-    const cvvLength = tarjetaForm.tipo_tarjeta === 'amex' ? 4 : 3;
-    if (!tarjetaForm.cvv) {
-      errors.cvv = 'El CVV es requerido';
-    } else if (tarjetaForm.cvv.length !== cvvLength) {
-      errors.cvv = tarjetaForm.tipo_tarjeta === 'amex' 
-        ? 'El CVV de Amex tiene 4 dígitos' 
-        : 'El CVV tiene 3 dígitos';
-    } else if (!/^\d+$/.test(tarjetaForm.cvv)) {
-      errors.cvv = 'El CVV solo debe contener dígitos';
+    if (!tarjetaForm.anio_expiracion) {
+      errors.anio_expiracion = 'El año es requerido';
+    } else {
+      const anio = parseInt(tarjetaForm.anio_expiracion);
+      const fechaActual = new Date();
+      const anioActual = fechaActual.getFullYear();
+      const mesActual = fechaActual.getMonth() + 1;
+      
+      if (anio < anioActual || anio > anioActual + 10) {
+        errors.anio_expiracion = 'Año inválido';
+      } else if (anio === anioActual && parseInt(tarjetaForm.mes_expiracion) < mesActual) {
+        errors.mes_expiracion = 'La tarjeta ha expirado';
+      }
     }
     
     if (!aceptoTerminos) {
@@ -410,11 +445,22 @@ const Carrito = () => {
     }
 
     if (metodoPago === 'tarjeta') {
-      const tarjetaErrors = validateTarjeta();
-      if (Object.keys(tarjetaErrors).length > 0) {
-        setErrorMessage('Por favor completa correctamente todos los datos de la tarjeta');
-        setTimeout(() => setErrorMessage(''), 3000);
-        return;
+      if (isAuthenticated && useSavedCard && selectedTarjetaId) {
+        // Usar tarjeta guardada
+        const tarjetaSeleccionada = userTarjetas.find(t => t.id === selectedTarjetaId);
+        if (!tarjetaSeleccionada) {
+          setErrorMessage('Por favor selecciona una tarjeta');
+          setTimeout(() => setErrorMessage(''), 3000);
+          return;
+        }
+      } else {
+        // Validar nueva tarjeta
+        const tarjetaErrors = validateTarjeta();
+        if (Object.keys(tarjetaErrors).length > 0) {
+          setErrorMessage('Por favor completa correctamente todos los datos de la tarjeta');
+          setTimeout(() => setErrorMessage(''), 3000);
+          return;
+        }
       }
     }
 
@@ -441,7 +487,7 @@ const Carrito = () => {
       const pedido_json = {
         tipo: 'carrito',
         items: carritoItems.map(item => ({
-          producto_id: item.id,
+          suplemento_id: item.id,
           nombre: item.nombre,
           cantidad: item.cantidad,
           precio_unitario: item.precio,
@@ -456,28 +502,42 @@ const Carrito = () => {
         direccion_texto_completa: direccionTextoCompleta
       };
 
+      const totalCalculado = calcularTotalCarrito();
+      console.log('💰 TOTAL CALCULADO:', totalCalculado);
+      console.log('💰 TOTAL CALCULADO (número):', Number(totalCalculado));
+      console.log('💰 TOTAL CALCULADO (tipo):', typeof totalCalculado);
+
       const pedidoData = {
         tipo_pedido: 'carrito',
         nombre_usuario: infoForm.nombre_completo,
         telefono_usuario: infoForm.telefono,
         metodo_pago: metodoPago,
-        precio: calcularTotalCarrito(),
+        precio_total: Number(totalCalculado), // Asegurar que sea número
         notas: notasPedido.trim() || 'Pedido desde carrito de compras',
         pedido_json: JSON.stringify(pedido_json),
         direccion_texto: direccionTextoCompleta
       };
+
+      console.log('='*60);
+      console.log('📦 DATOS ENVIADOS AL BACKEND:');
+      console.log(JSON.stringify(pedidoData, null, 2));
+      console.log('='*60);
 
       if (isAuthenticated && useSavedAddress && selectedAddressId) {
         pedidoData.direccion_id = selectedAddressId;
       }
 
       if (metodoPago === 'tarjeta') {
-        const numeroLimpio = tarjetaForm.numero_tarjeta.replace(/\s/g, '');
-        pedidoData.info_pago = {
-          tipo: tarjetaForm.tipo_tarjeta,
-          ultimos_4_digitos: numeroLimpio.slice(-4),
-          titular: tarjetaForm.nombre_titular
-        };
+        if (isAuthenticated && useSavedCard && selectedTarjetaId) {
+          pedidoData.tarjeta_id = selectedTarjetaId;
+        } else {
+          const numeroLimpio = tarjetaForm.numero_tarjeta.replace(/\s/g, '');
+          pedidoData.info_pago = {
+            tipo: tarjetaForm.tipo_tarjeta,
+            ultimos_4_digitos: numeroLimpio.slice(-4),
+            titular: tarjetaForm.nombre_titular
+          };
+        }
       }
 
       const token = localStorage.getItem('token');
@@ -498,6 +558,9 @@ const Carrito = () => {
       if (response.ok) {
         const data = await response.json();
         
+        console.log('✅ RESPUESTA DEL SERVIDOR:');
+        console.log(JSON.stringify(data, null, 2));
+        
         saveCarritoToStorage([]);
         setSuccessMessage(`¡Pedido realizado exitosamente! Código: ${data.orden?.codigo_unico || 'N/A'}`);
         
@@ -506,9 +569,12 @@ const Carrito = () => {
         }, 2000);
       } else {
         const errorData = await response.json();
+        console.log('❌ ERROR DEL SERVIDOR:');
+        console.log(errorData);
         setErrorMessage(errorData.msg || 'Error al procesar el pedido');
       }
     } catch (error) {
+      console.error('❌ ERROR DE CONEXIÓN:', error);
       setErrorMessage('Error de conexión. Intenta nuevamente.');
     } finally {
       setProcesandoPedido(false);
@@ -536,12 +602,28 @@ const Carrito = () => {
     }).format(price || 0);
   };
 
+  // Función para obtener el icono de la tarjeta
+  const getTarjetaIcon = (tipo) => {
+    switch(tipo) {
+      case 'visa': return visaIcon;
+      case 'mastercard': return mastercardIcon;
+      case 'amex': return amexIcon;
+      default: return defaultCardIcon;
+    }
+  };
+
+  // Formatear número de tarjeta para mostrar
+  const formatearNumeroTarjeta = (numeroEnmascarado) => {
+    return numeroEnmascarado || "**** **** **** 1234";
+  };
+
   // Cargar datos al iniciar
   useEffect(() => {
     loadCarrito();
     loadUserData();
     if (localStorage.getItem('token')) {
       fetchUserDirecciones();
+      fetchUserTarjetas();
     }
   }, []);
 
@@ -554,7 +636,7 @@ const Carrito = () => {
         {/* Lista de Productos */}
         <div className="carrito-productos-section">
           <div className="section-header">
-            <h3>Productos en el Carrito</h3>
+            <h3>Suplementos en el Carrito</h3>
             <button 
               onClick={vaciarCarrito}
               className="carrito-vaciar-btn"
@@ -570,10 +652,10 @@ const Carrito = () => {
                 <div className="carrito-producto-card">
                   <div className="producto-imagen">
                     <img 
-                      src={item.imagen || lechugaIcon} 
+                      src={item.imagen || suplementoGenericoIcon} 
                       alt={item.nombre}
                       onError={(e) => {
-                        e.target.src = lechugaIcon;
+                        e.target.src = suplementoGenericoIcon;
                       }}
                     />
                   </div>
@@ -640,7 +722,7 @@ const Carrito = () => {
             
             <div className="resumen-detalle">
               <div className="resumen-row">
-                <span>Productos ({totalCarritoItems})</span>
+                <span>Suplementos ({totalCarritoItems})</span>
                 <span>{formatPrice(totalCarrito)}</span>
               </div>
               
@@ -672,7 +754,7 @@ const Carrito = () => {
                   <span className="check-icon">✓</span> Envío gratis
                 </p>
                 <p className="beneficio">
-                  <span className="check-icon">✓</span> Entrega en 30-45 minutos
+                  <span className="check-icon">✓</span> Entrega garantizada en 48-72 horas
                 </p>
                 <p className="beneficio">
                   <span className="check-icon">✓</span> Paga en efectivo o tarjeta
@@ -1150,93 +1232,175 @@ const Carrito = () => {
 
           {metodoPago === 'tarjeta' && (
             <div className="tarjeta-form-container">
-              <h3>Información de la tarjeta</h3>
+              <h3>Información de pago con tarjeta</h3>
               
-              <div className="tarjeta-form-grid">
-                <div className="form-group full-width">
-                  <label>Nombre del titular *</label>
-                  <input
-                    type="text"
-                    name="nombre_titular"
-                    value={tarjetaForm.nombre_titular}
-                    onChange={handleTarjetaChange}
-                    placeholder="Como aparece en la tarjeta"
-                    className="form-input"
-                    required
-                  />
+              {/* Tarjetas guardadas */}
+              {isAuthenticated && userTarjetas.length > 0 && !showNewCardForm && (
+                <div className="form-section">
+                  <h4>Tus tarjetas guardadas</h4>
+                  {loadingTarjetas ? (
+                    <div className="loading-tarjetas">
+                      <div className="spinner small"></div>
+                      <p>Cargando tarjetas...</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="tarjetas-guardadas">
+                        {userTarjetas.map((tarjeta) => (
+                          <div 
+                            key={tarjeta.id} 
+                            className={`tarjeta-guardada ${selectedTarjetaId === tarjeta.id ? 'seleccionada' : ''}`}
+                            onClick={() => handleCardSelect(tarjeta)}
+                          >
+                            <div className="tarjeta-guardada-header">
+                              <div className="tarjeta-tipo">
+                                <img 
+                                  src={getTarjetaIcon(tarjeta.tipo_tarjeta)} 
+                                  alt={tarjeta.tipo_tarjeta} 
+                                  className="tarjeta-icon-small"
+                                />
+                                <span>
+                                  {tarjeta.tipo_tarjeta === 'visa' ? 'Visa' :
+                                   tarjeta.tipo_tarjeta === 'mastercard' ? 'Mastercard' :
+                                   tarjeta.tipo_tarjeta === 'amex' ? 'American Express' : 'Tarjeta'}
+                                </span>
+                                {tarjeta.predeterminada && (
+                                  <span className="tarjeta-predeterminada-badge">
+                                    <img src={estrellaIcon} alt="Predeterminada" className="estrella-icon" />
+                                    Principal
+                                  </span>
+                                )}
+                              </div>
+                              <div className="tarjeta-radio">
+                                <input 
+                                  type="radio" 
+                                  name="savedCard" 
+                                  checked={selectedTarjetaId === tarjeta.id}
+                                  onChange={() => handleCardSelect(tarjeta)}
+                                />
+                              </div>
+                            </div>
+                            <div className="tarjeta-info">
+                              <p className="tarjeta-numero">{formatearNumeroTarjeta(tarjeta.numero_enmascarado)}</p>
+                              <p className="tarjeta-titular">{tarjeta.nombre_titular}</p>
+                              <p className="tarjeta-expiracion">Exp: {tarjeta.mes_expiracion}/{tarjeta.anio_expiracion}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <button 
+                        type="button"
+                        className="btn-agregar-tarjeta"
+                        onClick={() => {
+                          setShowNewCardForm(true);
+                          setUseSavedCard(false);
+                        }}
+                      >
+                        <img src={addIcon} alt="Agregar" className="btn-icon-left" />
+                        Usar otra tarjeta
+                      </button>
+                    </>
+                  )}
                 </div>
-                
-                <div className="form-group full-width">
-                  <label>Número de tarjeta *</label>
-                  <div className="tarjeta-input-container">
-                    <input
-                      type="text"
-                      name="numero_tarjeta"
-                      value={tarjetaForm.numero_tarjeta}
-                      onChange={handleTarjetaChange}
-                      placeholder="1234 5678 9012 3456"
-                      className="form-input tarjeta-input"
-                      maxLength="19"
-                      required
-                    />
-                    <div className="tarjeta-icons">
-                      {tarjetaForm.tipo_tarjeta === 'visa' && (
-                        <img src={visaIcon} alt="Visa" className="tarjeta-icon" />
-                      )}
-                      {tarjetaForm.tipo_tarjeta === 'mastercard' && (
-                        <img src={mastercardIcon} alt="Mastercard" className="tarjeta-icon" />
-                      )}
-                      {tarjetaForm.tipo_tarjeta === 'amex' && (
-                        <img src={amexIcon} alt="American Express" className="tarjeta-icon" />
-                      )}
+              )}
+
+              {/* Formulario para nueva tarjeta */}
+              {(showNewCardForm || !isAuthenticated || userTarjetas.length === 0) && (
+                <div className="form-section">
+                  <h4>{isAuthenticated ? 'Nueva tarjeta' : 'Datos de la tarjeta'}</h4>
+                  
+                  {isAuthenticated && userTarjetas.length > 0 && (
+                    <button 
+                      type="button"
+                      className="btn-volver-tarjetas"
+                      onClick={() => {
+                        setShowNewCardForm(false);
+                        setUseSavedCard(true);
+                      }}
+                    >
+                      ← Volver a tarjetas guardadas
+                    </button>
+                  )}
+                  
+                  <div className="tarjeta-form-grid">
+                    <div className="form-group full-width">
+                      <label>Nombre del titular *</label>
+                      <input
+                        type="text"
+                        name="nombre_titular"
+                        value={tarjetaForm.nombre_titular}
+                        onChange={handleTarjetaChange}
+                        placeholder="Como aparece en la tarjeta"
+                        className="form-input"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="form-group full-width">
+                      <label>Número de tarjeta *</label>
+                      <div className="tarjeta-input-container">
+                        <input
+                          type={showTarjetaNumber ? "text" : "password"}
+                          name="numero_tarjeta"
+                          value={tarjetaForm.numero_tarjeta}
+                          onChange={handleTarjetaChange}
+                          placeholder="1234 5678 9012 3456"
+                          className="form-input tarjeta-input"
+                          maxLength="19"
+                          required
+                        />
+                        <button 
+                          type="button" 
+                          className="toggle-visibility-btn"
+                          onClick={() => setShowTarjetaNumber(!showTarjetaNumber)}
+                        >
+                          {showTarjetaNumber ? '👁️' : '👁️‍🗨️'}
+                        </button>
+                        <div className="tarjeta-icons">
+                          {tarjetaForm.tipo_tarjeta === 'visa' && (
+                            <img src={visaIcon} alt="Visa" className="tarjeta-icon" />
+                          )}
+                          {tarjetaForm.tipo_tarjeta === 'mastercard' && (
+                            <img src={mastercardIcon} alt="Mastercard" className="tarjeta-icon" />
+                          )}
+                          {tarjetaForm.tipo_tarjeta === 'amex' && (
+                            <img src={amexIcon} alt="American Express" className="tarjeta-icon" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="form-group">
+                      <label>Mes *</label>
+                      <input
+                        type="text"
+                        name="mes_expiracion"
+                        value={tarjetaForm.mes_expiracion}
+                        onChange={handleTarjetaChange}
+                        placeholder="MM"
+                        className="form-input"
+                        maxLength="2"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="form-group">
+                      <label>Año *</label>
+                      <input
+                        type="text"
+                        name="anio_expiracion"
+                        value={tarjetaForm.anio_expiracion}
+                        onChange={handleTarjetaChange}
+                        placeholder="AAAA"
+                        className="form-input"
+                        maxLength="4"
+                        required
+                      />
                     </div>
                   </div>
-                  <small className="form-hint">Ingrese los 16 dígitos de su tarjeta</small>
                 </div>
-                
-                <div className="form-group">
-                  <label>Fecha de vencimiento *</label>
-                  <input
-                    type="text"
-                    name="fecha_vencimiento"
-                    value={tarjetaForm.fecha_vencimiento}
-                    onChange={handleTarjetaChange}
-                    placeholder="MM/YY"
-                    className="form-input"
-                    maxLength="5"
-                    required
-                  />
-                  <small className="form-hint">Mes/Año</small>
-                </div>
-                
-                <div className="form-group">
-                  <label>CVV *</label>
-                  <div className="cvv-input-container">
-                    <input
-                      type="password"
-                      name="cvv"
-                      value={tarjetaForm.cvv}
-                      onChange={handleTarjetaChange}
-                      placeholder={tarjetaForm.tipo_tarjeta === 'amex' ? '1234' : '123'}
-                      className="form-input cvv-input"
-                      maxLength={tarjetaForm.tipo_tarjeta === 'amex' ? 4 : 3}
-                      required
-                    />
-                    <button 
-                      type="button" 
-                      className="cvv-info-btn"
-                      title="Código de seguridad de 3 o 4 dígitos en el reverso de la tarjeta"
-                    >
-                      ?
-                    </button>
-                  </div>
-                  <small className="form-hint">
-                    {tarjetaForm.tipo_tarjeta === 'amex' 
-                      ? '4 dígitos en el frente' 
-                      : '3 dígitos en el reverso'}
-                  </small>
-                </div>
-              </div>
+              )}
               
               <div className="terminos-tarjeta">
                 <div className="terminos-checkbox">
@@ -1304,11 +1468,11 @@ const Carrito = () => {
             <textarea
               value={notasPedido}
               onChange={(e) => setNotasPedido(e.target.value)}
-              placeholder="Ej: Sin picante, tocar timbre, entregar en puerta, instrucciones especiales..."
+              placeholder="Ej: Entregar en recepción, tocar timbre, instrucciones especiales..."
               rows="4"
               className="notas-textarea"
             />
-            <p className="notas-hint">Estas notas serán enviadas al restaurante.</p>
+            <p className="notas-hint">Estas notas serán enviadas para la preparación de tu pedido.</p>
           </div>
         </div>
 
@@ -1320,7 +1484,7 @@ const Carrito = () => {
           
           <div className="resumen-final-detalle">
             <div className="resumen-row">
-              <span>Productos ({totalCarritoItems})</span>
+              <span>Suplementos ({totalCarritoItems})</span>
               <span>{formatPrice(totalCarrito)}</span>
             </div>
             
@@ -1412,7 +1576,7 @@ const Carrito = () => {
               </h2>
               {currentStep === 1 && totalCarritoItems > 0 && (
                 <span className="carrito-count-badge">
-                  {totalCarritoItems} {totalCarritoItems === 1 ? 'producto' : 'productos'}
+                  {totalCarritoItems} {totalCarritoItems === 1 ? 'suplemento' : 'suplementos'}
                 </span>
               )}
             </div>
@@ -1451,17 +1615,17 @@ const Carrito = () => {
           <div className="carrito-vacio-container">
             <div className="carrito-vacio-content">
               <img 
-                src={lechugaIcon} 
+                src={suplementoGenericoIcon} 
                 alt="Carrito vacío" 
                 className="carrito-vacio-img"
               />
               <h3>Tu carrito está vacío</h3>
-              <p>¡Agrega algunos productos deliciosos para comenzar!</p>
+              <p>¡Agrega algunos suplementos para comenzar!</p>
               <button 
                 onClick={handleSeguirComprando}
                 className="carrito-primary-btn"
               >
-                Ver Productos
+                Ver Suplementos
               </button>
             </div>
           </div>
@@ -1480,7 +1644,7 @@ const Carrito = () => {
         <div className="carrito-modal-overlay">
           <div className="carrito-modal">
             <div className="modal-header">
-              <h3>¿Eliminar producto?</h3>
+              <h3>¿Eliminar suplemento?</h3>
               <button 
                 onClick={() => {
                   setShowDeleteConfirm(false);
@@ -1493,7 +1657,7 @@ const Carrito = () => {
             </div>
             
             <div className="modal-body">
-              <p>¿Estás seguro de que quieres eliminar este producto del carrito?</p>
+              <p>¿Estás seguro de que quieres eliminar este suplemento del carrito?</p>
             </div>
             
             <div className="modal-footer">

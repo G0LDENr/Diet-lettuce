@@ -2,100 +2,44 @@ import React, { useState, useEffect } from 'react';
 import { useConfig } from '../../context/config';
 import '../../css/Especiales/create-especial.css';
 
-const CreateEspecialForm = ({ onClose, onEspecialCreated }) => {
+const CreateSuplementoForm = ({ onClose, onSuplementoCreated }) => {
   const { darkMode } = useConfig();
   const [formData, setFormData] = useState({
     nombre: '',
+    descripcion: '',
     precio: '',
-    categoria: 'ensaladas', // NUEVO CAMPO con valor por defecto
+    categoria: 'quemadores',
+    presentacion: 'polvo',
+    beneficios: '',
+    modo_uso: '',
+    stock: '0',
     activo: 'true'
   });
-  const [ingredientes, setIngredientes] = useState(['']); // Array de ingredientes
-  const [ingredientesDisponibles, setIngredientesDisponibles] = useState([]); // Lista dinámica de ingredientes
   const [loading, setLoading] = useState(false);
-  const [loadingIngredientes, setLoadingIngredientes] = useState(true);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
 
   // Opciones de categorías
   const categorias = [
-    { value: 'ensaladas', label: 'Ensalada'},
-    { value: 'batidos', label: 'Batido'},
-    { value: 'proteinas', label: ' Proteína'},
-    { value: 'suplementos', label: ' Suplemento'},
-    { value: 'bebidas', label: ' Bebida'},
+    { value: 'quemadores', label: 'Quemadores de Grasa' },
+    { value: 'proteinas', label: 'Proteínas' },
+    { value: 'fibras', label: 'Fibras y Digestivos' },
+    { value: 'detox', label: 'Detox y Limpieza' },
+    { value: 'termogenicos', label: 'Termogénicos' },
+    { value: 'control_apetito', label: 'Control de Apetito' },
+    { value: 'energeticos', label: 'Energéticos Naturales' },
+    { value: 'vitaminas', label: 'Vitaminas y Minerales' }
   ];
 
-  // Cargar ingredientes desde el backend
-  useEffect(() => {
-    const fetchIngredientes = async () => {
-      try {
-        setLoadingIngredientes(true);
-        const token = localStorage.getItem('token');
-        
-        const response = await fetch('http://127.0.0.1:5000/ingredientes/', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          // Filtrar solo ingredientes activos y mapear a un array de nombres
-          const ingredientesActivos = data
-            .filter(ing => ing.activo)
-            .map(ing => ing.nombre)
-            .sort(); // Ordenar alfabéticamente
-          
-          setIngredientesDisponibles(ingredientesActivos);
-        } else {
-          console.error('Error al obtener ingredientes:', response.status);
-          // Si hay error, usar lista básica como fallback
-          setIngredientesDisponibles([
-            'Limon',
-            'Chile en Polvo',
-            'Sal',
-            'Gomita Picante',
-            'Gomita Dulce',
-            'Gomitas Aciditas',
-            'Chamoy',
-            'salsa',
-            'cacahuate',
-            'Miguelito',
-          ]);
-        }
-      } catch (error) {
-        console.error('Error de conexión al obtener ingredientes:', error);
-        setIngredientesDisponibles([
-          'Limon',
-          'Chile en Polvo',
-          'Sal',
-          'Gomita Picante',
-          'Gomita Dulce',
-          'Gomitas Aciditas',
-          'Chamoy',
-          'salsa',
-          'cacahuate',
-          'Miguelito',
-        ]);
-      } finally {
-        setLoadingIngredientes(false);
-      }
-    };
-
-    fetchIngredientes();
-  }, []);
-
-  // Efecto para agregar automáticamente un nuevo select cuando se selecciona un ingrediente
-  useEffect(() => {
-    const ultimoIngrediente = ingredientes[ingredientes.length - 1];
-    // Si el último ingrediente tiene un valor seleccionado
-    if (ultimoIngrediente !== '') {
-      setIngredientes(prev => [...prev, '']);
-    }
-  }, [ingredientes]);
+  // Opciones de presentaciones
+  const presentaciones = [
+    { value: 'polvo', label: 'Polvo' },
+    { value: 'capsulas', label: 'Cápsulas' },
+    { value: 'tabletas', label: 'Tabletas' },
+    { value: 'liquido', label: 'Líquido' },
+    { value: 'gomitas', label: 'Gomitas' },
+    { value: 'barritas', label: 'Barritas' }
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -116,40 +60,17 @@ const CreateEspecialForm = ({ onClose, onEspecialCreated }) => {
     }
   };
 
-  const handleIngredienteChange = (index, value) => {
-    const newIngredientes = [...ingredientes];
-    newIngredientes[index] = value;
-    setIngredientes(newIngredientes);
-    
-    // Limpiar error de ingredientes si existe
-    if (errors.ingredientes) {
-      setErrors(prev => ({
-        ...prev,
-        ingredientes: ''
-      }));
-    }
-  };
-
-  const eliminarIngrediente = (index) => {
-    if (ingredientes.length > 1) {
-      const newIngredientes = ingredientes.filter((_, i) => i !== index);
-      setIngredientes(newIngredientes);
-    }
-  };
-
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.nombre.trim()) {
-      newErrors.nombre = 'El nombre del especial es obligatorio';
+      newErrors.nombre = 'El nombre del suplemento es obligatorio';
     } else if (formData.nombre.trim().length < 2) {
       newErrors.nombre = 'El nombre debe tener al menos 2 caracteres';
     }
 
-    // Validar que al menos un ingrediente esté seleccionado
-    const ingredientesSeleccionados = ingredientes.filter(ing => ing !== '');
-    if (ingredientesSeleccionados.length === 0) {
-      newErrors.ingredientes = 'Debe seleccionar al menos un ingrediente';
+    if (!formData.descripcion.trim()) {
+      newErrors.descripcion = 'La descripción es obligatoria';
     }
 
     if (!formData.precio) {
@@ -161,9 +82,20 @@ const CreateEspecialForm = ({ onClose, onEspecialCreated }) => {
       }
     }
 
-    // Validar categoría (aunque tiene valor por defecto)
+    // Validar stock
+    const stock = parseInt(formData.stock);
+    if (isNaN(stock) || stock < 0) {
+      newErrors.stock = 'El stock debe ser un número mayor o igual a 0';
+    }
+
+    // Validar categoría
     if (!formData.categoria) {
       newErrors.categoria = 'Debe seleccionar una categoría';
+    }
+
+    // Validar presentación
+    if (!formData.presentacion) {
+      newErrors.presentacion = 'Debe seleccionar una presentación';
     }
 
     setErrors(newErrors);
@@ -180,29 +112,28 @@ const CreateEspecialForm = ({ onClose, onEspecialCreated }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      
-      // Convertir array de ingredientes a string separado por comas
-      const ingredientesString = ingredientes
-        .filter(ing => ing !== '')
-        .join(', ');
 
-      const especialData = {
+      const suplementoData = {
         nombre: formData.nombre.trim(),
-        ingredientes: ingredientesString,
+        descripcion: formData.descripcion.trim(),
         precio: parseFloat(formData.precio),
-        categoria: formData.categoria, // NUEVO CAMPO
+        categoria: formData.categoria,
+        presentacion: formData.presentacion,
+        beneficios: formData.beneficios.trim() || '',
+        modo_uso: formData.modo_uso.trim() || '',
+        stock: parseInt(formData.stock),
         activo: formData.activo === 'true'
       };
 
-      console.log('Enviando datos del especial:', especialData);
+      console.log('Enviando datos del suplemento:', suplementoData);
 
-      const response = await fetch('http://127.0.0.1:5000/especiales/', {
+      const response = await fetch('http://127.0.0.1:5000/suplementos/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(especialData)
+        body: JSON.stringify(suplementoData)
       });
 
       console.log('Respuesta status:', response.status);
@@ -213,33 +144,36 @@ const CreateEspecialForm = ({ onClose, onEspecialCreated }) => {
       if (response.ok) {
         try {
           const result = JSON.parse(responseText);
-          // Mostrar mensaje de éxito en lugar de alert
-          setSuccessMessage('Especial creado exitosamente');
+          setSuccessMessage('Suplemento creado exitosamente');
           
           // Limpiar el formulario
           setFormData({
             nombre: '',
+            descripcion: '',
             precio: '',
-            categoria: 'ensaladas',
+            categoria: 'quemadores',
+            presentacion: 'polvo',
+            beneficios: '',
+            modo_uso: '',
+            stock: '0',
             activo: 'true'
           });
-          setIngredientes(['']);
           
           // Esperar 2 segundos antes de cerrar el modal y actualizar la lista
           setTimeout(() => {
-            if (onEspecialCreated) {
-              onEspecialCreated(result.especial);
+            if (onSuplementoCreated) {
+              onSuplementoCreated(result.suplemento);
             }
             onClose();
           }, 2000);
           
         } catch (parseError) {
           console.error('Error parseando JSON:', parseError);
-          setSuccessMessage('Especial creado exitosamente');
+          setSuccessMessage('Suplemento creado exitosamente');
           setTimeout(() => {
             onClose();
-            if (onEspecialCreated) {
-              onEspecialCreated();
+            if (onSuplementoCreated) {
+              onSuplementoCreated();
             }
           }, 2000);
         }
@@ -256,7 +190,7 @@ const CreateEspecialForm = ({ onClose, onEspecialCreated }) => {
 
     } catch (error) {
       console.error('Error de conexión:', error);
-      setErrors({ general: 'Error de conexión al crear especial' });
+      setErrors({ general: 'Error de conexión al crear suplemento' });
     } finally {
       setLoading(false);
     }
@@ -267,145 +201,177 @@ const CreateEspecialForm = ({ onClose, onEspecialCreated }) => {
   };
 
   return (
-    <div className={`create-especial-form ${darkMode ? 'create-especial-form-dark-mode' : ''}`}>
-      <form className="create-especial-form-form" onSubmit={handleSubmit}>
+    <div className={`create-suplemento-form ${darkMode ? 'create-suplemento-form-dark-mode' : ''}`}>
+      <form className="create-suplemento-form-form" onSubmit={handleSubmit}>
         
         {/* Mensaje de éxito */}
         {successMessage && (
-          <div className="create-especial-success-message">
+          <div className="create-suplemento-success-message">
             {successMessage}
           </div>
         )}
 
         {/* Mensaje de error general */}
         {errors.general && (
-          <div className="create-especial-error-message-box">
+          <div className="create-suplemento-error-message-box">
             {errors.general}
           </div>
         )}
 
-        {/* Nombre del especial */}
-        <div className="create-especial-form-group">
-          <label htmlFor="create-especial-nombre">Nombre del especial *</label>
+        {/* Nombre del suplemento */}
+        <div className="create-suplemento-form-group">
+          <label htmlFor="create-suplemento-nombre">Nombre del suplemento *</label>
           <input
             type="text"
-            id="create-especial-nombre"
+            id="create-suplemento-nombre"
             name="nombre"
             value={formData.nombre}
             onChange={handleChange}
-            className={`create-especial-input ${errors.nombre ? 'create-especial-input-error' : ''}`}
-            placeholder="Ej: Especial de la Casa, Combo Familiar, etc."
+            className={`create-suplemento-input ${errors.nombre ? 'create-suplemento-input-error' : ''}`}
+            placeholder="Ej: Quemador de Grasa Extreme, Proteína Whey, etc."
             maxLength="100"
             disabled={loading || successMessage}
           />
-          {errors.nombre && <span className="create-especial-error-message">{errors.nombre}</span>}
+          {errors.nombre && <span className="create-suplemento-error-message">{errors.nombre}</span>}
         </div>
 
-        {/* Categoría - NUEVO CAMPO */}
-        <div className="create-especial-form-group">
-          <label htmlFor="create-especial-categoria">Categoría *</label>
-          <select
-            id="create-especial-categoria"
-            name="categoria"
-            value={formData.categoria}
+        {/* Descripción */}
+        <div className="create-suplemento-form-group">
+          <label htmlFor="create-suplemento-descripcion">Descripción *</label>
+          <textarea
+            id="create-suplemento-descripcion"
+            name="descripcion"
+            value={formData.descripcion}
             onChange={handleChange}
-            className={`create-especial-select ${errors.categoria ? 'create-especial-input-error' : ''}`}
+            className={`create-suplemento-textarea ${errors.descripcion ? 'create-suplemento-input-error' : ''}`}
+            placeholder="Describe el suplemento, sus características principales..."
+            rows="3"
+            maxLength="500"
             disabled={loading || successMessage}
-          >
-            {categorias.map(cat => (
-              <option key={cat.value} value={cat.value}>
-                {cat.icon} {cat.label}
-              </option>
-            ))}
-          </select>
-          {errors.categoria && <span className="create-especial-error-message">{errors.categoria}</span>}
+          />
+          {errors.descripcion && <span className="create-suplemento-error-message">{errors.descripcion}</span>}
         </div>
 
-        {/* Ingredientes - Selects dinámicos automáticos */}
-        <div className="create-especial-form-group">
-          <label>
-            Ingredientes *
-            {loadingIngredientes && (
-              <span className="create-especial-loading-text"> (Cargando ingredientes...)</span>
-            )}
-          </label>
-          <div className="create-especial-ingredientes-container">
-            {loadingIngredientes ? (
-              <div className="create-especial-loading-ingredientes">
-                <div className="create-especial-spinner-small"></div>
-                <span className="create-especial-loading-text">Cargando lista de ingredientes...</span>
-              </div>
-            ) : (
-              <>
-                {ingredientes.map((ingrediente, index) => (
-                  <div key={index} className="create-especial-ingrediente-row">
-                    <select
-                      value={ingrediente}
-                      onChange={(e) => handleIngredienteChange(index, e.target.value)}
-                      className={`create-especial-select ${errors.ingredientes && index === 0 ? 'create-especial-input-error' : ''}`}
-                      disabled={loadingIngredientes || loading || successMessage}
-                    >
-                      <option value="">Selecciona un ingrediente</option>
-                      {ingredientesDisponibles.map((ing, i) => (
-                        <option 
-                          key={i} 
-                          value={ing}
-                          disabled={ingredientes.includes(ing) && ingrediente !== ing}
-                        >
-                          {ing}
-                        </option>
-                      ))}
-                    </select>
-                    {ingredientes.length > 1 && (
-                      <button
-                        type="button"
-                        className="create-especial-remove-ingrediente-btn"
-                        onClick={() => eliminarIngrediente(index)}
-                        title="Eliminar ingrediente"
-                        disabled={loadingIngredientes || loading || successMessage}
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
+        {/* Fila: Categoría y Presentación */}
+        <div className="create-suplemento-row">
+          <div className="create-suplemento-price-status-fields">
+            <div className="create-suplemento-form-group">
+              <label htmlFor="create-suplemento-categoria">Categoría *</label>
+              <select
+                id="create-suplemento-categoria"
+                name="categoria"
+                value={formData.categoria}
+                onChange={handleChange}
+                className={`create-suplemento-select ${errors.categoria ? 'create-suplemento-input-error' : ''}`}
+                disabled={loading || successMessage}
+              >
+                {categorias.map(cat => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
                 ))}
-                
-                {errors.ingredientes && (
-                  <span className="create-especial-error-message">{errors.ingredientes}</span>
-                )}
-              </>
-            )}
+              </select>
+              {errors.categoria && <span className="create-suplemento-error-message">{errors.categoria}</span>}
+            </div>
+
+            <div className="create-suplemento-form-group">
+              <label htmlFor="create-suplemento-presentacion">Presentación *</label>
+              <select
+                id="create-suplemento-presentacion"
+                name="presentacion"
+                value={formData.presentacion}
+                onChange={handleChange}
+                className={`create-suplemento-select ${errors.presentacion ? 'create-suplemento-input-error' : ''}`}
+                disabled={loading || successMessage}
+              >
+                {presentaciones.map(pre => (
+                  <option key={pre.value} value={pre.value}>
+                    {pre.label}
+                  </option>
+                ))}
+              </select>
+              {errors.presentacion && <span className="create-suplemento-error-message">{errors.presentacion}</span>}
+            </div>
           </div>
         </div>
 
-        {/* Precio y Estado */}
-        <div className="create-especial-row">
-          <div className="create-especial-price-status-fields">
-            <div className="create-especial-form-group">
-              <label htmlFor="create-especial-precio">Precio ($) *</label>
+        {/* Beneficios */}
+        <div className="create-suplemento-form-group">
+          <label htmlFor="create-suplemento-beneficios">Beneficios</label>
+          <textarea
+            id="create-suplemento-beneficios"
+            name="beneficios"
+            value={formData.beneficios}
+            onChange={handleChange}
+            className="create-suplemento-textarea"
+            placeholder="Ej: Acelera el metabolismo, reduce el apetito, aumenta la energía..."
+            rows="2"
+            maxLength="500"
+            disabled={loading || successMessage}
+          />
+        </div>
+
+        {/* Modo de Uso */}
+        <div className="create-suplemento-form-group">
+          <label htmlFor="create-suplemento-modo-uso">Modo de Uso</label>
+          <textarea
+            id="create-suplemento-modo-uso"
+            name="modo_uso"
+            value={formData.modo_uso}
+            onChange={handleChange}
+            className="create-suplemento-textarea"
+            placeholder="Ej: Tomar 2 cápsulas antes del desayuno, mezclar con agua, etc."
+            rows="2"
+            maxLength="500"
+            disabled={loading || successMessage}
+          />
+        </div>
+
+        {/* Fila: Precio, Stock y Estado */}
+        <div className="create-suplemento-row">
+          <div className="create-suplemento-price-status-fields">
+            <div className="create-suplemento-form-group">
+              <label htmlFor="create-suplemento-precio">Precio ($) *</label>
               <input
                 type="number"
-                id="create-especial-precio"
+                id="create-suplemento-precio"
                 name="precio"
                 value={formData.precio}
                 onChange={handleChange}
-                className={`create-especial-input ${errors.precio ? 'create-especial-input-error' : ''}`}
+                className={`create-suplemento-input ${errors.precio ? 'create-suplemento-input-error' : ''}`}
                 placeholder="0.00"
                 min="0"
                 step="0.01"
                 disabled={loading || successMessage}
               />
-              {errors.precio && <span className="create-especial-error-message">{errors.precio}</span>}
+              {errors.precio && <span className="create-suplemento-error-message">{errors.precio}</span>}
             </div>
 
-            <div className="create-especial-form-group">
-              <label htmlFor="create-especial-activo">Estado *</label>
+            <div className="create-suplemento-form-group">
+              <label htmlFor="create-suplemento-stock">Stock *</label>
+              <input
+                type="number"
+                id="create-suplemento-stock"
+                name="stock"
+                value={formData.stock}
+                onChange={handleChange}
+                className={`create-suplemento-input ${errors.stock ? 'create-suplemento-input-error' : ''}`}
+                placeholder="0"
+                min="0"
+                step="1"
+                disabled={loading || successMessage}
+              />
+              {errors.stock && <span className="create-suplemento-error-message">{errors.stock}</span>}
+            </div>
+
+            <div className="create-suplemento-form-group">
+              <label htmlFor="create-suplemento-activo">Estado *</label>
               <select
-                id="create-especial-activo"
+                id="create-suplemento-activo"
                 name="activo"
                 value={formData.activo}
                 onChange={handleChange}
-                className="create-especial-select"
+                className="create-suplemento-select"
                 disabled={loading || successMessage}
               >
                 <option value="true">Activo</option>
@@ -416,26 +382,26 @@ const CreateEspecialForm = ({ onClose, onEspecialCreated }) => {
         </div>
 
         {/* Botones de acción */}
-        <div className="create-especial-form-actions">
+        <div className="create-suplemento-form-actions">
           <button 
             type="button" 
-            className="create-especial-btn-cancel"
+            className="create-suplemento-btn-cancel"
             onClick={handleCancel}
-            disabled={loading || loadingIngredientes}
+            disabled={loading}
           >
             Cancelar
           </button>
           <button 
             type="submit" 
-            className="create-especial-btn-submit"
-            disabled={loading || loadingIngredientes || successMessage}
+            className="create-suplemento-btn-submit"
+            disabled={loading || successMessage}
           >
             {loading ? (
               <>
-                <span className="create-especial-spinner"></span>
+                <span className="create-suplemento-spinner"></span>
                 Creando...
               </>
-            ) : successMessage ? 'Creado' : 'Crear Especial'}
+            ) : successMessage ? 'Creado' : 'Crear Suplemento'}
           </button>
         </div>
       </form>
@@ -443,4 +409,4 @@ const CreateEspecialForm = ({ onClose, onEspecialCreated }) => {
   );
 };
 
-export default CreateEspecialForm;
+export default CreateSuplementoForm;

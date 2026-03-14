@@ -1,0 +1,1491 @@
+/* Contenedor principal - MÁS ANCHO */
+.editOrd-form {
+  width: 650px;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0 auto;
+}
+
+.editOrd-form-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.editOrd-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 60vh;
+  padding-right: 5px;
+  margin-bottom: 20px;
+}
+
+/* Scroll personalizado */
+.editOrd-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.editOrd-scroll-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.editOrd-scroll-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.editOrd-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.editOrd-form-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding-right: 10px;
+}
+
+/* ========== INDICADOR DE PASOS ========== */
+.editOrd-form-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.editOrd-step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+  text-align: center;
+}
+
+.editOrd-step-number {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-bottom: 5px;
+  transition: all 0.3s;
+}
+
+.editOrd-step-label {
+  font-size: 0.85rem;
+  color: #666;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.editOrd-step-indicator.active .editOrd-step-number {
+  background-color: #28a745;
+  color: white;
+}
+
+.editOrd-step-indicator.active .editOrd-step-label {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.editOrd-step-indicator.completed .editOrd-step-number {
+  background-color: #28a745;
+  color: white;
+}
+
+.editOrd-step-line {
+  flex: 1;
+  height: 2px;
+  background-color: #e0e0e0;
+  margin: 0 10px;
+}
+
+/* Información del cliente (solo lectura) */
+.editOrd-info-existing {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 2px solid #e9ecef;
+  margin-bottom: 1rem;
+}
+
+.editOrd-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.editOrd-info-row:last-child {
+  border-bottom: none;
+}
+
+.editOrd-info-row strong {
+  color: #495057;
+  min-width: 140px;
+}
+
+.editOrd-codigo {
+  background-color: #28a745;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
+/* Secciones del formulario - MÁS ANCHAS */
+.editOrd-section {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border-left: 4px solid #28a745;
+  width: 100%;
+}
+
+.editOrd-section h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Filas del formulario */
+.editOrd-form-row {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.editOrd-form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+}
+
+.editOrd-form-group-full-width {
+  flex: 0 0 100%;
+  width: 100%;
+}
+
+.editOrd-form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+/* Inputs y selects */
+.editOrd-form-group input,
+.editOrd-select,
+.editOrd-form-control {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.editOrd-form-group input:focus,
+.editOrd-select:focus,
+.editOrd-form-control:focus {
+  border-color: #28a745;
+  outline: none;
+}
+
+.editOrd-input-error,
+.editOrd-select-error {
+  border-color: #dc3545 !important;
+}
+
+.editOrd-error-message {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  min-height: 1rem;
+}
+
+.editOrd-info-message {
+  background-color: #d1ecf1;
+  border: 1px solid #bee5eb;
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #0c5460;
+}
+
+.editOrd-error-message-box {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border: 1px solid #f5c6cb;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  width: 100%;
+}
+
+/* Opciones de tipo de pedido */
+.editOrd-tipo-pedido-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.editOrd-radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  width: 100%;
+}
+
+.editOrd-radio-option:hover {
+  border-color: #28a745;
+  background-color: #f8f9fa;
+}
+
+.editOrd-radio-option input {
+  display: none;
+}
+
+.editOrd-radio-custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #adb5bd;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.editOrd-radio-option input:checked + .editOrd-radio-custom {
+  border-color: #28a745;
+  background-color: #28a745;
+}
+
+.editOrd-radio-option input:checked + .editOrd-radio-custom::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+/* Información del especial */
+.editOrd-especial-info {
+  background-color: white;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1rem;
+  border: 1px solid #e9ecef;
+  width: 100%;
+}
+
+.editOrd-especial-details {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.editOrd-especial-details:last-child {
+  margin-bottom: 0;
+}
+
+.editOrd-especial-details strong {
+  min-width: 140px;
+  color: #495057;
+}
+
+.editOrd-especial-details span {
+  color: #6c757d;
+  flex: 1;
+}
+
+/* Grid de ingredientes */
+.editOrd-ingredientes-grid-container {
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  background-color: white;
+  width: 100%;
+}
+
+.editOrd-ingredientes-grid-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.editOrd-ingredientes-grid-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.editOrd-ingredientes-grid-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.editOrd-ingredientes-grid-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.editOrd-ingredientes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+  width: 100%;
+}
+
+.editOrd-ingrediente-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.editOrd-ingrediente-checkbox:hover {
+  background-color: #f8f9fa;
+}
+
+.editOrd-ingrediente-checkbox input {
+  display: none;
+}
+
+.editOrd-checkbox-custom {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #adb5bd;
+  border-radius: 3px;
+  position: relative;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+
+.editOrd-ingrediente-checkbox input:checked + .editOrd-checkbox-custom {
+  border-color: #28a745;
+  background-color: #28a745;
+}
+
+.editOrd-ingrediente-checkbox input:checked + .editOrd-checkbox-custom::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.editOrd-ingredientes-count {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.editOrd-ingredientes-preview {
+  background-color: white;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1rem;
+  border: 1px solid #e9ecef;
+  width: 100%;
+}
+
+.editOrd-ingredientes-list {
+  margin-top: 0.5rem;
+  color: #495057;
+  line-height: 1.4;
+  max-height: 80px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.editOrd-ingredientes-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.editOrd-ingredientes-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.editOrd-ingredientes-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
+}
+
+/* ========== SECCIÓN DE DIRECCIONES ========== */
+.editOrd-direcciones-section {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.editOrd-direcciones-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.editOrd-direcciones-title {
+  font-size: 1.1rem;
+  color: #333;
+  margin: 0;
+  font-weight: 500;
+}
+
+.editOrd-btn-add-direccion {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+}
+
+.editOrd-btn-add-direccion:hover {
+  background-color: #218838;
+}
+
+/* Lista de direcciones */
+.editOrd-direcciones-list {
+  display: grid;
+  gap: 15px;
+  margin-bottom: 20px;
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.editOrd-direccion-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 15px;
+  position: relative;
+  transition: all 0.3s;
+  background-color: #fff;
+  width: 100%;
+}
+
+.editOrd-direccion-item:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.editOrd-direccion-item.predeterminada {
+  border-color: #28a745;
+  background-color: #f0fff0;
+}
+
+.editOrd-direccion-header {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.editOrd-direccion-tipo {
+  background-color: #f0f0f0;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+  font-weight: 500;
+}
+
+.editOrd-predeterminada-badge {
+  background-color: #28a745;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.editOrd-direccion-contenido {
+  font-size: 0.95rem;
+  color: #555;
+  padding-right: 100px;
+}
+
+.editOrd-direccion-contenido p {
+  margin: 5px 0;
+}
+
+.editOrd-direccion-contenido strong {
+  color: #333;
+}
+
+.editOrd-referencias {
+  font-style: italic;
+  color: #777;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #eee;
+}
+
+.editOrd-direccion-acciones {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+  gap: 8px;
+}
+
+.editOrd-btn-edit-direccion {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #28a745;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.3s;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editOrd-btn-edit-direccion:hover {
+  background-color: #f0f0f0;
+  transform: scale(1.1);
+}
+
+.editOrd-btn-set-predeterminada {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  color: #ffc107;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.3s;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editOrd-btn-set-predeterminada:hover {
+  background-color: #f0f0f0;
+  transform: scale(1.1);
+}
+
+.editOrd-btn-remove-direccion {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #dc3545;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.3s;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editOrd-btn-remove-direccion:hover {
+  background-color: #ffe6e6;
+}
+
+/* Formulario de nueva dirección */
+.editOrd-direccion-form {
+  background-color: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 20px;
+  margin: 20px 0;
+  width: 100%;
+}
+
+.editOrd-form-subtitle {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 20px 0;
+  font-weight: 500;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.editOrd-half {
+  flex: 0 0 calc(50% - 10px);
+}
+
+.editOrd-required {
+  color: #dc3545;
+  margin-left: 3px;
+}
+
+.editOrd-direccion-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.editOrd-btn-cancel-small {
+  padding: 8px 20px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.editOrd-btn-cancel-small:hover {
+  background-color: #5a6268;
+}
+
+.editOrd-btn-save-direccion {
+  padding: 8px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s;
+}
+
+.editOrd-btn-save-direccion:hover {
+  background-color: #218838;
+}
+
+/* Checkbox para dirección predeterminada */
+.editOrd-checkbox-group {
+  margin: 15px 0;
+}
+
+.editOrd-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.editOrd-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Estado sin direcciones */
+.editOrd-no-direcciones {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 6px;
+  color: #666;
+  margin: 20px 0;
+  width: 100%;
+}
+
+.editOrd-no-direcciones p {
+  margin: 8px 0;
+  font-size: 1rem;
+}
+
+.editOrd-no-direcciones-sub {
+  font-size: 0.9rem;
+  color: #999;
+}
+
+/* Resumen del pedido */
+.editOrd-resumen-pedido {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 2px solid #e9ecef;
+  width: 100%;
+}
+
+.editOrd-resumen-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f8f9fa;
+  width: 100%;
+}
+
+.editOrd-resumen-item:last-child {
+  border-bottom: none;
+}
+
+.editOrd-resumen-precio {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+  margin-top: 0.5rem;
+  border-top: 2px solid #e9ecef;
+  font-size: 1.1rem;
+  width: 100%;
+}
+
+.editOrd-precio-final {
+  color: #28a745;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+/* ========== BOTONES DE ACCIÓN - ESTÁTICOS EN LA PARTE INFERIOR ========== */
+.editOrd-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e9ecef;
+  flex-shrink: 0;
+  width: 100%;
+  background-color: white;
+}
+
+.editOrd-form-actions-step {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e9ecef;
+  width: 100%;
+  background-color: white;
+}
+
+.editOrd-btn-cancel {
+  padding: 0.75rem 2rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  min-width: 140px;
+}
+
+.editOrd-btn-cancel:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.editOrd-btn-next {
+  padding: 0.75rem 2rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  min-width: 160px;
+}
+
+.editOrd-btn-next:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.editOrd-btn-back {
+  padding: 0.75rem 2rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  min-width: 140px;
+}
+
+.editOrd-btn-back:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.editOrd-btn-submit {
+  padding: 0.75rem 2rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  min-width: 160px;
+}
+
+.editOrd-btn-submit:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.editOrd-btn-cancel:disabled,
+.editOrd-btn-submit:disabled,
+.editOrd-btn-next:disabled,
+.editOrd-btn-back:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Mensaje de éxito */
+.editOrd-success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border: 1px solid #c3e6cb;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: editOrdFadeIn 0.3s ease-in;
+  width: 100%;
+}
+
+.editOrd-success-message::before {
+  content: "✓";
+  font-weight: bold;
+}
+
+@keyframes editOrdFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Badges de estado */
+.editOrd-status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.editOrd-status-badge.editOrd-pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.editOrd-status-badge.editOrd-preparing {
+  background-color: #cce7ff;
+  color: #004085;
+  border: 1px solid #b3d7ff;
+}
+
+.editOrd-status-badge.editOrd-ready {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.editOrd-status-badge.editOrd-delivered {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.editOrd-status-badge.editOrd-cancelled {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* ========== MODO OSCURO ========== */
+.editOrd-form-dark-mode {
+  background-color: #1a1a1a;
+}
+
+.editOrd-form-dark-mode .editOrd-form-steps {
+  background-color: transparent;
+}
+
+.editOrd-form-dark-mode .editOrd-step-number {
+  background-color: #2a2a2a;
+  color: #999;
+}
+
+.editOrd-form-dark-mode .editOrd-step-label {
+  color: #999;
+}
+
+.editOrd-form-dark-mode .editOrd-step-indicator.active .editOrd-step-number {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.editOrd-form-dark-mode .editOrd-step-indicator.active .editOrd-step-label {
+  color: #D4AF37;
+}
+
+.editOrd-form-dark-mode .editOrd-step-indicator.completed .editOrd-step-number {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.editOrd-form-dark-mode .editOrd-step-line {
+  background-color: #333;
+}
+
+.editOrd-form-dark-mode .editOrd-info-existing {
+  background-color: #2a2a2a;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.editOrd-form-dark-mode .editOrd-info-row {
+  border-bottom-color: #333;
+}
+
+.editOrd-form-dark-mode .editOrd-info-row strong {
+  color: #e2e8f0;
+}
+
+.editOrd-form-dark-mode .editOrd-codigo {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.editOrd-form-dark-mode .editOrd-section {
+  background-color: #1a1a1a;
+  border-left-color: #D4AF37;
+}
+
+.editOrd-form-dark-mode .editOrd-section h4 {
+  color: #e2e8f0;
+}
+
+.editOrd-form-dark-mode .editOrd-form-group label,
+.editOrd-form-dark-mode .editOrd-form-label {
+  color: #e2e8f0;
+}
+
+.editOrd-form-dark-mode .editOrd-form-group input,
+.editOrd-form-dark-mode .editOrd-select,
+.editOrd-form-dark-mode .editOrd-form-control {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.editOrd-form-dark-mode .editOrd-form-group input:focus,
+.editOrd-form-dark-mode .editOrd-select:focus,
+.editOrd-form-dark-mode .editOrd-form-control:focus {
+  border-color: #D4AF37;
+}
+
+.editOrd-form-dark-mode .editOrd-input-error,
+.editOrd-form-dark-mode .editOrd-select-error {
+  border-color: #dc3545 !important;
+}
+
+.editOrd-form-dark-mode .editOrd-info-message {
+  background-color: #1e3a5f;
+  border-color: #2a4a7a;
+  color: #93c5fd;
+}
+
+.editOrd-form-dark-mode .editOrd-radio-option {
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.editOrd-form-dark-mode .editOrd-radio-option:hover {
+  border-color: #D4AF37;
+  background-color: #2a2a2a;
+}
+
+.editOrd-form-dark-mode .editOrd-radio-custom {
+  border-color: #666;
+}
+
+.editOrd-form-dark-mode .editOrd-radio-option input:checked + .editOrd-radio-custom {
+  border-color: #D4AF37;
+  background-color: #D4AF37;
+}
+
+.editOrd-form-dark-mode .editOrd-especial-info {
+  background-color: #2a2a2a;
+  border-color: #333;
+}
+
+.editOrd-form-dark-mode .editOrd-especial-details strong {
+  color: #e2e8f0;
+}
+
+.editOrd-form-dark-mode .editOrd-especial-details span {
+  color: #a0aec0;
+}
+
+.editOrd-form-dark-mode .editOrd-ingredientes-grid-container {
+  background-color: #2a2a2a;
+  border-color: #333;
+}
+
+.editOrd-form-dark-mode .editOrd-ingredientes-grid {
+  background-color: #2a2a2a;
+}
+
+.editOrd-form-dark-mode .editOrd-ingrediente-checkbox {
+  color: #e2e8f0;
+}
+
+.editOrd-form-dark-mode .editOrd-ingrediente-checkbox:hover {
+  background-color: #333;
+}
+
+.editOrd-form-dark-mode .editOrd-checkbox-custom {
+  border-color: #666;
+}
+
+.editOrd-form-dark-mode .editOrd-ingrediente-checkbox input:checked + .editOrd-checkbox-custom {
+  border-color: #D4AF37;
+  background-color: #D4AF37;
+}
+
+.editOrd-form-dark-mode .editOrd-ingredientes-count {
+  color: #a0aec0;
+}
+
+.editOrd-form-dark-mode .editOrd-ingredientes-preview {
+  background-color: #2a2a2a;
+  border-color: #333;
+}
+
+.editOrd-form-dark-mode .editOrd-ingredientes-list {
+  background-color: #1a1a1a;
+  color: #e2e8f0;
+}
+
+.editOrd-form-dark-mode .editOrd-resumen-pedido {
+  background-color: #2a2a2a;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.editOrd-form-dark-mode .editOrd-resumen-item {
+  border-bottom-color: #333;
+}
+
+.editOrd-form-dark-mode .editOrd-resumen-precio {
+  border-top-color: #333;
+}
+
+.editOrd-form-dark-mode .editOrd-precio-final {
+  color: #68d391;
+}
+
+/* Modo oscuro - Direcciones */
+.editOrd-form-dark-mode .editOrd-direcciones-title {
+  color: #D4AF37;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-add-direccion {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-add-direccion:hover {
+  background-color: #b8941f;
+}
+
+.editOrd-form-dark-mode .editOrd-direccion-item {
+  background-color: #1a1a1a;
+  border-color: #333;
+}
+
+.editOrd-form-dark-mode .editOrd-direccion-item.predeterminada {
+  border-color: #D4AF37;
+  background-color: #2a2a2a;
+}
+
+.editOrd-form-dark-mode .editOrd-direccion-tipo {
+  background-color: #2a2a2a;
+  color: #D4AF37;
+}
+
+.editOrd-form-dark-mode .editOrd-predeterminada-badge {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.editOrd-form-dark-mode .editOrd-direccion-contenido {
+  color: #999;
+}
+
+.editOrd-form-dark-mode .editOrd-direccion-contenido strong {
+  color: #e2e8f0;
+}
+
+.editOrd-form-dark-mode .editOrd-referencias {
+  color: #777;
+  border-top-color: #333;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-edit-direccion {
+  color: #D4AF37;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-edit-direccion:hover {
+  background-color: #2a2a2a;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-set-predeterminada {
+  color: #D4AF37;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-set-predeterminada:hover {
+  background-color: #2a2a2a;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-remove-direccion {
+  color: #ff6b6b;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-remove-direccion:hover {
+  background-color: #2a2a2a;
+}
+
+.editOrd-form-dark-mode .editOrd-direccion-form {
+  background-color: #1a1a1a;
+  border-color: #333;
+}
+
+.editOrd-form-dark-mode .editOrd-form-subtitle {
+  border-bottom-color: #333;
+  color: #e2e8f0;
+}
+
+.editOrd-form-dark-mode .editOrd-direccion-form-actions {
+  border-top-color: #333;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-cancel-small {
+  background-color: #6c757d;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-cancel-small:hover {
+  background-color: #5a6268;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-save-direccion {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-save-direccion:hover {
+  background-color: #b8941f;
+}
+
+.editOrd-form-dark-mode .editOrd-checkbox-label {
+  color: #999;
+}
+
+.editOrd-form-dark-mode .editOrd-no-direcciones {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #999;
+}
+
+.editOrd-form-dark-mode .editOrd-no-direcciones-sub {
+  color: #777;
+}
+
+/* Botones en modo oscuro */
+.editOrd-form-dark-mode .editOrd-form-actions,
+.editOrd-form-dark-mode .editOrd-form-actions-step {
+  border-top-color: #333;
+  background-color: #1a1a1a;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-next {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-next:hover:not(:disabled) {
+  background-color: #b8941f;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-back {
+  background-color: #6c757d;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-back:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-submit {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-submit:hover:not(:disabled) {
+  background-color: #b8941f;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-cancel {
+  background-color: #6c757d;
+}
+
+.editOrd-form-dark-mode .editOrd-btn-cancel:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.editOrd-form-dark-mode .editOrd-success-message {
+  background-color: #1e3a2c;
+  color: #4ade80;
+  border-color: #2d5a3d;
+}
+
+.editOrd-form-dark-mode .editOrd-error-message-box {
+  background-color: #491c1c;
+  color: #ff6b6b;
+  border-color: #6b2e2e;
+}
+
+/* Scroll en modo oscuro */
+.editOrd-form-dark-mode .editOrd-scroll-container::-webkit-scrollbar-track {
+  background: #2a2a2a;
+}
+
+.editOrd-form-dark-mode .editOrd-scroll-container::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+.editOrd-form-dark-mode .editOrd-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+.editOrd-form-dark-mode .editOrd-ingredientes-grid-container::-webkit-scrollbar-track {
+  background: #2a2a2a;
+}
+
+.editOrd-form-dark-mode .editOrd-ingredientes-grid-container::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+.editOrd-form-dark-mode .editOrd-ingredientes-grid-container::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+.editOrd-form-dark-mode .editOrd-ingredientes-list::-webkit-scrollbar-track {
+  background: #2a2a2a;
+}
+
+.editOrd-form-dark-mode .editOrd-ingredientes-list::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .editOrd-form {
+    width: 95vw;
+    max-width: 95vw;
+  }
+
+  .editOrd-scroll-container {
+    max-height: 50vh;
+  }
+
+  .editOrd-form-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .editOrd-section {
+    padding: 1rem;
+  }
+
+  .editOrd-ingredientes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .editOrd-form-actions,
+  .editOrd-form-actions-step {
+    flex-direction: column;
+  }
+
+  .editOrd-btn-cancel,
+  .editOrd-btn-submit,
+  .editOrd-btn-next,
+  .editOrd-btn-back {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .editOrd-tipo-pedido-options {
+    gap: 0.75rem;
+  }
+
+  .editOrd-radio-option {
+    padding: 0.75rem;
+  }
+
+  .editOrd-ingredientes-grid-container {
+    max-height: 200px;
+  }
+
+  .editOrd-info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .editOrd-info-existing {
+    padding: 1rem;
+  }
+
+  .editOrd-direcciones-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .editOrd-btn-add-direccion {
+    width: 100%;
+  }
+
+  .editOrd-direccion-item {
+    padding: 12px;
+  }
+
+  .editOrd-direccion-contenido {
+    padding-right: 70px;
+    font-size: 0.9rem;
+  }
+
+  .editOrd-direccion-acciones {
+    top: 12px;
+    right: 12px;
+  }
+
+  .editOrd-form-steps {
+    padding: 0;
+  }
+
+  .editOrd-step-label {
+    white-space: normal;
+    font-size: 0.75rem;
+  }
+
+  .editOrd-half {
+    flex: 1;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .editOrd-form-form {
+    gap: 1rem;
+  }
+  
+  .editOrd-form-group input,
+  .editOrd-select,
+  .editOrd-form-control {
+    padding: 0.65rem;
+  }
+  
+  .editOrd-especial-details {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .editOrd-resumen-item,
+  .editOrd-resumen-precio {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .editOrd-step-number {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+
+  .editOrd-step-label {
+    font-size: 0.7rem;
+  }
+
+  .editOrd-direccion-form-actions {
+    flex-direction: column;
+  }
+
+  .editOrd-btn-cancel-small,
+  .editOrd-btn-save-direccion {
+    width: 100%;
+  }
+
+  .editOrd-direccion-header {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .editOrd-direccion-tipo,
+  .editOrd-predeterminada-badge {
+    align-self: flex-start;
+  }
+}

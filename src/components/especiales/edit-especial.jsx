@@ -2,122 +2,64 @@ import React, { useState, useEffect } from 'react';
 import { useConfig } from '../../context/config';
 import '../../css/Especiales/edit-especial.css';
 
-const EditEspecialForm = ({ especial, onClose, onEspecialUpdated }) => {
+const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
   const { darkMode } = useConfig();
   const [formData, setFormData] = useState({
     nombre: '',
+    descripcion: '',
     precio: '',
-    categoria: 'ensaladas', // NUEVO CAMPO con valor por defecto
+    categoria: 'quemadores',
+    presentacion: 'polvo',
+    beneficios: '',
+    modo_uso: '',
+    stock: '0',
     activo: 'true'
   });
-  const [ingredientes, setIngredientes] = useState(['']); // Array de ingredientes
-  const [ingredientesDisponibles, setIngredientesDisponibles] = useState([]); // Lista dinámica de ingredientes
   const [loading, setLoading] = useState(false);
-  const [loadingIngredientes, setLoadingIngredientes] = useState(true);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Opciones de categorías
+  // Opciones de categorías (sin emojis)
   const categorias = [
-    { value: 'ensaladas', label: '🥗 Ensalada', icon: '🥗' },
-    { value: 'batidos', label: '🥤 Batido', icon: '🥤' },
-    { value: 'proteinas', label: '💪 Proteína', icon: '💪' },
-    { value: 'suplementos', label: '💊 Suplemento', icon: '💊' },
-    { value: 'bebidas', label: '🧃 Bebida', icon: '🧃' },
-    { value: 'snacks', label: '🍎 Snack', icon: '🍎' }
+    { value: 'quemadores', label: 'Quemadores de Grasa' },
+    { value: 'proteinas', label: 'Proteínas' },
+    { value: 'fibras', label: 'Fibras y Digestivos' },
+    { value: 'detox', label: 'Detox y Limpieza' },
+    { value: 'termogenicos', label: 'Termogénicos' },
+    { value: 'control_apetito', label: 'Control de Apetito' },
+    { value: 'energeticos', label: 'Energéticos Naturales' },
+    { value: 'vitaminas', label: 'Vitaminas y Minerales' }
   ];
 
-  // Cargar datos del especial y ingredientes disponibles
-  useEffect(() => {
-    if (especial) {
-      console.log('Especial recibido para editar:', especial);
+  // Opciones de presentaciones (sin emojis)
+  const presentaciones = [
+    { value: 'polvo', label: 'Polvo' },
+    { value: 'capsulas', label: 'Cápsulas' },
+    { value: 'tabletas', label: 'Tabletas' },
+    { value: 'liquido', label: 'Líquido' },
+    { value: 'gomitas', label: 'Gomitas' },
+    { value: 'barritas', label: 'Barritas' }
+  ];
 
-      // Inicializar el formulario con los datos del especial existente
+  // Cargar datos del suplemento
+  useEffect(() => {
+    if (suplemento) {
+      console.log('Suplemento recibido para editar:', suplemento);
+
+      // Inicializar el formulario con los datos del suplemento existente
       setFormData({
-        nombre: especial.nombre || '',
-        precio: especial.precio ? especial.precio.toString() : '',
-        categoria: especial.categoria || 'ensaladas', // NUEVO CAMPO
-        activo: especial.activo ? 'true' : 'false'
+        nombre: suplemento.nombre || '',
+        descripcion: suplemento.descripcion || '',
+        precio: suplemento.precio ? suplemento.precio.toString() : '',
+        categoria: suplemento.categoria || 'quemadores',
+        presentacion: suplemento.presentacion || 'polvo',
+        beneficios: suplemento.beneficios || '',
+        modo_uso: suplemento.modo_uso || '',
+        stock: suplemento.stock ? suplemento.stock.toString() : '0',
+        activo: suplemento.activo ? 'true' : 'false'
       });
-
-      // Inicializar los ingredientes desde el string separado por comas
-      const ingredientesArray = especial.ingredientes 
-        ? especial.ingredientes.split(',').map(ing => ing.trim()).filter(ing => ing)
-        : [];
-      
-      // Agregar un campo vacío al final para que se pueda agregar más ingredientes
-      setIngredientes([...ingredientesArray, '']);
     }
-    
-    fetchIngredientesDisponibles();
-  }, [especial]);
-
-  // Cargar ingredientes desde el backend
-  const fetchIngredientesDisponibles = async () => {
-    try {
-      setLoadingIngredientes(true);
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch('http://127.0.0.1:5000/ingredientes/', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Filtrar solo ingredientes activos y mapear a un array de nombres
-        const ingredientesActivos = data
-          .filter(ing => ing.activo)
-          .map(ing => ing.nombre)
-          .sort(); // Ordenar alfabéticamente
-        
-        setIngredientesDisponibles(ingredientesActivos);
-      } else {
-        console.error('Error al obtener ingredientes:', response.status);
-        // Si hay error, usar lista básica como fallback
-        setIngredientesDisponibles([
-          'Limon',
-          'Chile en Polvo',
-          'Sal',
-          'Gomita Picante',
-          'Gomita Dulce',
-          'Gomitas Aciditas',
-          'Chamoy',
-          'salsa',
-          'cacahuate',
-          'Miguelito',
-        ]);
-      }
-    } catch (error) {
-      console.error('Error de conexión al obtener ingredientes:', error);
-      setIngredientesDisponibles([
-        'Limon',
-        'Chile en Polvo',
-        'Sal',
-        'Gomita Picante',
-        'Gomita Dulce',
-        'Gomitas Aciditas',
-        'Chamoy',
-        'salsa',
-        'cacahuate',
-        'Miguelito',
-      ]);
-    } finally {
-      setLoadingIngredientes(false);
-    }
-  };
-
-  // Efecto para agregar automáticamente un nuevo select cuando se selecciona un ingrediente
-  useEffect(() => {
-    const ultimoIngrediente = ingredientes[ingredientes.length - 1];
-    // Si el último ingrediente tiene un valor seleccionado
-    if (ultimoIngrediente !== '') {
-      setIngredientes(prev => [...prev, '']);
-    }
-  }, [ingredientes]);
+  }, [suplemento]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -138,40 +80,17 @@ const EditEspecialForm = ({ especial, onClose, onEspecialUpdated }) => {
     }
   };
 
-  const handleIngredienteChange = (index, value) => {
-    const newIngredientes = [...ingredientes];
-    newIngredientes[index] = value;
-    setIngredientes(newIngredientes);
-    
-    // Limpiar error de ingredientes si existe
-    if (errors.ingredientes) {
-      setErrors(prev => ({
-        ...prev,
-        ingredientes: ''
-      }));
-    }
-  };
-
-  const eliminarIngrediente = (index) => {
-    if (ingredientes.length > 1) {
-      const newIngredientes = ingredientes.filter((_, i) => i !== index);
-      setIngredientes(newIngredientes);
-    }
-  };
-
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.nombre.trim()) {
-      newErrors.nombre = 'El nombre del especial es obligatorio';
+      newErrors.nombre = 'El nombre del suplemento es obligatorio';
     } else if (formData.nombre.trim().length < 2) {
       newErrors.nombre = 'El nombre debe tener al menos 2 caracteres';
     }
 
-    // Validar que al menos un ingrediente esté seleccionado
-    const ingredientesSeleccionados = ingredientes.filter(ing => ing !== '');
-    if (ingredientesSeleccionados.length === 0) {
-      newErrors.ingredientes = 'Debe seleccionar al menos un ingrediente';
+    if (!formData.descripcion.trim()) {
+      newErrors.descripcion = 'La descripción es obligatoria';
     }
 
     if (!formData.precio) {
@@ -183,9 +102,20 @@ const EditEspecialForm = ({ especial, onClose, onEspecialUpdated }) => {
       }
     }
 
+    // Validar stock
+    const stock = parseInt(formData.stock);
+    if (isNaN(stock) || stock < 0) {
+      newErrors.stock = 'El stock debe ser un número mayor o igual a 0';
+    }
+
     // Validar categoría
     if (!formData.categoria) {
       newErrors.categoria = 'Debe seleccionar una categoría';
+    }
+
+    // Validar presentación
+    if (!formData.presentacion) {
+      newErrors.presentacion = 'Debe seleccionar una presentación';
     }
 
     setErrors(newErrors);
@@ -202,30 +132,29 @@ const EditEspecialForm = ({ especial, onClose, onEspecialUpdated }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      
-      // Convertir array de ingredientes a string separado por comas
-      const ingredientesString = ingredientes
-        .filter(ing => ing !== '')
-        .join(', ');
 
-      const especialData = {
+      const suplementoData = {
         nombre: formData.nombre.trim(),
-        ingredientes: ingredientesString,
+        descripcion: formData.descripcion.trim(),
         precio: parseFloat(formData.precio),
-        categoria: formData.categoria, // NUEVO CAMPO
+        categoria: formData.categoria,
+        presentacion: formData.presentacion,
+        beneficios: formData.beneficios.trim() || '',
+        modo_uso: formData.modo_uso.trim() || '',
+        stock: parseInt(formData.stock),
         activo: formData.activo === 'true'
       };
 
-      console.log('Actualizando especial ID:', especial.id);
-      console.log('Enviando datos del especial:', especialData);
+      console.log('Actualizando suplemento ID:', suplemento.id);
+      console.log('Enviando datos del suplemento:', suplementoData);
 
-      const response = await fetch(`http://127.0.0.1:5000/especiales/${especial.id}`, {
+      const response = await fetch(`http://127.0.0.1:5000/suplementos/${suplemento.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(especialData)
+        body: JSON.stringify(suplementoData)
       });
 
       console.log('Respuesta status:', response.status);
@@ -237,23 +166,23 @@ const EditEspecialForm = ({ especial, onClose, onEspecialUpdated }) => {
         try {
           const result = JSON.parse(responseText);
           // Mostrar mensaje de éxito
-          setSuccessMessage('El especial fue actualizado exitosamente');
+          setSuccessMessage('El suplemento fue actualizado exitosamente');
           
           // Esperar 2 segundos antes de cerrar el modal y actualizar la lista
           setTimeout(() => {
-            if (onEspecialUpdated) {
-              onEspecialUpdated(result.especial);
+            if (onSuplementoUpdated) {
+              onSuplementoUpdated(result.suplemento);
             }
             onClose();
           }, 2000);
           
         } catch (parseError) {
           console.error('Error parseando JSON:', parseError);
-          setSuccessMessage('Especial actualizado exitosamente');
+          setSuccessMessage('Suplemento actualizado exitosamente');
           setTimeout(() => {
             onClose();
-            if (onEspecialUpdated) {
-              onEspecialUpdated();
+            if (onSuplementoUpdated) {
+              onSuplementoUpdated();
             }
           }, 2000);
         }
@@ -270,7 +199,7 @@ const EditEspecialForm = ({ especial, onClose, onEspecialUpdated }) => {
 
     } catch (error) {
       console.error('Error de conexión:', error);
-      setErrors({ general: 'Error de conexión al actualizar especial' });
+      setErrors({ general: 'Error de conexión al actualizar suplemento' });
     } finally {
       setLoading(false);
     }
@@ -281,145 +210,177 @@ const EditEspecialForm = ({ especial, onClose, onEspecialUpdated }) => {
   };
 
   return (
-    <div className={`edit-especial-form ${darkMode ? 'edit-especial-form-dark-mode' : ''}`}>
-      <form className="edit-especial-form-form" onSubmit={handleSubmit}>
+    <div className={`edit-suplemento-form ${darkMode ? 'edit-suplemento-form-dark-mode' : ''}`}>
+      <form className="edit-suplemento-form-form" onSubmit={handleSubmit}>
         
         {/* Mensaje de éxito */}
         {successMessage && (
-          <div className="edit-especial-success-message">
+          <div className="edit-suplemento-success-message">
             {successMessage}
           </div>
         )}
 
         {/* Mensaje de error general */}
         {errors.general && (
-          <div className="edit-especial-error-message-box">
+          <div className="edit-suplemento-error-message-box">
             {errors.general}
           </div>
         )}
 
-        {/* Nombre del especial */}
-        <div className="edit-especial-form-group">
-          <label htmlFor="edit-especial-nombre">Nombre del especial *</label>
+        {/* Nombre del suplemento */}
+        <div className="edit-suplemento-form-group">
+          <label htmlFor="edit-suplemento-nombre">Nombre del suplemento *</label>
           <input
             type="text"
-            id="edit-especial-nombre"
+            id="edit-suplemento-nombre"
             name="nombre"
             value={formData.nombre}
             onChange={handleChange}
-            className={`edit-especial-input ${errors.nombre ? 'edit-especial-input-error' : ''}`}
-            placeholder="Ej: Especial de la Casa, Combo Familiar, etc."
+            className={`edit-suplemento-input ${errors.nombre ? 'edit-suplemento-input-error' : ''}`}
+            placeholder="Ej: Quemador de Grasa Extreme, Proteína Whey, etc."
             maxLength="100"
             disabled={loading || successMessage}
           />
-          {errors.nombre && <span className="edit-especial-error-message">{errors.nombre}</span>}
+          {errors.nombre && <span className="edit-suplemento-error-message">{errors.nombre}</span>}
         </div>
 
-        {/* Categoría - NUEVO CAMPO */}
-        <div className="edit-especial-form-group">
-          <label htmlFor="edit-especial-categoria">Categoría *</label>
-          <select
-            id="edit-especial-categoria"
-            name="categoria"
-            value={formData.categoria}
+        {/* Descripción */}
+        <div className="edit-suplemento-form-group">
+          <label htmlFor="edit-suplemento-descripcion">Descripción *</label>
+          <textarea
+            id="edit-suplemento-descripcion"
+            name="descripcion"
+            value={formData.descripcion}
             onChange={handleChange}
-            className={`edit-especial-select ${errors.categoria ? 'edit-especial-input-error' : ''}`}
+            className={`edit-suplemento-textarea ${errors.descripcion ? 'edit-suplemento-input-error' : ''}`}
+            placeholder="Describe el suplemento, sus características principales..."
+            rows="3"
+            maxLength="500"
             disabled={loading || successMessage}
-          >
-            {categorias.map(cat => (
-              <option key={cat.value} value={cat.value}>
-                {cat.icon} {cat.label}
-              </option>
-            ))}
-          </select>
-          {errors.categoria && <span className="edit-especial-error-message">{errors.categoria}</span>}
+          />
+          {errors.descripcion && <span className="edit-suplemento-error-message">{errors.descripcion}</span>}
         </div>
 
-        {/* Ingredientes - Selects dinámicos automáticos */}
-        <div className="edit-especial-form-group">
-          <label>
-            Ingredientes *
-            {loadingIngredientes && (
-              <span className="edit-especial-loading-text"> (Cargando ingredientes...)</span>
-            )}
-          </label>
-          <div className="edit-especial-ingredientes-container">
-            {loadingIngredientes ? (
-              <div className="edit-especial-loading-ingredientes">
-                <div className="edit-especial-spinner-small"></div>
-                <span className="edit-especial-loading-text">Cargando lista de ingredientes...</span>
-              </div>
-            ) : (
-              <>
-                {ingredientes.map((ingrediente, index) => (
-                  <div key={index} className="edit-especial-ingrediente-row">
-                    <select
-                      value={ingrediente}
-                      onChange={(e) => handleIngredienteChange(index, e.target.value)}
-                      className={`edit-especial-select ${errors.ingredientes && index === 0 ? 'edit-especial-input-error' : ''}`}
-                      disabled={loadingIngredientes || loading || successMessage}
-                    >
-                      <option value="">Selecciona un ingrediente</option>
-                      {ingredientesDisponibles.map((ing, i) => (
-                        <option 
-                          key={i} 
-                          value={ing}
-                          disabled={ingredientes.includes(ing) && ingrediente !== ing}
-                        >
-                          {ing}
-                        </option>
-                      ))}
-                    </select>
-                    {ingredientes.length > 1 && (
-                      <button
-                        type="button"
-                        className="edit-especial-remove-ingrediente-btn"
-                        onClick={() => eliminarIngrediente(index)}
-                        title="Eliminar ingrediente"
-                        disabled={loadingIngredientes || loading || successMessage}
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
+        {/* Fila: Categoría y Presentación */}
+        <div className="edit-suplemento-row">
+          <div className="edit-suplemento-price-status-fields">
+            <div className="edit-suplemento-form-group">
+              <label htmlFor="edit-suplemento-categoria">Categoría *</label>
+              <select
+                id="edit-suplemento-categoria"
+                name="categoria"
+                value={formData.categoria}
+                onChange={handleChange}
+                className={`edit-suplemento-select ${errors.categoria ? 'edit-suplemento-input-error' : ''}`}
+                disabled={loading || successMessage}
+              >
+                {categorias.map(cat => (
+                  <option key={cat.value} value={cat.value}>
+                    {cat.label}
+                  </option>
                 ))}
-                
-                {errors.ingredientes && (
-                  <span className="edit-especial-error-message">{errors.ingredientes}</span>
-                )}
-              </>
-            )}
+              </select>
+              {errors.categoria && <span className="edit-suplemento-error-message">{errors.categoria}</span>}
+            </div>
+
+            <div className="edit-suplemento-form-group">
+              <label htmlFor="edit-suplemento-presentacion">Presentación *</label>
+              <select
+                id="edit-suplemento-presentacion"
+                name="presentacion"
+                value={formData.presentacion}
+                onChange={handleChange}
+                className={`edit-suplemento-select ${errors.presentacion ? 'edit-suplemento-input-error' : ''}`}
+                disabled={loading || successMessage}
+              >
+                {presentaciones.map(pre => (
+                  <option key={pre.value} value={pre.value}>
+                    {pre.label}
+                  </option>
+                ))}
+              </select>
+              {errors.presentacion && <span className="edit-suplemento-error-message">{errors.presentacion}</span>}
+            </div>
           </div>
         </div>
 
-        {/* Precio y Estado */}
-        <div className="edit-especial-row">
-          <div className="edit-especial-price-status-fields">
-            <div className="edit-especial-form-group">
-              <label htmlFor="edit-especial-precio">Precio ($) *</label>
+        {/* Beneficios */}
+        <div className="edit-suplemento-form-group">
+          <label htmlFor="edit-suplemento-beneficios">Beneficios</label>
+          <textarea
+            id="edit-suplemento-beneficios"
+            name="beneficios"
+            value={formData.beneficios}
+            onChange={handleChange}
+            className="edit-suplemento-textarea"
+            placeholder="Ej: Acelera el metabolismo, reduce el apetito, aumenta la energía..."
+            rows="2"
+            maxLength="500"
+            disabled={loading || successMessage}
+          />
+        </div>
+
+        {/* Modo de Uso */}
+        <div className="edit-suplemento-form-group">
+          <label htmlFor="edit-suplemento-modo-uso">Modo de Uso</label>
+          <textarea
+            id="edit-suplemento-modo-uso"
+            name="modo_uso"
+            value={formData.modo_uso}
+            onChange={handleChange}
+            className="edit-suplemento-textarea"
+            placeholder="Ej: Tomar 2 cápsulas antes del desayuno, mezclar con agua, etc."
+            rows="2"
+            maxLength="500"
+            disabled={loading || successMessage}
+          />
+        </div>
+
+        {/* Fila: Precio, Stock y Estado */}
+        <div className="edit-suplemento-row">
+          <div className="edit-suplemento-price-status-fields">
+            <div className="edit-suplemento-form-group">
+              <label htmlFor="edit-suplemento-precio">Precio ($) *</label>
               <input
                 type="number"
-                id="edit-especial-precio"
+                id="edit-suplemento-precio"
                 name="precio"
                 value={formData.precio}
                 onChange={handleChange}
-                className={`edit-especial-input ${errors.precio ? 'edit-especial-input-error' : ''}`}
+                className={`edit-suplemento-input ${errors.precio ? 'edit-suplemento-input-error' : ''}`}
                 placeholder="0.00"
                 min="0"
                 step="0.01"
                 disabled={loading || successMessage}
               />
-              {errors.precio && <span className="edit-especial-error-message">{errors.precio}</span>}
+              {errors.precio && <span className="edit-suplemento-error-message">{errors.precio}</span>}
             </div>
 
-            <div className="edit-especial-form-group">
-              <label htmlFor="edit-especial-activo">Estado *</label>
+            <div className="edit-suplemento-form-group">
+              <label htmlFor="edit-suplemento-stock">Stock *</label>
+              <input
+                type="number"
+                id="edit-suplemento-stock"
+                name="stock"
+                value={formData.stock}
+                onChange={handleChange}
+                className={`edit-suplemento-input ${errors.stock ? 'edit-suplemento-input-error' : ''}`}
+                placeholder="0"
+                min="0"
+                step="1"
+                disabled={loading || successMessage}
+              />
+              {errors.stock && <span className="edit-suplemento-error-message">{errors.stock}</span>}
+            </div>
+
+            <div className="edit-suplemento-form-group">
+              <label htmlFor="edit-suplemento-activo">Estado *</label>
               <select
-                id="edit-especial-activo"
+                id="edit-suplemento-activo"
                 name="activo"
                 value={formData.activo}
                 onChange={handleChange}
-                className="edit-especial-select"
+                className="edit-suplemento-select"
                 disabled={loading || successMessage}
               >
                 <option value="true">Activo</option>
@@ -430,26 +391,26 @@ const EditEspecialForm = ({ especial, onClose, onEspecialUpdated }) => {
         </div>
 
         {/* Botones de acción */}
-        <div className="edit-especial-form-actions">
+        <div className="edit-suplemento-form-actions">
           <button 
             type="button" 
-            className="edit-especial-btn-cancel"
+            className="edit-suplemento-btn-cancel"
             onClick={handleCancel}
-            disabled={loading || loadingIngredientes}
+            disabled={loading}
           >
             Cancelar
           </button>
           <button 
             type="submit" 
-            className="edit-especial-btn-submit"
-            disabled={loading || loadingIngredientes || successMessage}
+            className="edit-suplemento-btn-submit"
+            disabled={loading || successMessage}
           >
             {loading ? (
               <>
-                <span className="edit-especial-spinner"></span>
+                <span className="edit-suplemento-spinner"></span>
                 Actualizando...
               </>
-            ) : successMessage ? 'Actualizado' : 'Actualizar Especial'}
+            ) : successMessage ? 'Actualizado' : 'Actualizar Suplemento'}
           </button>
         </div>
       </form>
@@ -457,4 +418,4 @@ const EditEspecialForm = ({ especial, onClose, onEspecialUpdated }) => {
   );
 };
 
-export default EditEspecialForm;
+export default EditSuplementoForm;

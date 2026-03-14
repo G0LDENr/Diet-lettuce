@@ -1,27 +1,27 @@
 /* Estilos generales */
-.especiales-container {
+.suplementos-container {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.especiales-content {
+.suplementos-content {
   padding: 2rem;
 }
 
 /* Header con título y botón */
-.especiales-section-header {
+.suplementos-section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
 }
 
-.especiales-section-header h3 {
+.suplementos-section-header h3 {
   margin: 0;
   color: #333;
   font-size: 1.3rem;
 }
 
-.especiales-add-btn {
+.suplementos-add-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -36,90 +36,121 @@
   transition: background-color 0.3s;
 }
 
-.especiales-add-btn:hover {
+.suplementos-add-btn:hover {
   background-color: #3e4e1d;
 }
 
-.especiales-btn-icon {
+.suplementos-btn-icon {
   font-size: 1.2rem;
   font-weight: bold;
 }
 
-/* Buscador */
-.especiales-search-section {
+/* ===== BUSCADOR ESTÁTICO - NO SE MUEVE ===== */
+.suplementos-search-section {
   margin-bottom: 1.5rem;
+  min-height: 70px;
 }
 
-.especiales-filters-row {
+.suplementos-filters-row {
   display: flex;
   gap: 15px;
-  align-items: flex-end;
+  align-items: center;
   flex-wrap: wrap;
+  min-height: 50px;
 }
 
-.especiales-search-container {
+.suplementos-search-container {
   position: relative;
+  width: 100%;
+  height: 45px;
 }
 
-.especiales-search-container.especiales-main-search {
+.suplementos-search-container.suplementos-main-search {
   flex: 1;
   min-width: 300px;
+  height: 45px;
 }
 
-.especiales-search-input {
+.suplementos-search-input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  height: 45px;
+  padding: 0 2.8rem 0 1rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
   transition: border-color 0.3s;
+  box-sizing: border-box;
+  line-height: 45px;
 }
 
-.especiales-search-input:focus {
+.suplementos-search-input:focus {
   border-color: #1abb01;
   outline: none;
 }
 
-.especiales-clear-search {
+.suplementos-clear-search {
   position: absolute;
-  right: 10px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
   color: #666;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+  z-index: 10;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
-.especiales-clear-search:hover {
+.suplementos-clear-search.show,
+.suplementos-search-input:not(:placeholder-shown) + .suplementos-clear-search {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.suplementos-clear-search:hover {
+  background-color: #f0f0f0;
   color: #333;
 }
 
 /* Filtros */
-.especiales-filter-group {
+.suplementos-filter-group {
   display: flex;
   flex-direction: column;
   min-width: 150px;
 }
 
-.especiales-filter-select {
-  padding: 0.75rem 1rem;
+.suplementos-filter-select {
+  padding: 0 1rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
   background-color: white;
   cursor: pointer;
   transition: border-color 0.3s;
+  height: 45px;
+  box-sizing: border-box;
 }
 
-.especiales-filter-select:focus {
+.suplementos-filter-select:focus {
   border-color: #1abb01;
   outline: none;
 }
 
 /* Modal base */
-.especiales-modal-overlay {
+.suplementos-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -132,33 +163,154 @@
   z-index: 1000;
 }
 
-.especiales-modal-content {
+.suplementos-modal-content {
   background-color: white;
   border-radius: 8px;
   width: 90%;
   max-width: 500px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  animation: especiales-fadeIn 0.3s ease;
+  animation: suplementos-fadeIn 0.3s ease;
 }
 
-/* Modal específico para crear especial */
-.especiales-modal-content.create-especial-modal {
-  max-width: 500px;
+/* Modal específico para crear suplemento */
+.suplementos-modal-content.create-suplemento-modal {
+  max-width: 700px;
   width: 95%;
 }
 
-.especiales-modal-content.create-especial-modal .especiales-modal-body {
+.suplementos-modal-content.create-suplemento-modal .suplementos-modal-body {
   padding: 2rem;
   max-height: 85vh;
   overflow-y: auto;
 }
 
-@keyframes especiales-fadeIn {
+/* ===== MODAL DE ANÁLISIS CON SCROLL ===== */
+.suplementos-modal-content.suplementos-analisis-modal {
+  max-width: 800px;
+  width: 95%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header del modal de análisis (fijo) */
+.suplementos-analisis-modal .suplementos-modal-header {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #96bd44 0%, #7fa33a 100%);
+  border-radius: 8px 8px 0 0;
+  padding: 1.2rem 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.suplementos-analisis-modal .suplementos-modal-header h3 {
+  color: white;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.suplementos-analisis-modal .suplementos-close-modal {
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  transition: all 0.2s;
+}
+
+.suplementos-analisis-modal .suplementos-close-modal:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+/* Cuerpo del modal de análisis con scroll */
+.suplementos-analisis-modal .suplementos-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  max-height: calc(90vh - 140px);
+  background: #f8f9fa;
+}
+
+.dark-mode .suplementos-analisis-modal .suplementos-modal-body {
+  background: #1a1a1a;
+}
+
+/* Footer del modal de análisis (botones fijos) */
+.suplementos-analisis-modal .suplementos-modal-footer {
+  flex-shrink: 0;
+  padding: 1.2rem 1.5rem;
+  border-top: 2px solid #e2e8f0;
+  background: white;
+  border-radius: 0 0 8px 8px;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.dark-mode .suplementos-analisis-modal .suplementos-modal-footer {
+  background: #000000;
+  border-top-color: #333;
+}
+
+/* Botones del footer de análisis */
+.suplementos-analisis-modal .suplementos-btn-cancel {
+  padding: 0.8rem 1.8rem;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.2s;
+  min-width: 120px;
+  background: #6c757d;
+  color: white;
+  border: none;
+}
+
+.suplementos-analisis-modal .suplementos-btn-cancel:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.suplementos-analisis-modal .suplementos-btn-reload-analisis {
+  padding: 0.8rem 1.8rem;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: all 0.2s;
+  min-width: 120px;
+  background: #96bd44;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.suplementos-analisis-modal .suplementos-btn-reload-analisis:hover {
+  background: #3e4e1d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(150, 189, 68, 0.3);
+}
+
+.suplementos-reload-icon {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+@keyframes suplementos-fadeIn {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.especiales-modal-header {
+.suplementos-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -166,19 +318,19 @@
   border-bottom: 1px solid #eee;
 }
 
-.especiales-modal-header h3 {
+.suplementos-modal-header h3 {
   margin: 0;
   color: #333;
   font-size: 1.2rem;
 }
 
-.especiales-modal-title {
+.suplementos-modal-title {
   margin: 0;
   color: #333;
   font-size: 1.2rem;
 }
 
-.especiales-close-modal {
+.suplementos-close-modal {
   background: none;
   border: none;
   font-size: 1.2rem;
@@ -193,16 +345,16 @@
   border-radius: 4px;
 }
 
-.especiales-close-modal:hover {
+.suplementos-close-modal:hover {
   background-color: #f5f5f5;
   color: #333;
 }
 
-.especiales-modal-body {
+.suplementos-modal-body {
   padding: 1.5rem;
 }
 
-.especiales-modal-footer {
+.suplementos-modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -211,7 +363,7 @@
 }
 
 /* Botones de modal */
-.especiales-btn-cancel {
+.suplementos-btn-cancel {
   padding: 0.75rem 1.5rem;
   background-color: #6c757d;
   color: white;
@@ -224,11 +376,11 @@
   min-width: 120px;
 }
 
-.especiales-btn-cancel:hover {
+.suplementos-btn-cancel:hover {
   background-color: #5a6268;
 }
 
-.especiales-btn-delete {
+.suplementos-btn-delete {
   padding: 0.75rem 1.5rem;
   background-color: #dc3545;
   color: white;
@@ -241,13 +393,13 @@
   min-width: 120px;
 }
 
-.especiales-btn-delete:hover:not(:disabled) {
+.suplementos-btn-delete:hover:not(:disabled) {
   background-color: #c82333;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
 }
 
-.especiales-btn-status {
+.suplementos-btn-status {
   padding: 0.75rem 1.5rem;
   background-color: #ffc107;
   color: #212529;
@@ -260,66 +412,66 @@
   min-width: 120px;
 }
 
-.especiales-btn-status:hover:not(:disabled) {
+.suplementos-btn-status:hover:not(:disabled) {
   background-color: #e0a800;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
 }
 
-/* Tabla de especiales */
-.especiales-table-container {
+/* Tabla de suplementos */
+.suplementos-table-container {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow-x: auto;
 }
 
-.especiales-table {
+.suplementos-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.especiales-table th,
-.especiales-table td {
+.suplementos-table th,
+.suplementos-table td {
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid #eee;
 }
 
-.especiales-table th {
+.suplementos-table th {
   background-color: #f8f9fa;
   font-weight: 600;
   color: #333;
 }
 
-.especiales-th {
+.suplementos-th {
   background-color: #f8f9fa;
   font-weight: 600;
   color: #333;
 }
 
-.especiales-td {
+.suplementos-td {
   border-bottom: 1px solid #eee;
 }
 
-.especiales-actions-header {
+.suplementos-actions-header {
   width: 150px;
   text-align: center;
 }
 
-.especiales-actions-cell {
+.suplementos-actions-cell {
   width: 150px;
   text-align: center;
 }
 
-.especiales-actions-buttons {
+.suplementos-actions-buttons {
   display: flex;
   gap: 8px;
   justify-content: center;
   align-items: center;
 }
 
-.especiales-action-btn {
+.suplementos-action-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -331,55 +483,55 @@
   justify-content: center;
 }
 
-.especiales-action-btn:hover {
+.suplementos-action-btn:hover {
   background-color: #f5f5f5;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.especiales-action-btn:disabled {
+.suplementos-action-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.especiales-action-btn:disabled:hover {
+.suplementos-action-btn:disabled:hover {
   background-color: transparent;
   transform: none;
   box-shadow: none;
 }
 
-.especiales-table tr:hover {
+.suplementos-table tr:hover {
   background-color: #f5f5f5;
 }
 
-.especiales-row:hover {
+.suplementos-row:hover {
   background-color: #f5f5f5;
 }
 
-.especiales-no-results {
+.suplementos-no-results {
   text-align: center;
   padding: 20px;
   color: #666;
   font-style: italic;
 }
 
-.especiales-id {
+.suplementos-id {
   text-align: center;
   font-weight: bold;
   color: #000000;
 }
 
-.especiales-name {
+.suplementos-name {
   font-weight: 600;
   color: #2d3748;
 }
 
-.especiales-ingredientes {
+.suplementos-ingredientes {
   max-width: 300px;
   color: #718096;
 }
 
-.especiales-ingredientes span {
+.suplementos-ingredientes span {
   cursor: help;
   display: inline-block;
   max-width: 100%;
@@ -388,13 +540,13 @@
   white-space: nowrap;
 }
 
-.especiales-price {
+.suplementos-price {
   font-weight: 600;
   color: #48bb78;
 }
 
 /* Badges de estado */
-.especiales-status-badge {
+.suplementos-status-badge {
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 12px;
@@ -402,34 +554,58 @@
   text-transform: uppercase;
 }
 
-.especiales-status-badge.active {
+.suplementos-status-badge.active {
   background-color: #c6f6d5;
   color: #22543d;
 }
 
-.especiales-status-badge.inactive {
+.suplementos-status-badge.inactive {
+  background-color: #fed7d7;
+  color: #742a2a;
+}
+
+/* Badges de stock */
+.suplementos-stock-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.suplementos-stock-badge.stock-alto {
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.suplementos-stock-badge.stock-medio {
+  background-color: #fefcbf;
+  color: #744210;
+}
+
+.suplementos-stock-badge.stock-bajo {
   background-color: #fed7d7;
   color: #742a2a;
 }
 
 /* Iconos de acción */
-.especiales-action-icon {
+.suplementos-action-icon {
   width: 16px;
   height: 16px;
   filter: brightness(0.8);
   transition: filter 0.2s;
 }
 
-.especiales-action-btn:hover .especiales-action-icon {
+.suplementos-action-btn:hover .suplementos-action-icon {
   filter: brightness(1);
 }
 
-.especiales-action-btn:disabled .especiales-action-icon {
+.suplementos-action-btn:disabled .suplementos-action-icon {
   filter: brightness(0.4);
 }
 
 /* Paginación */
-.especiales-pagination-container {
+.suplementos-pagination-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -439,7 +615,7 @@
   border-top: 1px solid #eee;
 }
 
-.especiales-pagination-controls {
+.suplementos-pagination-controls {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -447,12 +623,12 @@
   flex-wrap: wrap;
 }
 
-.especiales-pagination-numbers {
+.suplementos-pagination-numbers {
   display: flex;
   gap: 5px;
 }
 
-.especiales-pagination-btn {
+.suplementos-pagination-btn {
   padding: 8px 12px;
   border: 1px solid #ddd;
   background-color: white;
@@ -462,27 +638,27 @@
   font-size: 14px;
 }
 
-.especiales-pagination-btn:hover:not(:disabled) {
+.suplementos-pagination-btn:hover:not(:disabled) {
   background-color: #f8f9fa;
 }
 
-.especiales-pagination-btn:disabled {
+.suplementos-pagination-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.especiales-pagination-btn.active {
+.suplementos-pagination-btn.active {
   background-color: #1abb01;
   color: white;
   border-color: #1abb01;
 }
 
-.especiales-pagination-ellipsis {
+.suplementos-pagination-ellipsis {
   padding: 8px 5px;
   color: #666;
 }
 
-.especiales-count-info {
+.suplementos-count-info {
   text-align: center;
   color: #666;
   font-size: 14px;
@@ -490,477 +666,35 @@
 }
 
 /* Spinner de carga */
-.especiales-loading-spinner {
+.suplementos-loading-spinner {
   border: 4px solid rgba(0, 0, 0, 0.1);
   border-radius: 50%;
   border-top: 4px solid #1abb01;
   width: 40px;
   height: 40px;
-  animation: especiales-spin 1s linear infinite;
+  animation: suplementos-spin 1s linear infinite;
   margin: 50px auto;
 }
 
-.especiales-loading-text {
+.suplementos-loading-text {
   text-align: center;
   color: #666;
 }
 
-@keyframes especiales-spin {
+@keyframes suplementos-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* ========== MODALES DE CONFIRMACIÓN ========== */
-.especiales-delete-modal,
-.especiales-status-modal {
-  max-width: 450px;
-}
-
-.especiales-delete-icon,
-.especiales-status-icon {
-  font-size: 4rem;
-  text-align: center;
-  margin-bottom: 1rem;
-  animation: especiales-pulse 1.5s infinite;
-}
-
-@keyframes especiales-pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-}
-
-.especiales-delete-question,
-.especiales-status-question {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.especiales-delete-info,
-.especiales-status-info {
-  background-color: #f8f9fa;
-  border-radius: 6px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.especiales-delete-info p,
-.especiales-status-info p {
-  margin: 0.5rem 0;
-  color: #555;
-}
-
-.especiales-delete-info strong,
-.especiales-status-info strong {
-  color: #333;
-  width: 100px;
-  display: inline-block;
-}
-
-.especiales-delete-warning {
-  color: #dc3545;
-  font-size: 0.9rem;
-  background-color: #f8d7da;
-  border-radius: 4px;
-  padding: 0.75rem;
-  margin: 0;
-  border: 1px solid #f5c6cb;
-  text-align: center;
-}
-
-/* Estados de carga y éxito */
-.especiales-delete-loading,
-.especiales-status-loading {
-  text-align: center;
-  padding: 2rem;
-}
-
-.especiales-delete-spinner,
-.especiales-status-spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  border-top: 4px solid #96bd44;
-  width: 50px;
-  height: 50px;
-  animation: especiales-spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-.especiales-delete-loading-text,
-.especiales-status-loading-text {
-  color: #666;
-  font-size: 1rem;
-  margin: 0;
-}
-
-.especiales-delete-success,
-.especiales-status-success {
-  text-align: center;
-  padding: 2rem;
-}
-
-.especiales-delete-success-icon,
-.especiales-status-success-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  color: #28a745;
-}
-
-.especiales-delete-success-message,
-.especiales-status-success-message {
-  color: #28a745;
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-
-.especiales-delete-error,
-.especiales-status-error {
-  text-align: center;
-  padding: 2rem;
-}
-
-.especiales-delete-error-icon,
-.especiales-status-error-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  color: #dc3545;
-}
-
-.especiales-delete-error-message,
-.especiales-status-error-message {
-  color: #dc3545;
-  font-size: 1rem;
-  background-color: #f8d7da;
-  border-radius: 4px;
-  padding: 1rem;
-  border: 1px solid #f5c6cb;
-}
-
-/* Estilos específicos para botones de acción */
-.especiales-edit-btn:hover {
-  background-color: #bee3f8;
-}
-
-.especiales-status-btn:hover {
-  background-color: #e6ffed;
-}
-
-.especiales-delete-btn:hover {
-  background-color: #fed7d7;
-}
-
-/* ========== MODO OSCURO ========== */
-.dark-mode .especiales-container {
-  background-color: #000000;
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-content {
-  background-color: #000000;
-}
-
-.dark-mode .especiales-section-header h3 {
-  color: #D4AF37;
-}
-
-.dark-mode .especiales-add-btn {
-  background-color: #D4AF37;
-  color: #000000;
-}
-
-.dark-mode .especiales-add-btn:hover {
-  background-color: #b8941f;
-}
-
-.dark-mode .especiales-search-input {
-  background-color: #1a1a1a;
-  border-color: #333;
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-search-input:focus {
-  border-color: #D4AF37;
-  outline: none;
-}
-
-.dark-mode .especiales-search-input::placeholder {
-  color: #666;
-}
-
-.dark-mode .especiales-clear-search {
-  color: #666;
-}
-
-.dark-mode .especiales-clear-search:hover {
-  color: #D4AF37;
-}
-
-.dark-mode .especiales-filter-select {
-  background-color: #1a1a1a;
-  border-color: #333;
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-filter-select:focus {
-  border-color: #D4AF37;
-}
-
-.dark-mode .especiales-modal-content {
-  background-color: #000000;
-  border: 1px solid #333;
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-modal-header {
-  border-bottom: 1px solid #333;
-}
-
-.dark-mode .especiales-modal-header h3 {
-  color: #D4AF37;
-}
-
-.dark-mode .especiales-modal-title {
-  color: #D4AF37;
-}
-
-.dark-mode .especiales-close-modal {
-  color: #666;
-}
-
-.dark-mode .especiales-close-modal:hover {
-  background-color: #1a1a1a;
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-modal-footer {
-  border-top: 1px solid #333;
-}
-
-.dark-mode .especiales-btn-cancel {
-  background-color: #6c757d;
-}
-
-.dark-mode .especiales-btn-cancel:hover {
-  background-color: #5a6268;
-}
-
-.dark-mode .especiales-btn-delete {
-  background-color: #dc3545;
-}
-
-.dark-mode .especiales-btn-delete:hover:not(:disabled) {
-  background-color: #c82333;
-}
-
-.dark-mode .especiales-btn-status {
-  background-color: #D4AF37;
-  color: #000000;
-}
-
-.dark-mode .especiales-btn-status:hover:not(:disabled) {
-  background-color: #b8941f;
-}
-
-.dark-mode .especiales-table-container {
-  background-color: rgba(0, 0, 0, 0.8);
-  border: 1px solid #333;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.dark-mode .especiales-table {
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-table th {
-  background-color: #1a1a1a;
-  color: #D4AF37;
-  border-bottom: 1px solid #333;
-}
-
-.dark-mode .especiales-th {
-  background-color: #1a1a1a;
-  color: #D4AF37;
-  border-bottom: 1px solid #333;
-}
-
-.dark-mode .especiales-td {
-  border-bottom: 1px solid #333;
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-table td {
-  border-bottom: 1px solid #333;
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-table tr:hover {
-  background-color: #1a1a1a;
-}
-
-.dark-mode .especiales-row:hover {
-  background-color: #1a1a1a;
-}
-
-.dark-mode .especiales-action-btn:hover {
-  background-color: #1a1a1a;
-  box-shadow: 0 2px 4px rgba(212, 175, 55, 0.2);
-}
-
-.dark-mode .especiales-no-results {
-  color: #999;
-}
-
-.dark-mode .especiales-pagination-container {
-  border-top: 1px solid #333;
-}
-
-.dark-mode .especiales-pagination-btn {
-  background-color: #1a1a1a;
-  border-color: #333;
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-pagination-btn:hover:not(:disabled) {
-  background-color: #2a2a2a;
-  border-color: #D4AF37;
-}
-
-.dark-mode .especiales-pagination-btn.active {
-  background-color: #D4AF37;
-  color: #000000;
-  border-color: #D4AF37;
-}
-
-.dark-mode .especiales-pagination-ellipsis {
-  color: #666;
-}
-
-.dark-mode .especiales-count-info {
-  color: #999;
-}
-
-.dark-mode .especiales-loading-spinner {
-  border: 4px solid rgba(255, 255, 255, 0.1);
-  border-top: 4px solid #D4AF37;
-}
-
-.dark-mode .especiales-loading-text {
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-action-icon {
-  filter: invert(1) brightness(0.8);
-}
-
-.dark-mode .especiales-action-btn:hover .especiales-action-icon {
-  filter: invert(1) brightness(1);
-}
-
-.dark-mode .especiales-action-btn:disabled .especiales-action-icon {
-  filter: invert(1) brightness(0.3);
-}
-
-/* Estilos específicos para especiales en modo oscuro */
-.dark-mode .especiales-id {
-  color: #D4AF37;
-}
-
-.dark-mode .especiales-name {
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-ingredientes {
-  color: #a0aec0;
-}
-
-.dark-mode .especiales-price {
-  color: #68d391;
-}
-
-.dark-mode .especiales-status-badge.active {
-  background-color: #22543d;
-  color: #c6f6d5;
-}
-
-.dark-mode .especiales-status-badge.inactive {
-  background-color: #742a2a;
-  color: #fed7d7;
-}
-
-/* Modo oscuro para modales de confirmación */
-.dark-mode .especiales-delete-question,
-.dark-mode .especiales-status-question {
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-delete-info,
-.dark-mode .especiales-status-info {
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-}
-
-.dark-mode .especiales-delete-info p,
-.dark-mode .especiales-status-info p {
-  color: #999;
-}
-
-.dark-mode .especiales-delete-info strong,
-.dark-mode .especiales-status-info strong {
-  color: #D4AF37;
-}
-
-.dark-mode .especiales-delete-warning {
-  background-color: #491c1c;
-  color: #ff6b6b;
-  border-color: #6b2e2e;
-}
-
-.dark-mode .especiales-delete-spinner,
-.dark-mode .especiales-status-spinner {
-  border: 4px solid rgba(255, 255, 255, 0.1);
-  border-top: 4px solid #D4AF37;
-}
-
-.dark-mode .especiales-delete-loading-text,
-.dark-mode .especiales-status-loading-text {
-  color: #999;
-}
-
-.dark-mode .especiales-delete-success-message,
-.dark-mode .especiales-status-success-message {
-  color: #4ade80;
-}
-
-.dark-mode .especiales-delete-error-message,
-.dark-mode .especiales-status-error-message {
-  background-color: #491c1c;
-  color: #ff6b6b;
-  border-color: #6b2e2e;
-}
-
-.dark-mode .especiales-edit-btn:hover {
-  background-color: #2a4365;
-}
-
-.dark-mode .especiales-status-btn:hover {
-  background-color: #2d3748;
-}
-
-.dark-mode .especiales-delete-btn:hover {
-  background-color: #742a2a;
-}
-
-/* Estilos para el botón de Spark - versión verde */
-.especiales-header-buttons {
+/* ========== ANÁLISIS DE SUPLEMENTOS ========== */
+/* Botón de Spark */
+.suplementos-header-buttons {
   display: flex;
   gap: 1rem;
   align-items: center;
 }
 
-.especiales-spark-btn {
+.suplementos-spark-btn {
   background: #96bd44;
   color: white;
   border: none;
@@ -976,35 +710,29 @@
   box-shadow: 0 2px 4px rgba(150, 189, 68, 0.3);
 }
 
-.especiales-spark-btn:hover {
+.suplementos-spark-btn:hover {
   background: #3e4e1d;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(150, 189, 68, 0.4);
 }
 
-.especiales-spark-btn:active {
+.suplementos-spark-btn:active {
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(150, 189, 68, 0.3);
 }
 
-.especiales-spark-icon {
+.suplementos-spark-icon {
   font-size: 1.2rem;
   font-weight: bold;
 }
 
-/* Estilos para el modal de análisis - versión simple */
-.especiales-analisis-modal {
-  max-width: 800px !important;
-  width: 90%;
-}
-
 /* Loading */
-.especiales-analisis-loading {
+.suplementos-analisis-loading {
   text-align: center;
   padding: 3rem;
 }
 
-.especiales-analisis-spinner {
+.suplementos-analisis-spinner {
   width: 50px;
   height: 50px;
   border: 4px solid #f3f3f3;
@@ -1014,30 +742,25 @@
   animation: spin 1s linear infinite;
 }
 
-.especiales-analisis-subtext {
+.suplementos-analisis-subtext {
   color: #666;
   font-size: 0.9rem;
   margin-top: 0.5rem;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 /* Error */
-.especiales-analisis-error {
+.suplementos-analisis-error {
   text-align: center;
   padding: 2rem;
 }
 
-.especiales-analisis-error-icon {
+.suplementos-analisis-error-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
   color: #dc3545;
 }
 
-.especiales-analisis-error-message {
+.suplementos-analisis-error-message {
   color: #dc3545;
   font-size: 1rem;
   background-color: #f8d7da;
@@ -1046,15 +769,15 @@
   border: 1px solid #f5c6cb;
 }
 
-/* Estadísticas del análisis - estilo simple */
-.especiales-analisis-stats {
+/* Estadísticas del análisis */
+.suplementos-analisis-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1rem;
   margin-bottom: 2rem;
 }
 
-.especiales-analisis-stat-card {
+.suplementos-analisis-stat-card {
   background-color: #f8f9fa;
   border: 1px solid #eaeaea;
   padding: 1.5rem;
@@ -1064,26 +787,26 @@
   transition: transform 0.2s ease;
 }
 
-.especiales-analisis-stat-card:hover {
+.suplementos-analisis-stat-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(150, 189, 68, 0.2);
   border-color: #96bd44;
 }
 
-.especiales-analisis-stat-label {
+.suplementos-analisis-stat-label {
   font-size: 0.9rem;
   color: #666;
   margin-bottom: 0.5rem;
 }
 
-.especiales-analisis-stat-value {
+.suplementos-analisis-stat-value {
   font-size: 1.8rem;
   font-weight: bold;
   color: #333;
 }
 
-/* Distribución por categorías - estilo simple */
-.especiales-analisis-categorias {
+/* Distribución por categorías */
+.suplementos-analisis-categorias {
   background-color: #f8f9fa;
   border: 1px solid #eaeaea;
   padding: 1.5rem;
@@ -1091,20 +814,20 @@
   margin-bottom: 2rem;
 }
 
-.especiales-analisis-categorias h4 {
+.suplementos-analisis-categorias h4 {
   margin: 0 0 1rem 0;
   color: #333;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
-.especiales-analisis-categoria-grid {
+.suplementos-analisis-categoria-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 0.75rem;
 }
 
-.especiales-analisis-categoria-item {
+.suplementos-analisis-categoria-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1115,17 +838,17 @@
   transition: all 0.2s ease;
 }
 
-.especiales-analisis-categoria-item:hover {
+.suplementos-analisis-categoria-item:hover {
   border-color: #96bd44;
   box-shadow: 0 2px 4px rgba(150, 189, 68, 0.1);
 }
 
-.especiales-analisis-categoria-nombre {
+.suplementos-analisis-categoria-nombre {
   font-weight: 500;
   color: #555;
 }
 
-.especiales-analisis-categoria-cantidad {
+.suplementos-analisis-categoria-cantidad {
   background-color: #96bd44;
   color: white;
   padding: 0.25rem 0.75rem;
@@ -1134,28 +857,80 @@
   font-weight: 600;
 }
 
-/* Especiales destacados - estilo simple */
-.especiales-analisis-destacados {
-  background: white;
+/* Distribución por presentaciones */
+.suplementos-analisis-presentaciones {
+  background-color: #f8f9fa;
+  border: 1px solid #eaeaea;
   padding: 1.5rem;
   border-radius: 6px;
-  border: 1px solid #eaeaea;
+  margin-bottom: 2rem;
 }
 
-.especiales-analisis-destacados h4 {
+.suplementos-analisis-presentaciones h4 {
   margin: 0 0 1rem 0;
   color: #333;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
-.especiales-analisis-destacados-lista {
+.suplementos-analisis-presentacion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.suplementos-analisis-presentacion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 1px solid #eaeaea;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.suplementos-analisis-presentacion-item:hover {
+  border-color: #96bd44;
+  box-shadow: 0 2px 4px rgba(150, 189, 68, 0.1);
+}
+
+.suplementos-analisis-presentacion-nombre {
+  font-weight: 500;
+  color: #555;
+}
+
+.suplementos-analisis-presentacion-cantidad {
+  background-color: #96bd44;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Suplementos destacados */
+.suplementos-analisis-destacados {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 6px;
+  border: 1px solid #eaeaea;
+}
+
+.suplementos-analisis-destacados h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.suplementos-analisis-destacados-lista {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.especiales-analisis-destacado-item {
+.suplementos-analisis-destacado-item {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #eaeaea;
   display: flex;
@@ -1164,20 +939,20 @@
   transition: background-color 0.2s ease;
 }
 
-.especiales-analisis-destacado-item:last-child {
+.suplementos-analisis-destacado-item:last-child {
   border-bottom: none;
 }
 
-.especiales-analisis-destacado-item:hover {
+.suplementos-analisis-destacado-item:hover {
   background-color: #f8f9fa;
 }
 
-.especiales-analisis-destacado-item strong {
+.suplementos-analisis-destacado-item strong {
   color: #333;
   min-width: 150px;
 }
 
-.especiales-analisis-destacado-categoria {
+.suplementos-analisis-destacado-categoria {
   color: #666;
   font-size: 0.9rem;
   background-color: #f0f0f0;
@@ -1185,278 +960,836 @@
   border-radius: 20px;
 }
 
-/* Botón de recargar análisis - estilo verde */
-.especiales-btn-reload-analisis {
-  background-color: #96bd44;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-  margin-left: 0.5rem;
+/* Información de stock en análisis */
+.suplementos-analisis-stock {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 6px;
+  border: 1px solid #eaeaea;
+  margin-top: 1rem;
 }
 
-.especiales-btn-reload-analisis:hover {
-  background-color: #3e4e1d;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(150, 189, 68, 0.3);
-}
-
-.especiales-reload-icon {
+.suplementos-analisis-stock h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
   font-size: 1.1rem;
-  font-weight: bold;
+  font-weight: 600;
 }
 
-/* ========== MODO OSCURO PARA ANÁLISIS ========== */
-.dark-mode .especiales-spark-btn {
-  background: #D4AF37;
-  color: #000000;
-  box-shadow: 0 2px 4px rgba(212, 175, 55, 0.3);
+.suplementos-analisis-stock-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
 }
 
-.dark-mode .especiales-spark-btn:hover {
-  background: #b8941f;
-  box-shadow: 0 4px 8px rgba(212, 175, 55, 0.4);
+.suplementos-analisis-stock-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: #f8f9fa;
+  border: 1px solid #eaeaea;
+  border-radius: 4px;
 }
 
-.dark-mode .especiales-analisis-stat-card {
-  background-color: #1a1a1a;
-  border-color: #333;
+.suplementos-analisis-stock-label {
+  font-weight: 500;
+  color: #555;
 }
 
-.dark-mode .especiales-analisis-stat-card:hover {
-  border-color: #D4AF37;
-  box-shadow: 0 4px 8px rgba(212, 175, 55, 0.2);
+.suplementos-analisis-stock-value {
+  font-weight: 600;
+  color: #333;
 }
 
-.dark-mode .especiales-analisis-stat-label {
-  color: #999;
+/* ========== MODALES DE CONFIRMACIÓN ========== */
+.suplementos-delete-modal,
+.suplementos-status-modal {
+  max-width: 450px;
 }
 
-.dark-mode .especiales-analisis-stat-value {
+.suplementos-delete-icon,
+.suplementos-status-icon {
+  font-size: 4rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  animation: suplementos-pulse 1.5s infinite;
+}
+
+@keyframes suplementos-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.suplementos-delete-question,
+.suplementos-status-question {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.suplementos-delete-info,
+.suplementos-status-info {
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.suplementos-delete-info p,
+.suplementos-status-info p {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.suplementos-delete-info strong,
+.suplementos-status-info strong {
+  color: #333;
+  width: 100px;
+  display: inline-block;
+}
+
+.suplementos-delete-warning {
+  color: #dc3545;
+  font-size: 0.9rem;
+  background-color: #f8d7da;
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin: 0;
+  border: 1px solid #f5c6cb;
+  text-align: center;
+}
+
+/* Estados de carga y éxito */
+.suplementos-delete-loading,
+.suplementos-status-loading {
+  text-align: center;
+  padding: 2rem;
+}
+
+.suplementos-delete-spinner,
+.suplementos-status-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #96bd44;
+  width: 50px;
+  height: 50px;
+  animation: suplementos-spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+.suplementos-delete-loading-text,
+.suplementos-status-loading-text {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.suplementos-delete-success,
+.suplementos-status-success {
+  text-align: center;
+  padding: 2rem;
+}
+
+.suplementos-delete-success-icon,
+.suplementos-status-success-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #28a745;
+}
+
+.suplementos-delete-success-message,
+.suplementos-status-success-message {
+  color: #28a745;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.suplementos-delete-error,
+.suplementos-status-error {
+  text-align: center;
+  padding: 2rem;
+}
+
+.suplementos-delete-error-icon,
+.suplementos-status-error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #dc3545;
+}
+
+.suplementos-delete-error-message,
+.suplementos-status-error-message {
+  color: #dc3545;
+  font-size: 1rem;
+  background-color: #f8d7da;
+  border-radius: 4px;
+  padding: 1rem;
+  border: 1px solid #f5c6cb;
+}
+
+/* Estilos específicos para botones de acción */
+.suplementos-edit-btn:hover {
+  background-color: #bee3f8;
+}
+
+.suplementos-status-btn:hover {
+  background-color: #e6ffed;
+}
+
+.suplementos-delete-btn:hover {
+  background-color: #fed7d7;
+}
+
+/* ========== MODO OSCURO ========== */
+.dark-mode .suplementos-container {
+  background-color: #000000;
   color: #e2e8f0;
 }
 
-.dark-mode .especiales-analisis-categorias {
-  background-color: #1a1a1a;
-  border-color: #333;
-}
-
-.dark-mode .especiales-analisis-categorias h4 {
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-analisis-categoria-item {
-  background: #000000;
-  border-color: #333;
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-analisis-categoria-item:hover {
-  border-color: #D4AF37;
-}
-
-.dark-mode .especiales-analisis-categoria-nombre {
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-analisis-categoria-cantidad {
-  background-color: #D4AF37;
-  color: #000000;
-}
-
-.dark-mode .especiales-analisis-destacados {
-  background: #1a1a1a;
-  border-color: #333;
-}
-
-.dark-mode .especiales-analisis-destacados h4 {
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-analisis-destacado-item {
-  border-bottom-color: #333;
-  color: #e2e8f0;
-}
-
-.dark-mode .especiales-analisis-destacado-item:hover {
+.dark-mode .suplementos-content {
   background-color: #000000;
 }
 
-.dark-mode .especiales-analisis-destacado-item strong {
-  color: #e2e8f0;
+.dark-mode .suplementos-section-header h3 {
+  color: #D4AF37;
 }
 
-.dark-mode .especiales-analisis-destacado-categoria {
-  background-color: #333;
-  color: #999;
-}
-
-.dark-mode .especiales-btn-reload-analisis {
+.dark-mode .suplementos-add-btn {
   background-color: #D4AF37;
   color: #000000;
 }
 
-.dark-mode .especiales-btn-reload-analisis:hover {
+.dark-mode .suplementos-add-btn:hover {
   background-color: #b8941f;
-  box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);
 }
 
-.dark-mode .especiales-analisis-error-message {
+.dark-mode .suplementos-search-input {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-search-input:focus {
+  border-color: #D4AF37;
+  outline: none;
+}
+
+.dark-mode .suplementos-search-input::placeholder {
+  color: #666;
+}
+
+.dark-mode .suplementos-clear-search {
+  color: #666;
+}
+
+.dark-mode .suplementos-clear-search:hover {
+  background-color: #2a2a2a;
+  color: #D4AF37;
+}
+
+.dark-mode .suplementos-filter-select {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-filter-select:focus {
+  border-color: #D4AF37;
+}
+
+.dark-mode .suplementos-modal-content {
+  background-color: #000000;
+  border: 1px solid #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-modal-header {
+  border-bottom: 1px solid #333;
+}
+
+.dark-mode .suplementos-modal-header h3 {
+  color: #D4AF37;
+}
+
+.dark-mode .suplementos-modal-title {
+  color: #D4AF37;
+}
+
+.dark-mode .suplementos-close-modal {
+  color: #666;
+}
+
+.dark-mode .suplementos-close-modal:hover {
+  background-color: #1a1a1a;
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-modal-footer {
+  border-top: 1px solid #333;
+}
+
+.dark-mode .suplementos-btn-cancel {
+  background-color: #6c757d;
+}
+
+.dark-mode .suplementos-btn-cancel:hover {
+  background-color: #5a6268;
+}
+
+.dark-mode .suplementos-btn-delete {
+  background-color: #dc3545;
+}
+
+.dark-mode .suplementos-btn-delete:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.dark-mode .suplementos-btn-status {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.dark-mode .suplementos-btn-status:hover:not(:disabled) {
+  background-color: #b8941f;
+}
+
+.dark-mode .suplementos-table-container {
+  background-color: rgba(0, 0, 0, 0.8);
+  border: 1px solid #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .suplementos-table {
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-table th {
+  background-color: #1a1a1a;
+  color: #D4AF37;
+  border-bottom: 1px solid #333;
+}
+
+.dark-mode .suplementos-th {
+  background-color: #1a1a1a;
+  color: #D4AF37;
+  border-bottom: 1px solid #333;
+}
+
+.dark-mode .suplementos-td {
+  border-bottom: 1px solid #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-table td {
+  border-bottom: 1px solid #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-table tr:hover {
+  background-color: #1a1a1a;
+}
+
+.dark-mode .suplementos-row:hover {
+  background-color: #1a1a1a;
+}
+
+.dark-mode .suplementos-action-btn:hover {
+  background-color: #1a1a1a;
+  box-shadow: 0 2px 4px rgba(212, 175, 55, 0.2);
+}
+
+.dark-mode .suplementos-no-results {
+  color: #999;
+}
+
+.dark-mode .suplementos-pagination-container {
+  border-top: 1px solid #333;
+}
+
+.dark-mode .suplementos-pagination-btn {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-pagination-btn:hover:not(:disabled) {
+  background-color: #2a2a2a;
+  border-color: #D4AF37;
+}
+
+.dark-mode .suplementos-pagination-btn.active {
+  background-color: #D4AF37;
+  color: #000000;
+  border-color: #D4AF37;
+}
+
+.dark-mode .suplementos-pagination-ellipsis {
+  color: #666;
+}
+
+.dark-mode .suplementos-count-info {
+  color: #999;
+}
+
+.dark-mode .suplementos-loading-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #D4AF37;
+}
+
+.dark-mode .suplementos-loading-text {
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-action-icon {
+  filter: invert(1) brightness(0.8);
+}
+
+.dark-mode .suplementos-action-btn:hover .suplementos-action-icon {
+  filter: invert(1) brightness(1);
+}
+
+.dark-mode .suplementos-action-btn:disabled .suplementos-action-icon {
+  filter: invert(1) brightness(0.3);
+}
+
+/* Estilos específicos para suplementos en modo oscuro */
+.dark-mode .suplementos-id {
+  color: #D4AF37;
+}
+
+.dark-mode .suplementos-name {
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-ingredientes {
+  color: #a0aec0;
+}
+
+.dark-mode .suplementos-price {
+  color: #68d391;
+}
+
+.dark-mode .suplementos-status-badge.active {
+  background-color: #22543d;
+  color: #c6f6d5;
+}
+
+.dark-mode .suplementos-status-badge.inactive {
+  background-color: #742a2a;
+  color: #fed7d7;
+}
+
+.dark-mode .suplementos-stock-badge.stock-alto {
+  background-color: #22543d;
+  color: #c6f6d5;
+}
+
+.dark-mode .suplementos-stock-badge.stock-medio {
+  background-color: #744210;
+  color: #fefcbf;
+}
+
+.dark-mode .suplementos-stock-badge.stock-bajo {
+  background-color: #742a2a;
+  color: #fed7d7;
+}
+
+/* Modo oscuro para modales de confirmación */
+.dark-mode .suplementos-delete-question,
+.dark-mode .suplementos-status-question {
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-delete-info,
+.dark-mode .suplementos-status-info {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+}
+
+.dark-mode .suplementos-delete-info p,
+.dark-mode .suplementos-status-info p {
+  color: #999;
+}
+
+.dark-mode .suplementos-delete-info strong,
+.dark-mode .suplementos-status-info strong {
+  color: #D4AF37;
+}
+
+.dark-mode .suplementos-delete-warning {
   background-color: #491c1c;
   color: #ff6b6b;
   border-color: #6b2e2e;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .especiales-header-buttons {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .especiales-spark-btn,
-  .especiales-add-btn {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .especiales-analisis-stats {
-    grid-template-columns: 1fr;
-  }
-  
-  .especiales-analisis-categoria-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .especiales-analisis-destacado-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-  
-  .especiales-analisis-destacado-item strong {
-    min-width: auto;
-  }
+.dark-mode .suplementos-delete-spinner,
+.dark-mode .suplementos-status-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid #D4AF37;
 }
 
-/* Responsive */
+.dark-mode .suplementos-delete-loading-text,
+.dark-mode .suplementos-status-loading-text {
+  color: #999;
+}
+
+.dark-mode .suplementos-delete-success-message,
+.dark-mode .suplementos-status-success-message {
+  color: #4ade80;
+}
+
+.dark-mode .suplementos-delete-error-message,
+.dark-mode .suplementos-status-error-message {
+  background-color: #491c1c;
+  color: #ff6b6b;
+  border-color: #6b2e2e;
+}
+
+.dark-mode .suplementos-edit-btn:hover {
+  background-color: #2a4365;
+}
+
+.dark-mode .suplementos-status-btn:hover {
+  background-color: #2d3748;
+}
+
+.dark-mode .suplementos-delete-btn:hover {
+  background-color: #742a2a;
+}
+
+/* Modo oscuro para análisis */
+.dark-mode .suplementos-spark-btn {
+  background: #D4AF37;
+  color: #000000;
+  box-shadow: 0 2px 4px rgba(212, 175, 55, 0.3);
+}
+
+.dark-mode .suplementos-spark-btn:hover {
+  background: #b8941f;
+  box-shadow: 0 4px 8px rgba(212, 175, 55, 0.4);
+}
+
+.dark-mode .suplementos-analisis-modal .suplementos-modal-body {
+  background: #1a1a1a;
+}
+
+.dark-mode .suplementos-analisis-modal .suplementos-modal-footer {
+  background: #000000;
+  border-top-color: #333;
+}
+
+.dark-mode .suplementos-analisis-modal .suplementos-btn-cancel {
+  background: #4a5568;
+}
+
+.dark-mode .suplementos-analisis-modal .suplementos-btn-cancel:hover {
+  background: #2d3748;
+}
+
+.dark-mode .suplementos-analisis-modal .suplementos-btn-reload-analisis {
+  background: #D4AF37;
+  color: #000000;
+}
+
+.dark-mode .suplementos-analisis-modal .suplementos-btn-reload-analisis:hover {
+  background: #b8941f;
+}
+
+.dark-mode .suplementos-analisis-stat-card {
+  background-color: #1a1a1a;
+  border-color: #333;
+}
+
+.dark-mode .suplementos-analisis-stat-card:hover {
+  border-color: #D4AF37;
+  box-shadow: 0 4px 8px rgba(212, 175, 55, 0.2);
+}
+
+.dark-mode .suplementos-analisis-stat-label {
+  color: #999;
+}
+
+.dark-mode .suplementos-analisis-stat-value {
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-analisis-categorias {
+  background-color: #1a1a1a;
+  border-color: #333;
+}
+
+.dark-mode .suplementos-analisis-categorias h4 {
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-analisis-categoria-item {
+  background: #000000;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-analisis-categoria-item:hover {
+  border-color: #D4AF37;
+}
+
+.dark-mode .suplementos-analisis-categoria-nombre {
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-analisis-categoria-cantidad {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.dark-mode .suplementos-analisis-presentaciones {
+  background-color: #1a1a1a;
+  border-color: #333;
+}
+
+.dark-mode .suplementos-analisis-presentaciones h4 {
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-analisis-presentacion-item {
+  background: #000000;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-analisis-presentacion-item:hover {
+  border-color: #D4AF37;
+}
+
+.dark-mode .suplementos-analisis-presentacion-nombre {
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-analisis-presentacion-cantidad {
+  background-color: #D4AF37;
+  color: #000000;
+}
+
+.dark-mode .suplementos-analisis-destacados {
+  background: #1a1a1a;
+  border-color: #333;
+}
+
+.dark-mode .suplementos-analisis-destacados h4 {
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-analisis-destacado-item {
+  border-bottom-color: #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-analisis-destacado-item:hover {
+  background-color: #000000;
+}
+
+.dark-mode .suplementos-analisis-destacado-item strong {
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-analisis-destacado-categoria {
+  background-color: #333;
+  color: #999;
+}
+
+.dark-mode .suplementos-analisis-stock {
+  background: #1a1a1a;
+  border-color: #333;
+}
+
+.dark-mode .suplementos-analisis-stock h4 {
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-analisis-stock-item {
+  background-color: #000000;
+  border-color: #333;
+}
+
+.dark-mode .suplementos-analisis-stock-label {
+  color: #999;
+}
+
+.dark-mode .suplementos-analisis-stock-value {
+  color: #e2e8f0;
+}
+
+.dark-mode .suplementos-analisis-error-message {
+  background-color: #491c1c;
+  color: #ff6b6b;
+  border-color: #6b2e2e;
+}
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  .especiales-content {
+  .suplementos-content {
     padding: 1rem;
   }
   
-  .especiales-section-header {
+  .suplementos-section-header {
     flex-direction: column;
     gap: 15px;
     align-items: flex-start;
   }
   
-  .especiales-add-btn {
-    align-self: stretch;
+  .suplementos-header-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .suplementos-add-btn,
+  .suplementos-spark-btn {
+    width: 100%;
     justify-content: center;
   }
   
-  .especiales-filters-row {
+  .suplementos-filters-row {
     flex-direction: column;
     align-items: stretch;
   }
   
-  .especiales-search-container.especiales-main-search {
+  .suplementos-search-container.suplementos-main-search {
     min-width: auto;
   }
   
-  .especiales-table th,
-  .especiales-table td {
+  .suplementos-table th,
+  .suplementos-table td {
     padding: 8px 10px;
     font-size: 14px;
   }
   
-  .especiales-search-container {
+  .suplementos-search-container {
     max-width: 100%;
   }
 
-  .especiales-pagination-controls {
+  .suplementos-pagination-controls {
     gap: 5px;
   }
 
-  .especiales-pagination-btn {
+  .suplementos-pagination-btn {
     padding: 6px 10px;
     font-size: 13px;
   }
 
-  .especiales-modal-content {
+  .suplementos-modal-content {
     width: 95%;
     margin: 1rem;
   }
 
-  .especiales-ingredientes {
+  .suplementos-ingredientes {
     max-width: 200px;
   }
   
-  .especiales-modal-content.create-especial-modal .especiales-modal-body {
+  .suplementos-modal-content.create-suplemento-modal .suplementos-modal-body {
     padding: 1.5rem;
+  }
+  
+  .suplementos-analisis-modal {
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .suplementos-analisis-modal .suplementos-modal-header {
+    border-radius: 0;
+  }
+
+  .suplementos-analisis-modal .suplementos-modal-footer {
+    flex-direction: column;
+  }
+
+  .suplementos-analisis-modal .suplementos-btn-cancel,
+  .suplementos-analisis-modal .suplementos-btn-reload-analisis {
+    width: 100%;
+  }
+  
+  .suplementos-analisis-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .suplementos-analisis-categoria-grid,
+  .suplementos-analisis-presentacion-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .suplementos-analisis-stock-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .suplementos-analisis-destacado-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .suplementos-analisis-destacado-item strong {
+    min-width: auto;
   }
 }
 
 @media (max-width: 480px) {
-  .especiales-search-section h3 {
+  .suplementos-search-section h3 {
     font-size: 1.1rem;
   }
   
-  .especiales-pagination-controls {
+  .suplementos-pagination-controls {
     flex-wrap: wrap;
   }
 
-  .especiales-actions-buttons {
+  .suplementos-actions-buttons {
     gap: 5px;
   }
 
-  .especiales-action-btn {
+  .suplementos-action-btn {
     padding: 4px;
   }
 
-  .especiales-modal-footer {
+  .suplementos-modal-footer {
     flex-direction: column;
   }
 
-  .especiales-btn-cancel, 
-  .especiales-btn-delete,
-  .especiales-btn-status {
+  .suplementos-btn-cancel, 
+  .suplementos-btn-delete,
+  .suplementos-btn-status,
+  .suplementos-btn-reload-analisis {
     width: 100%;
   }
 
-  .especiales-table {
+  .suplementos-table {
     font-size: 12px;
   }
 
-  .especiales-ingredientes {
+  .suplementos-ingredientes {
     max-width: 150px;
   }
 
-  .especiales-status-badge {
+  .suplementos-status-badge,
+  .suplementos-stock-badge {
     font-size: 10px;
     padding: 4px 8px;
   }
   
-  .especiales-modal-content.create-especial-modal .especiales-modal-body {
+  .suplementos-modal-content.create-suplemento-modal .suplementos-modal-body {
     padding: 1rem;
   }
 }
 
 /* Estilos para tablas responsive */
 @media (max-width: 768px) {
-  .especiales-table-container {
+  .suplementos-table-container {
     overflow-x: auto;
   }
   
-  .especiales-table {
-    min-width: 600px;
+  .suplementos-table {
+    min-width: 800px;
   }
 }

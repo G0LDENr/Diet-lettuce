@@ -4,6 +4,7 @@ import ConfigProvider from './context/config';
 
 import Home from './pages/Home';
 import HomeAdmin from './pages/Home-Admin';
+import Nosotros from './components/nosotros/Nosotros';
 import Login from './components/login/AuthContainer';
 import Register from './components/login/Register';
 import Configuracion from './components/config/Config';
@@ -11,8 +12,11 @@ import Perfil from './components/perfil/Perfil';
 import Productos from './components/productos/Productos';
 import Crrito from './components/carrito/Carrito';
 import Especiales from './components/especiales/Especiales';
-import Ingredientes from './components/Ingredientes/Ingredientes';
 import Users from './components/users/Users';
+import NotificacionesUser from './components/notificaciones/NotificacionesUser';
+import Notificaciones from './components/notificaciones/Notificaciones';
+import Ordenes from './components/ordenes/Ordenes';
+import Dietas from './components/dietas/Dietas';
 
 
 function App() {
@@ -30,8 +34,12 @@ function App() {
                     <Route path="/productos" element={<Productos />} />
                     <Route path="/carrito" element={<Crrito />} />
                     <Route path="/especiales" element={<Especiales />} />
-                    <Route path="/ingredientes" element={<Ingredientes />} />
                     <Route path="/users" element={<Users />} />
+                    <Route path="/notificacionesUser" element={<NotificacionesUser />} />
+                    <Route path="/notificaciones" element={<Notificaciones />} />
+                    <Route path="/ordenes" element={<Ordenes />} />
+                    <Route path="/nosotros" element={<Nosotros />} />
+                    <Route path="/dietas" element={<Dietas />} />
                 </Routes>
             </Router>
         </ConfigProvider>

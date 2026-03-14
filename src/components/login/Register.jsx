@@ -4,13 +4,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faEye, faEyeSlash, faPlus, faTrash,
   faChevronLeft, faChevronRight, faHome, faBriefcase, faMapMarkerAlt,
-  faCreditCard, faCheckCircle
+  faCreditCard, faCheckCircle, faChild, faUser, faLock, faCalendarAlt, faPhone
 } from '@fortawesome/free-solid-svg-icons';
 
-const Register = ({ onToggle }) => {
+const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
     const navigate = useNavigate();
-    const [currentStep, setCurrentStep] = useState(1);
+    const [currentStep, setCurrentStep] = useState(initialStep);
     const [skipTarjeta, setSkipTarjeta] = useState(false);
+    const [accountType, setAccountType] = useState('personal'); // 'personal' o 'infantil'
     const [formData, setFormData] = useState({
         // Paso 1: Información personal
         name: '',
@@ -19,7 +20,11 @@ const Register = ({ onToggle }) => {
         confirmPassword: '',
         phone: '',
         gender: '',
-        // Paso 2: Direcciones
+        // Nuevos campos para cuentas infantiles
+        edad: '',
+        tutor_nombre: '',  // Nombre del tutor (para cuenta infantil)
+        tutor_telefono: '', // Teléfono del tutor (para cuenta infantil)
+        // Paso 2: Direcciones (para ambos tipos de cuenta)
         direcciones: [
             {
                 calle: '',
@@ -34,7 +39,7 @@ const Register = ({ onToggle }) => {
                 predeterminada: true
             }
         ],
-        // Paso 3: Tarjeta de crédito (opcional)
+        // Paso 3: Tarjeta de crédito (para ambos tipos de cuenta)
         tarjeta: {
             nombre_titular: '',
             numero_tarjeta: '',
@@ -51,19 +56,40 @@ const Register = ({ onToggle }) => {
     const [showTarjetaNumber, setShowTarjetaNumber] = useState(false);
     const [language, setLanguage] = useState('es');
 
+    // Actualizar el step cuando cambie externamente
+    React.useEffect(() => {
+        setCurrentStep(initialStep);
+    }, [initialStep]);
+
+    // Función para manejar cambio de paso y notificar al padre
+    const handleStepChange = (newStep) => {
+        setCurrentStep(newStep);
+        if (onStepChange) {
+            onStepChange(newStep);
+        }
+    };
+
     // Textos según el idioma
     const texts = {
         es: {
             step1: "Información Personal",
             step2: "Direcciones de Entrega",
-            step3: "Tarjeta de Crédito (Opcional)",
+            step3: "Tarjeta de Crédito",
             title: "Crear Cuenta",
+            accountTypeTitle: "Tipo de Cuenta",
+            accountPersonal: "Cuenta Personal",
+            accountInfantil: "Cuenta Infantil",
+            accountPersonalDesc: "Para comprar y gestionar pedidos",
+            accountInfantilDesc: "Para niños (3-17 años) - Necesitarás los datos del tutor",
             name: "Nombre completo",
             namePlaceholder: "Tu nombre completo",
+            childNamePlaceholder: "Nombre del niño/a",
             email: "Correo electrónico",
             emailPlaceholder: "correo@example.com",
+            childEmailPlaceholder: "correo_del_nino@example.com",
             password: "Contraseña",
             passwordPlaceholder: "••••••••",
+            childPasswordPlaceholder: "Contraseña para el niño",
             confirmPassword: "Confirmar contraseña",
             confirmPasswordPlaceholder: "••••••••",
             phone: "Teléfono",
@@ -74,6 +100,14 @@ const Register = ({ onToggle }) => {
                 M: "Masculino",
                 F: "Femenino",
             },
+            edad: "Edad del niño/a",
+            edadPlaceholder: "Edad (3-17 años)",
+            tutor_nombre: "Nombre del tutor (padre/madre)",
+            tutor_nombrePlaceholder: "Nombre completo del tutor",
+            tutor_telefono: "Teléfono del tutor",
+            tutor_telefonoPlaceholder: "Teléfono del tutor",
+            tutorInfo: "Datos del tutor (padre/madre)",
+            
             direccionTitle: "Dirección de Entrega",
             calle: "Calle",
             callePlaceholder: "Nombre de la calle",
@@ -134,22 +168,33 @@ const Register = ({ onToggle }) => {
             errorTarjeta: "Los datos de la tarjeta no son válidos",
             errorTarjetaNumero: "Número de tarjeta inválido",
             errorTarjetaFecha: "Fecha de expiración inválida",
+            errorEdad: "La edad debe ser entre 3 y 17 años",
+            errorTutorData: "El nombre y teléfono del tutor son requeridos",
             close: "Cerrar",
             successMessage: "Cuenta creada exitosamente. Redirigiendo...",
             welcomeAdmin: "Bienvenido Administrador",
-            welcomeUser: "Bienvenido"
+            welcomeUser: "Bienvenido",
+            welcomeChild: "¡Cuenta infantil creada!"
         },
         en: {
             step1: "Personal Information",
             step2: "Delivery Addresses",
-            step3: "Credit Card (Optional)",
+            step3: "Credit Card",
             title: "Create Account",
+            accountTypeTitle: "Account Type",
+            accountPersonal: "Personal Account",
+            accountInfantil: "Child Account",
+            accountPersonalDesc: "For shopping and managing orders",
+            accountInfantilDesc: "For children (3-17 years) - You'll need tutor's data",
             name: "Full name",
             namePlaceholder: "Your full name",
+            childNamePlaceholder: "Child's name",
             email: "Email",
             emailPlaceholder: "email@example.com",
+            childEmailPlaceholder: "child_email@example.com",
             password: "Password",
             passwordPlaceholder: "••••••••",
+            childPasswordPlaceholder: "Child's password",
             confirmPassword: "Confirm password",
             confirmPasswordPlaceholder: "••••••••",
             phone: "Phone",
@@ -160,6 +205,14 @@ const Register = ({ onToggle }) => {
                 M: "Male",
                 F: "Female",
             },
+            edad: "Child's age",
+            edadPlaceholder: "Age (3-17 years)",
+            tutor_nombre: "Tutor's name (parent)",
+            tutor_nombrePlaceholder: "Tutor's full name",
+            tutor_telefono: "Tutor's phone",
+            tutor_telefonoPlaceholder: "Tutor's phone number",
+            tutorInfo: "Tutor's information (parent)",
+            
             direccionTitle: "Delivery Address",
             calle: "Street",
             callePlaceholder: "Street name",
@@ -220,10 +273,13 @@ const Register = ({ onToggle }) => {
             errorTarjeta: "Invalid card data",
             errorTarjetaNumero: "Invalid card number",
             errorTarjetaFecha: "Invalid expiration date",
+            errorEdad: "Age must be between 3 and 17 years",
+            errorTutorData: "Tutor's name and phone are required",
             close: "Close",
             successMessage: "Account created successfully. Redirecting...",
             welcomeAdmin: "Welcome Administrator",
-            welcomeUser: "Welcome"
+            welcomeUser: "Welcome",
+            welcomeChild: "Child account created!"
         }
     };
 
@@ -317,10 +373,30 @@ const Register = ({ onToggle }) => {
             return false;
         }
 
+        // Validaciones específicas para cuenta infantil
+        if (accountType === 'infantil') {
+            if (!formData.edad) {
+                setError(t.errorEdad);
+                return false;
+            }
+            
+            const edad = parseInt(formData.edad);
+            if (isNaN(edad) || edad < 3 || edad > 17) {
+                setError(t.errorEdad);
+                return false;
+            }
+
+            if (!formData.tutor_nombre || !formData.tutor_telefono) {
+                setError(t.errorTutorData);
+                return false;
+            }
+        }
+
         return true;
     };
 
     const validateStep2 = () => {
+        // Validar direcciones para ambos tipos de cuenta
         const direccionCompleta = formData.direcciones.some(dir => 
             dir.calle && 
             dir.numero_exterior && 
@@ -346,7 +422,7 @@ const Register = ({ onToggle }) => {
     };
 
     const validateTarjeta = () => {
-        // Si el usuario eligió omitir, no validar
+        // Si el usuario eligió omitir, no validar (para ambos tipos de cuenta)
         if (skipTarjeta) return true;
         
         // Si todos los campos de tarjeta están vacíos, considerar como omitido
@@ -401,30 +477,42 @@ const Register = ({ onToggle }) => {
     };
 
     const handleNextStep = () => {
-        if (currentStep === 1) {
+        if (currentStep === 0) {
+            // Si está en selector de tipo de cuenta, ir al paso 1
+            handleStepChange(1);
+        } else if (currentStep === 1) {
             if (validateStep1()) {
                 setError('');
-                setCurrentStep(2);
+                handleStepChange(2); // Ambos tipos de cuenta van al paso 2 (direcciones)
             }
         } else if (currentStep === 2) {
             if (validateStep2()) {
                 setError('');
-                setCurrentStep(3);
+                handleStepChange(3); // Ambos tipos de cuenta van al paso 3 (tarjeta)
             }
         }
     };
 
     const handlePrevStep = () => {
-        if (currentStep === 2) {
-            setCurrentStep(1);
+        if (currentStep === 1) {
+            // Volver al selector de tipo de cuenta
+            handleStepChange(0);
+        } else if (currentStep === 2) {
+            handleStepChange(1);
         } else if (currentStep === 3) {
-            setCurrentStep(2);
+            handleStepChange(2);
         }
         setError('');
     };
 
     const redirectByRole = (role, user) => {
-        const welcomeMessage = role === 1 ? t.welcomeAdmin : t.welcomeUser;
+        let welcomeMessage = t.welcomeUser;
+        if (role === 1) {
+            welcomeMessage = t.welcomeAdmin;
+        } else if (user?.tipo_cuenta === 'infantil') {
+            welcomeMessage = t.welcomeChild;
+        }
+        
         console.log(`${welcomeMessage}:`, user?.name || 'Usuario');
         
         switch(role) {
@@ -443,6 +531,12 @@ const Register = ({ onToggle }) => {
         e.preventDefault();
         setLoading(true);
         setError('');
+
+        if (currentStep === 0) {
+            handleNextStep();
+            setLoading(false);
+            return;
+        }
 
         if (currentStep === 1) {
             if (!validateStep1()) {
@@ -472,17 +566,29 @@ const Register = ({ onToggle }) => {
         }
 
         try {
-            // 1. Registrar al usuario
+            // Preparar datos del usuario según tipo de cuenta
             const userData = {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
                 telefono: formData.phone,
                 sexo: formData.gender,
-                direccion: formData.direcciones.length > 0 ? formData.direcciones[0] : null
+                tipo_cuenta: accountType
             };
 
-            // Si hay datos de tarjeta y no se omitió, agregarlos
+            // Agregar campos específicos para cuenta infantil
+            if (accountType === 'infantil') {
+                userData.edad = parseInt(formData.edad);
+                userData.tutor_nombre = formData.tutor_nombre;
+                userData.tutor_telefono = formData.tutor_telefono;
+            }
+
+            // Agregar dirección (para ambos tipos de cuenta)
+            if (formData.direcciones.length > 0) {
+                userData.direccion = formData.direcciones[0];
+            }
+
+            // Si hay datos de tarjeta y no se omitió, agregarlos (para ambos tipos de cuenta)
             if (!skipTarjeta && formData.tarjeta.nombre_titular && formData.tarjeta.numero_tarjeta) {
                 userData.tarjeta = {
                     nombre_titular: formData.tarjeta.nombre_titular,
@@ -513,7 +619,7 @@ const Register = ({ onToggle }) => {
                 return;
             }
 
-            // 2. Iniciar sesión automáticamente
+            // Iniciar sesión automáticamente
             console.log('Iniciando sesión automáticamente...');
             const loginResponse = await fetch('http://127.0.0.1:5000/user/login', {
                 method: 'POST',
@@ -536,7 +642,7 @@ const Register = ({ onToggle }) => {
                 localStorage.setItem('user', JSON.stringify(loginData.user));
                 localStorage.setItem('userData', JSON.stringify(loginData.user));
                 
-                // Redirigir según rol
+                // Redirigir según rol y tipo de cuenta
                 if (loginData.user && loginData.user.rol !== undefined) {
                     redirectByRole(loginData.user.rol, loginData.user);
                 } else {
@@ -590,10 +696,61 @@ const Register = ({ onToggle }) => {
         }
     };
 
-    // Renderizar paso 1
+    // Renderizar selección de tipo de cuenta
+    const renderAccountTypeSelector = () => (
+        <div className="auth-account-type">
+            <h2 className="auth-form-title">{t.accountTypeTitle}</h2>
+            <div className="auth-account-type-options">
+                <button
+                    type="button"
+                    className={`auth-account-type-option ${accountType === 'personal' ? 'active' : ''}`}
+                    onClick={() => setAccountType('personal')}
+                >
+                    <FontAwesomeIcon icon={faUser} size="2x" />
+                    <div className="auth-account-type-text">
+                        <strong>{t.accountPersonal}</strong>
+                        <small>{t.accountPersonalDesc}</small>
+                    </div>
+                </button>
+                
+                <button
+                    type="button"
+                    className={`auth-account-type-option ${accountType === 'infantil' ? 'active' : ''}`}
+                    onClick={() => setAccountType('infantil')}
+                >
+                    <FontAwesomeIcon icon={faChild} size="2x" />
+                    <div className="auth-account-type-text">
+                        <strong>{t.accountInfantil}</strong>
+                        <small>{t.accountInfantilDesc}</small>
+                    </div>
+                </button>
+            </div>
+            
+            <div className="auth-step-navigation" style={{ marginTop: '30px' }}>
+                <button 
+                    type="button" 
+                    className="auth-next-button"
+                    onClick={handleNextStep}
+                >
+                    {t.siguiente} <FontAwesomeIcon icon={faChevronRight} />
+                </button>
+            </div>
+        </div>
+    );
+
+    // Renderizar paso 1 (Información personal según tipo de cuenta)
     const renderStep1 = () => (
         <>
-            <h2 className="auth-form-title">{t.step1}</h2>
+            <h2 className="auth-form-title">
+                {accountType === 'infantil' ? (
+                    <>
+                        <FontAwesomeIcon icon={faChild} style={{ marginRight: '10px' }} />
+                        {t.accountInfantil}
+                    </>
+                ) : (
+                    t.step1
+                )}
+            </h2>
             
             {error && (
                 <div className="auth-error-message">
@@ -610,7 +767,9 @@ const Register = ({ onToggle }) => {
             
             <form onSubmit={(e) => { e.preventDefault(); handleNextStep(); }} className="auth-form">
                 <div className="auth-form-group">
-                    <label htmlFor="name">{t.name} *</label>
+                    <label htmlFor="name">
+                        {accountType === 'infantil' ? t.childNamePlaceholder : t.name} *
+                    </label>
                     <input
                         id="name"
                         name="name"
@@ -618,14 +777,16 @@ const Register = ({ onToggle }) => {
                         className="auth-form-input"
                         value={formData.name}
                         onChange={handleInputChange}
-                        placeholder={t.namePlaceholder}
+                        placeholder={accountType === 'infantil' ? t.childNamePlaceholder : t.namePlaceholder}
                         required
                         disabled={loading}
                     />
                 </div>
                 
                 <div className="auth-form-group">
-                    <label htmlFor="email">{t.email} *</label>
+                    <label htmlFor="email">
+                        {accountType === 'infantil' ? t.childEmailPlaceholder : t.email} *
+                    </label>
                     <input
                         id="email"
                         name="email"
@@ -633,25 +794,94 @@ const Register = ({ onToggle }) => {
                         className="auth-form-input"
                         value={formData.email}
                         onChange={handleInputChange}
-                        placeholder={t.emailPlaceholder}
+                        placeholder={accountType === 'infantil' ? t.childEmailPlaceholder : t.emailPlaceholder}
                         required
                         disabled={loading}
                     />
                 </div>
 
-                <div className="auth-form-group">
-                    <label htmlFor="phone">{t.phone}</label>
-                    <input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        className="auth-form-input"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        placeholder={t.phonePlaceholder}
-                        disabled={loading}
-                    />
-                </div>
+                {accountType === 'infantil' && (
+                    <>
+                        <div className="auth-form-group">
+                            <label htmlFor="edad">
+                                <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '5px' }} />
+                                {t.edad} *
+                            </label>
+                            <input
+                                id="edad"
+                                name="edad"
+                                type="number"
+                                min="3"
+                                max="17"
+                                className="auth-form-input"
+                                value={formData.edad}
+                                onChange={handleInputChange}
+                                placeholder={t.edadPlaceholder}
+                                required
+                                disabled={loading}
+                            />
+                        </div>
+
+                        <div className="auth-form-section">
+                            <h3 className="auth-section-title">
+                                <FontAwesomeIcon icon={faUser} style={{ marginRight: '10px' }} />
+                                {t.tutorInfo}
+                            </h3>
+                            
+                            <div className="auth-form-group">
+                                <label htmlFor="tutor_nombre">
+                                    <FontAwesomeIcon icon={faUser} style={{ marginRight: '5px' }} />
+                                    {t.tutor_nombre} *
+                                </label>
+                                <input
+                                    id="tutor_nombre"
+                                    name="tutor_nombre"
+                                    type="text"
+                                    className="auth-form-input"
+                                    value={formData.tutor_nombre}
+                                    onChange={handleInputChange}
+                                    placeholder={t.tutor_nombrePlaceholder}
+                                    required
+                                    disabled={loading}
+                                />
+                            </div>
+
+                            <div className="auth-form-group">
+                                <label htmlFor="tutor_telefono">
+                                    <FontAwesomeIcon icon={faPhone} style={{ marginRight: '5px' }} />
+                                    {t.tutor_telefono} *
+                                </label>
+                                <input
+                                    id="tutor_telefono"
+                                    name="tutor_telefono"
+                                    type="tel"
+                                    className="auth-form-input"
+                                    value={formData.tutor_telefono}
+                                    onChange={handleInputChange}
+                                    placeholder={t.tutor_telefonoPlaceholder}
+                                    required
+                                    disabled={loading}
+                                />
+                            </div>
+                        </div>
+                    </>
+                )}
+
+                {accountType === 'personal' && (
+                    <div className="auth-form-group">
+                        <label htmlFor="phone">{t.phone}</label>
+                        <input
+                            id="phone"
+                            name="phone"
+                            type="tel"
+                            className="auth-form-input"
+                            value={formData.phone}
+                            onChange={handleInputChange}
+                            placeholder={t.phonePlaceholder}
+                            disabled={loading}
+                        />
+                    </div>
+                )}
 
                 <div className="auth-form-group">
                     <label htmlFor="gender">{t.gender}</label>
@@ -670,7 +900,9 @@ const Register = ({ onToggle }) => {
                 </div>
                 
                 <div className="auth-form-group">
-                    <label htmlFor="password">{t.password} *</label>
+                    <label htmlFor="password">
+                        {accountType === 'infantil' ? t.childPasswordPlaceholder : t.password} *
+                    </label>
                     <div className="auth-password-container">
                         <input
                             id="password"
@@ -679,7 +911,7 @@ const Register = ({ onToggle }) => {
                             className="auth-form-input"
                             value={formData.password}
                             onChange={handleInputChange}
-                            placeholder={t.passwordPlaceholder}
+                            placeholder={accountType === 'infantil' ? t.childPasswordPlaceholder : t.passwordPlaceholder}
                             required
                             disabled={loading}
                         />
@@ -725,6 +957,14 @@ const Register = ({ onToggle }) => {
                 
                 <div className="auth-step-navigation">
                     <button 
+                        type="button" 
+                        className="auth-prev-button"
+                        onClick={handlePrevStep}
+                    >
+                        <FontAwesomeIcon icon={faChevronLeft} /> {t.anterior}
+                    </button>
+                    
+                    <button 
                         type="submit" 
                         className="auth-next-button"
                         disabled={loading}
@@ -736,7 +976,7 @@ const Register = ({ onToggle }) => {
         </>
     );
 
-    // Renderizar paso 2
+    // Renderizar paso 2 (Direcciones - para ambos tipos de cuenta)
     const renderStep2 = () => (
         <>
             <h2 className="auth-form-title">{t.step2}</h2>
@@ -956,7 +1196,7 @@ const Register = ({ onToggle }) => {
         </>
     );
 
-    // Renderizar paso 3 (Tarjeta - Opcional)
+    // Renderizar paso 3 (Tarjeta - para ambos tipos de cuenta)
     const renderStep3 = () => (
         <>
             <h2 className="auth-form-title">
@@ -1135,27 +1375,37 @@ const Register = ({ onToggle }) => {
 
     return (
         <div className="auth-form-inner">
-            {/* Indicador de pasos (actualizado para 3 pasos) */}
-            <div className="auth-step-indicator" style={{ marginBottom: '30px' }}>
-                <div className={`auth-step ${currentStep === 1 ? 'active' : ''}`}>
-                    <div className="auth-step-number">1</div>
-                    <div className="auth-step-label">{t.step1}</div>
-                </div>
-                <div className="auth-step-connector"></div>
-                <div className={`auth-step ${currentStep === 2 ? 'active' : ''}`}>
-                    <div className="auth-step-number">2</div>
-                    <div className="auth-step-label">{t.step2}</div>
-                </div>
-                <div className="auth-step-connector"></div>
-                <div className={`auth-step ${currentStep === 3 ? 'active' : ''}`}>
-                    <div className="auth-step-number">3</div>
-                    <div className="auth-step-label">{t.step3}</div>
-                </div>
-            </div>
-            
-            {currentStep === 1 && renderStep1()}
-            {currentStep === 2 && renderStep2()}
-            {currentStep === 3 && renderStep3()}
+            {currentStep === 0 ? (
+                renderAccountTypeSelector()
+            ) : (
+                <>
+                    {/* Indicador de pasos - igual para ambos tipos de cuenta */}
+                    <div className="auth-step-indicator" style={{ marginBottom: '30px' }}>
+                        <div className={`auth-step ${currentStep === 1 ? 'active' : ''}`}>
+                            <div className="auth-step-number">1</div>
+                            <div className="auth-step-label">
+                                {accountType === 'infantil' ? t.accountInfantil : t.step1}
+                            </div>
+                        </div>
+                        
+                        <div className="auth-step-connector"></div>
+                        <div className={`auth-step ${currentStep === 2 ? 'active' : ''}`}>
+                            <div className="auth-step-number">2</div>
+                            <div className="auth-step-label">{t.step2}</div>
+                        </div>
+                        
+                        <div className="auth-step-connector"></div>
+                        <div className={`auth-step ${currentStep === 3 ? 'active' : ''}`}>
+                            <div className="auth-step-number">3</div>
+                            <div className="auth-step-label">{t.step3}</div>
+                        </div>
+                    </div>
+                    
+                    {currentStep === 1 && renderStep1()}
+                    {currentStep === 2 && renderStep2()}
+                    {currentStep === 3 && renderStep3()}
+                </>
+            )}
             
             <div className="auth-footer">
                 <p>

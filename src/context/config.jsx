@@ -64,7 +64,7 @@ export const ConfigProvider = ({ children }) => {
             telefono2: "Jiménez Ocampo Amanda Carolina +52 7292948980",
             telefono3: "Arzte Neri Axel +52 7226780112",
             telefono4: "Lopez Villar Miguel Angel +52 7226165733",
-            email: "dietlettuce@gmail.com",
+            email: "dietlettuce1@gmail.com",
             derechos: "© 2024 Diet Lettuce. Todos los derechos reservados.",
 
             // --- Configuración ---
@@ -80,24 +80,28 @@ export const ConfigProvider = ({ children }) => {
             // --- Nosotros ---
             sobreNosotros: "",
             conoceMas: "",
-            yNuestraPasion: "nuestra pasión por crear sabores y experiencias únicas, explorando nuevos sabores sin olvidar la frescura y saludable elección de nuestros productos.",
+            yNuestraPasion: "Nuestra pasión por transformar la alimentación en una experiencia accesible y saludable, explorando nuevas formas de facilitar el bienestar sin perder de vista la frescura, el respaldo profesional y el compromiso con la salud de quienes confían en nosotros.",
+            
             mision: "Misión",
-            misionTexto: "Somos una empresa dedicada a la elaboración de lechugas preparadas, sembradas tratadas y cosechadas para nuestro mercado de consumo, siendo este un producto natural, saludable y ecologico sin quimicos ni conservadores, asegurando el consumo saludable de nuestros clientes.",
+            misionTexto: "Facilitar el acceso a una alimentación saludable a personas con obesidad o que desean mejorar sus hábitos, a través de una plataforma digital que integra la asesoría de nutriólogos con el suministro práctico de ingredientes frescos y adecuados a cada plan nutricional, promoviendo un estilo de vida saludable de manera sencilla y accesible.",
             vision: "Visión",
-            visionTexto: "Ser la numero uno en el mercado en la venta de lechugas preparadas para nuestra comunidad, ofreciendo sabor y frescura inigualables, satisfaciendo a nuestros clientes, con el fin de aumentar nuestras ventas en cada producto.",
+            visionTexto: "Ser la plataforma líder en Latinoamérica en el acompañamiento nutricional para personas con obesidad, reconocida por innovar en la integración entre profesionales de la salud y la practicidad en la entrega de ingredientes saludables, transformando la experiencia de seguir un tratamiento nutricional en un proceso fácil, efectivo y libre de frustraciones.",
+            
             valores: "Valores",
-            calidad: "Calidad",
-            responsabilidadAmbiental: "Responsabilidad ambiental",
-            honestidad: "Honestidad",
-            compromisoSalud: "Compromiso con la salud",
-            responsabilidadSocial: "Responsabilidad social",
-            cuidadoCliente: "Cuidado con el cliente",
-            atencionCliente: "Atencion al cliente",
-            nuestraHistoria: "Objetivo",
-            historiaTexto1: "Convertirnos en la empresa líder del mercado local de lechugas preparadas naturales en los próximos tres años aumentando nuestras ventas en un 25 por ciento y expandiendo nuestra red de distribución manteniendo nuestra certificación ecológica reduciendo el impacto ambiental e implementando un programa sólido de fidelización de clientes y responsabilidad social comunitaria",
-            historiaTexto2: "Hoy, somos mucho más que una marca de lechugas. Somos creadores de experiencias, artistas del sabor y apasionados por hacer que cada comida sea una aventura memorable.",
+            calidad: "Salud Integral",
+            responsabilidadAmbiental: "Respaldo Profesional",
+            honestidad: "Compromiso",
+            compromisoSalud: "Accesibilidad",
+            responsabilidadSocial: "Inovación",
+            cuidadoCliente: "Empatia",
+            atencionCliente: "Respeto",
+            didiplina: "Disciplina",
+
+            objetivo: "Objetivo",
+            objetivoTexto: "A tres años, Diet Lettuce se propone consolidarse como la plataforma digital de referencia en México para el apoyo nutricional de personas con obesidad, alcanzando los 5 mil usuarios activos y una red de 150 nutriólogos aliados. Se buscará realizar mil entregas semanales de ingredientes saludables, implementar talleres virtuales mensuales de educación nutricional y desarrollar contenido educativo propio. Asimismo, se establecerán alianzas con instituciones de salud y gimnasios para la derivación de pacientes, se expandirán operaciones a tres ciudades principales del país y se mantendrá un índice de satisfacción superior al 85 por ciento entre usuarios y especialistas, todo ello acompañado de un programa de becas para personas de bajos recursos que requieran tratamiento nutricional.",
+            
             metas: "Meta",
-            metasTexto: "Incentivar que la empresa logre entrar en el mercado, por medio de alianzas estrategicas en el suministro de materia prima, asi mismo se espera que esta medida logre 15 puntos de venta el primer año.",
+            metasTexto: "Durante el primer año, Diet Lettuce tiene como meta lanzar oficialmente su plataforma digital y alcanzar 500 usuarios activos, con la participación de al menos 30 nutriólogos aliados y la realización de 100 entregas semanales de ingredientes saludables. Además, se buscará mantener un 80 por ciento de satisfacción entre los usuarios y establecer alianzas estratégicas con al menos tres proveedores locales de productos frescos, asegurando así una operación eficiente y de calidad desde el inicio.",
 
 
             // --- Panel de Administración ---
@@ -157,7 +161,7 @@ export const ConfigProvider = ({ children }) => {
             contacto: "Contact",
             direccion: "Mexico, Mexico City",
             telefono: "+52 5538986602", 
-            email: "crazylettuces@gmail.com",
+            email: "crazylettuces1@gmail.com",
             derechos: "© 2024 Crazy Lettuces. All rights reserved.",
 
             // --- Configuration ---

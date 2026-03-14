@@ -1,4 +1,3 @@
-// Versión mejorada del Home.jsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useConfig } from '../context/config';
@@ -11,6 +10,17 @@ import LogoLechuga from '../img/ensalada.png';
 import facebookLogo from '../img/facebook.png';
 import instagramLogo from '../img/instagram.png';
 import tik_tokLogo from '../img/tik-tok.png';
+
+// Íconos para categorías de suplementos
+import quemadorIcon from '../img/quemador.png';
+import proteinaIcon from '../img/suplemento.png';
+import fibraIcon from '../img/fibra.png';
+import detoxIcon from '../img/detox.png';
+import termogenicoIcon from '../img/termogenico.png';
+import controlApetitoIcon from '../img/control-apetito.png';
+import energeticoIcon from '../img/energetico.png';
+import vitaminasIcon from '../img/multivitamina.png';
+import suplementoGenericoIcon from '../img/suplemento.png';
 
 const Home = () => {
   const { t } = useConfig();
@@ -30,6 +40,40 @@ const Home = () => {
       'Content-Type': 'application/json'
     };
   }, []);
+
+  // Función para obtener icono según categoría de suplemento
+  const obtenerIconoPorCategoria = (categoria) => {
+    const cat = (categoria || '').toLowerCase().trim();
+    
+    switch(cat) {
+      case 'quemadores':
+      case 'quemadores de grasa':
+        return quemadorIcon;
+      case 'proteinas':
+      case 'proteína':
+        return proteinaIcon;
+      case 'fibras':
+      case 'fibras y digestivos':
+        return fibraIcon;
+      case 'detox':
+      case 'detox y limpieza':
+        return detoxIcon;
+      case 'termogenicos':
+      case 'termogénicos':
+        return termogenicoIcon;
+      case 'control_apetito':
+      case 'control de apetito':
+        return controlApetitoIcon;
+      case 'energeticos':
+      case 'energeticos naturales':
+        return energeticoIcon;
+      case 'vitaminas':
+      case 'vitaminas y minerales':
+        return vitaminasIcon;
+      default:
+        return suplementoGenericoIcon;
+    }
+  };
 
   // Manejar scroll para botón "Volver arriba"
   useEffect(() => {
@@ -53,8 +97,9 @@ const Home = () => {
       setLoading(true);
       setError(null);
       
+      // CAMBIADO: Obtener suplementos en lugar de especiales
       const [productosResponse, ordenesResponse] = await Promise.all([
-        fetch('http://127.0.0.1:5000/especiales/', { headers: getAuthHeaders() }),
+        fetch('http://127.0.0.1:5000/suplementos/', { headers: getAuthHeaders() }),
         fetch('http://127.0.0.1:5000/ordenes/', { headers: getAuthHeaders() })
       ]);
       
@@ -65,12 +110,18 @@ const Home = () => {
       let productosData = await productosResponse.json();
       productosData = productosData.filter(producto => producto.activo);
       
+      // CAMBIADO: Asignar iconos a los suplementos
+      const productosConIcono = productosData.map(producto => ({
+        ...producto,
+        icono: obtenerIconoPorCategoria(producto.categoria || 'quemadores')
+      }));
+      
       if (ordenesResponse.ok) {
         const ordenesData = await ordenesResponse.json();
-        const productosConConteo = calcularProductosPopulares(productosData, ordenesData);
+        const productosConConteo = calcularProductosPopulares(productosConIcono, ordenesData);
         setProductosPopulares(productosConConteo.slice(0, 3));
       } else {
-        setProductosPopulares(productosData.slice(0, 3));
+        setProductosPopulares(productosConIcono.slice(0, 3));
       }
       
     } catch (error) {
@@ -85,13 +136,33 @@ const Home = () => {
     fetchProductosPopulares();
   }, [fetchProductosPopulares]);
 
+  // CAMBIADO: Calcular populares basado en suplemento_id
   const calcularProductosPopulares = (productos, ordenes) => {
     const conteoProductos = {};
     
     ordenes.forEach(orden => {
-      if (orden.tipo_pedido === 'especial' && orden.especial_id) {
-        const productoId = orden.especial_id;
+      // Para pedidos de tipo suplemento
+      if (orden.tipo_pedido === 'suplemento' && orden.suplemento_id) {
+        const productoId = orden.suplemento_id;
         conteoProductos[productoId] = (conteoProductos[productoId] || 0) + 1;
+      }
+      // Para pedidos de tipo carrito (buscar en los items)
+      else if (orden.tipo_pedido === 'carrito' && orden.pedido_json) {
+        try {
+          const pedidoJson = typeof orden.pedido_json === 'string' 
+            ? JSON.parse(orden.pedido_json) 
+            : orden.pedido_json;
+          
+          if (pedidoJson.items && Array.isArray(pedidoJson.items)) {
+            pedidoJson.items.forEach(item => {
+              if (item.suplemento_id) {
+                conteoProductos[item.suplemento_id] = (conteoProductos[item.suplemento_id] || 0) + 1;
+              }
+            });
+          }
+        } catch (e) {
+          console.error('Error parseando pedido_json:', e);
+        }
       }
     });
 
@@ -128,7 +199,7 @@ const Home = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Componente de producto memoizado
+  // Componente de producto memoizado - MEJORADO
   const ProductCard = useMemo(() => React.memo(({ producto, onClick }) => (
     <div 
       className="home-product-card popular-card"
@@ -136,7 +207,7 @@ const Home = () => {
     >
       <div className="home-product-image-container">
         <img 
-          src={LogoLechuga} 
+          src={producto.icono || suplementoGenericoIcon} 
           alt={producto.nombre} 
           className="home-product-icon-image" 
           loading="lazy"
@@ -146,19 +217,37 @@ const Home = () => {
             {producto.conteo} {producto.conteo === 1 ? 'pedido' : 'pedidos'}
           </div>
         )}
+        {producto.stock !== undefined && producto.stock <= 5 && producto.stock > 0 && (
+          <div className="stock-warning-badge">
+            ¡Últimas {producto.stock} unidades!
+          </div>
+        )}
+        {producto.stock === 0 && (
+          <div className="stock-out-badge">
+            Agotado
+          </div>
+        )}
       </div>
       <h3>{producto.nombre}</h3>
       <p className="product-description">
         {producto.descripcion && producto.descripcion.length > 60
           ? `${producto.descripcion.substring(0, 60)}...`
-          : producto.descripcion || 'Producto delicioso'
+          : producto.descripcion || 'Suplemento de alta calidad'
         }
       </p>
+      {producto.categoria && (
+        <span className="product-category-badge">
+          {producto.categoria_nombre || producto.categoria}
+        </span>
+      )}
       <div className="product-price">
         {formatPrice(producto.precio)}
       </div>
-      <button className="ver-producto-btn">
-        Ver Producto
+      <button 
+        className="ver-producto-btn"
+        disabled={producto.stock === 0}
+      >
+        {producto.stock === 0 ? 'Agotado' : 'Ver Producto'}
       </button>
     </div>
   )), []);
@@ -167,7 +256,7 @@ const Home = () => {
   const PlaceholderCard = useMemo(() => React.memo(({ title, description, onClick }) => (
     <div className="home-product-card" onClick={onClick}>
       <div className="home-product-image-container">
-        <img src={LogoLechuga} alt={title} className="home-product-icon-image" loading="lazy" />
+        <img src={suplementoGenericoIcon} alt={title} className="home-product-icon-image" loading="lazy" />
       </div>
       <h3>{title}</h3>
       <p>{description}</p>
@@ -220,7 +309,7 @@ const Header = ({ isAuthenticated, onLogout, t }) => (
     <nav className="home-nav">
       <div className="home-nav-brand">
         <div className="home-logo-container">
-          <img src={logo} alt="Crazy Lettuces" className="home-logo" />
+          <img src={logo} alt="Diet Lettuce" className="home-logo" />
           <h2>
             <span className="home-crazy-swash">Diet</span> Lettuce
           </h2>
@@ -230,6 +319,7 @@ const Header = ({ isAuthenticated, onLogout, t }) => (
         <li><a href="#inicio">{t('inicio')}</a></li>
         <li><a href="/productos">{t('productos')}</a></li>
         <li><a href="/nosotros">{t('nosotros')}</a></li>
+        <li><a href="/dietas">{t('dietas')}</a></li>
         <li><a href="/configuracion">{t('configuracion')}</a></li>
         <li><a href="/login">{t('login')}</a></li>
         <li className="nav-profile-icon">
@@ -292,7 +382,7 @@ const ProductsSection = ({
     <div className="home-container">
       <h2 className="home-section-title">Los Más Populares</h2>
       <p className="home-section-subtitle">
-        Descubre los productos favoritos de nuestros clientes
+        Descubre los suplementos favoritos de nuestros clientes
       </p>
       
       {loading ? (
@@ -313,18 +403,18 @@ const ProductsSection = ({
             ) : (
               <>
                 <PlaceholderCard 
-                  title={t('comboFreshName')}
-                  description={t('comboFreshDescription')}
+                  title="Proteína Whey"
+                  description="Proteína de suero de leche para aumentar masa muscular"
                   onClick={onNavigateToProductos}
                 />
                 <PlaceholderCard 
-                  title={t('crazySpicyName')}
-                  description={t('crazySpicyDescription')}
+                  title="Quemador de Grasa"
+                  description="Termogénico avanzado para acelerar el metabolismo"
                   onClick={onNavigateToProductos}
                 />
                 <PlaceholderCard 
-                  title={t('comboLocoName')}
-                  description={t('comboLocoDescription')}
+                  title="Multivitamínico"
+                  description="Complejo de vitaminas y minerales esenciales"
                   onClick={onNavigateToProductos}
                 />
               </>
@@ -336,7 +426,7 @@ const ProductsSection = ({
               className="home-ver-todos-btn"
               onClick={onNavigateToProductos}
             >
-              Ver Todos los Productos →
+              Ver Todos los Suplementos →
             </button>
           </div>
         </>
@@ -349,7 +439,7 @@ const ProductsSection = ({
 const LoadingSpinner = () => (
   <div className="home-loading-container">
     <div className="loading-spinner"></div>
-    <p>Cargando productos populares...</p>
+    <p>Cargando suplementos populares...</p>
   </div>
 );
 
@@ -370,17 +460,17 @@ const FindUsSection = ({ t }) => (
         <p>{t('encuentranosDescription')}</p>
         <div className="home-social-icons">
           <SocialLink 
-            href="https://www.facebook.com/share/1BUz4PdFw8/" 
+            href="https://www.facebook.com/profile.php?fb_profile_edit_entry_point=%7B%22click_point%22%3A%22edit_profile_button%22%2C%22feature%22%3A%22profile_header%22%7D&id=61582244528322&sk=about" 
             src={facebookLogo} 
             alt="Facebook" 
           />
           <SocialLink 
-            href="https://www.instagram.com/crazy_lettuces?igsh=MW1oZDloZ3I0cDg2MQ==" 
+            href="https://www.instagram.com/dietlettuce1/" 
             src={instagramLogo} 
             alt="Instagram" 
           />
           <SocialLink 
-            href="https://www.tiktok.com/@crazy.lettuce8?_r=1&_t=ZS-91InvRY4cKt" 
+            href="https://www.tiktok.com/@dietlettuce01?is_from_webapp=1&sender_device=pc" 
             src={tik_tokLogo} 
             alt="TikTok" 
           />
@@ -407,7 +497,7 @@ const Footer = ({ t }) => (
       <div className="home-footer-content">
         <div className="home-footer-section">
           <div className="home-footer-logo-container">
-            <img src={logo} alt="Crazy Lettuces" className="home-footer-logo" />
+            <img src={logo} alt="Diet Lettuce" className="home-footer-logo" />
             <h3>
               <span className="home-crazy-swash">Diet</span> Lettuce
             </h3>
@@ -417,9 +507,9 @@ const Footer = ({ t }) => (
         <div className="home-footer-section">
           <h4>{t('productosFooter')}</h4>
           <ul>
-            <li><a href="/productos">Lechugas Chile</a></li>
-            <li><a href="/productos">Lechugas Gomitas</a></li>
-            <li><a href="/productos">Combos Locos</a></li>
+            <li><a href="/productos">Proteínas</a></li>
+            <li><a href="/productos">Quemadores de Grasa</a></li>
+            <li><a href="/productos">Vitaminas</a></li>
           </ul>
         </div>
         <div className="home-footer-section">

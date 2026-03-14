@@ -6,10 +6,9 @@ import Especial from '../components/especiales/Especiales';
 import Ordenes from '../components/ordenes/Ordenes';
 import Notificaciones from '../components/notificaciones/Notificaciones';
 import Respaldos  from '../components/Backup/Backup';
-import Ingredientes from '../components/Ingredientes/Ingredientes';
 
 import { FaBars, FaTimes, FaCog, FaUsers } from 'react-icons/fa';
-import { FaBowlFood } from 'react-icons/fa6';
+import { SlEnergy } from "react-icons/sl";
 import { HiClipboardList } from "react-icons/hi";
 import { MdNotificationsActive } from "react-icons/md";
 import { BsDatabaseFillGear } from "react-icons/bs";
@@ -56,10 +55,6 @@ const Main = () => {
         
       case 'configuracion':
         setActiveContent(<Configuracion />);
-        break;
-
-      case 'ingredientes':
-        setActiveContent(<Ingredientes />);
         break;
 
       case 'especiales':
@@ -126,20 +121,12 @@ const Main = () => {
             {t('users')}
           </button>
 
-          <button
-            className={`nav-btn ${activeContentType === 'ingredientes' ? 'active' : ''}`}
-            onClick={() => loadContent('ingredientes')}
-          >
-            <MdFoodBank className="nav-icon" />
-            {t('ingredientes')}
-          </button>
-
           <button 
             className={`nav-btn ${activeContentType === 'especiales' ? 'active' : ''}`}
             onClick={() => loadContent('especiales')}
           >
-            <FaBowlFood className="nav-icon" />
-            {t('specials')}
+            <SlEnergy className="nav-icon" />
+            {t('Suplementos')}
           </button>
 
           <button 

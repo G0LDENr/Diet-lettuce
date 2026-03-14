@@ -1,22 +1,22 @@
 /* Contenedor principal */
-.create-especial-form {
+.create-suplemento-form {
   width: 100%;
 }
 
-.create-especial-form-form {
+.create-suplemento-form-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
 /* Grupo del formulario */
-.create-especial-form-group {
+.create-suplemento-form-group {
   display: flex;
   flex-direction: column;
   margin-bottom: 0.5rem;
 }
 
-.create-especial-form-group label {
+.create-suplemento-form-group label {
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: #333;
@@ -25,15 +25,16 @@
 }
 
 /* Filas del formulario */
-.create-especial-row {
+.create-suplemento-row {
   display: flex;
   gap: 1.5rem;
   align-items: flex-start;
 }
 
-/* Inputs */
-.create-especial-input,
-.create-especial-select {
+/* Inputs y textarea */
+.create-suplemento-input,
+.create-suplemento-select,
+.create-suplemento-textarea {
   width: 100%;
   padding: 0.75rem 1rem;
   border: 2px solid #ddd;
@@ -46,44 +47,53 @@
   box-sizing: border-box;
 }
 
-.create-especial-input:focus,
-.create-especial-select:focus {
+.create-suplemento-textarea {
+  resize: vertical;
+  min-height: 80px;
+  max-height: 200px;
+}
+
+.create-suplemento-input:focus,
+.create-suplemento-select:focus,
+.create-suplemento-textarea:focus {
   border-color: #96bd44;
   outline: none;
   box-shadow: 0 0 0 3px rgba(150, 189, 68, 0.2);
 }
 
-.create-especial-input:disabled,
-.create-especial-select:disabled {
+.create-suplemento-input:disabled,
+.create-suplemento-select:disabled,
+.create-suplemento-textarea:disabled {
   background-color: #f8f9fa;
   cursor: not-allowed;
   opacity: 0.7;
 }
 
-.create-especial-input::placeholder,
-.create-especial-select::placeholder {
+.create-suplemento-input::placeholder,
+.create-suplemento-select::placeholder,
+.create-suplemento-textarea::placeholder {
   color: #999;
   font-size: 0.9rem;
 }
 
 /* Input con error */
-.create-especial-input-error {
+.create-suplemento-input-error {
   border-color: #dc3545 !important;
 }
 
-.create-especial-input-error:focus {
+.create-suplemento-input-error:focus {
   border-color: #dc3545 !important;
   box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2) !important;
 }
 
-.create-especial-error-message {
+.create-suplemento-error-message {
   color: #dc3545;
   font-size: 0.85rem;
   margin-top: 0.5rem;
   padding-left: 0.25rem;
 }
 
-.create-especial-error-message-box {
+.create-suplemento-error-message-box {
   background-color: #f8d7da;
   color: #721c24;
   padding: 0.75rem 1rem;
@@ -93,102 +103,21 @@
   font-size: 0.9rem;
 }
 
-/* Campos de precio y estado */
-.create-especial-price-status-fields {
+/* Campos de precio, stock y estado */
+.create-suplemento-price-status-fields {
   display: flex;
   gap: 1.5rem;
   width: 100%;
 }
 
-.create-especial-price-status-fields .create-especial-form-group {
+.create-suplemento-price-status-fields .create-suplemento-form-group {
   flex: 1;
 }
 
-/* Contenedor de ingredientes */
-.create-especial-ingredientes-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.create-especial-ingrediente-row {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  animation: create-especial-fade-in-up 0.3s ease-out;
-}
-
-@keyframes create-especial-fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.create-especial-ingrediente-row .create-especial-select {
-  flex: 1;
-  margin-bottom: 0;
-}
-
-.create-especial-remove-ingrediente-btn {
-  background: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-}
-
-.create-especial-remove-ingrediente-btn:hover:not(:disabled) {
-  background: #c82333;
-  transform: scale(1.05);
-}
-
-.create-especial-remove-ingrediente-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Loading de ingredientes */
-.create-especial-loading-ingredientes {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 6px;
-  color: #666;
-}
-
-.create-especial-spinner-small {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  border-top-color: #96bd44;
-  animation: create-especial-spin 0.6s linear infinite;
-}
-
-.create-especial-loading-text {
-  color: #6c757d;
-  font-size: 0.9rem;
-  font-style: italic;
-}
+/* Eliminado: Contenedor de ingredientes ya no existe */
 
 /* Botones de acción */
-.create-especial-form-actions {
+.create-suplemento-form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
@@ -197,7 +126,7 @@
   border-top: 1px solid #eee;
 }
 
-.create-especial-btn-cancel {
+.create-suplemento-btn-cancel {
   padding: 0.75rem 1.5rem;
   background-color: #6c757d;
   color: white;
@@ -210,13 +139,13 @@
   min-width: 120px;
 }
 
-.create-especial-btn-cancel:hover:not(:disabled) {
+.create-suplemento-btn-cancel:hover:not(:disabled) {
   background-color: #5a6268;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(108, 117, 125, 0.2);
 }
 
-.create-especial-btn-submit {
+.create-suplemento-btn-submit {
   padding: 0.75rem 1.5rem;
   background-color: #96bd44;
   color: white;
@@ -229,14 +158,14 @@
   min-width: 120px;
 }
 
-.create-especial-btn-submit:hover:not(:disabled) {
+.create-suplemento-btn-submit:hover:not(:disabled) {
   background-color: #3e4e1d;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(150, 189, 68, 0.3);
 }
 
-.create-especial-btn-cancel:disabled,
-.create-especial-btn-submit:disabled {
+.create-suplemento-btn-cancel:disabled,
+.create-suplemento-btn-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
@@ -244,24 +173,24 @@
 }
 
 /* Spinner para botón */
-.create-especial-spinner {
+.create-suplemento-spinner {
   display: inline-block;
   width: 16px;
   height: 16px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   border-top-color: white;
-  animation: create-especial-spin 0.6s linear infinite;
+  animation: create-suplemento-spin 0.6s linear infinite;
   margin-right: 8px;
   vertical-align: middle;
 }
 
-@keyframes create-especial-spin {
+@keyframes create-suplemento-spin {
   to { transform: rotate(360deg); }
 }
 
 /* Mensaje de éxito */
-.create-especial-success-message {
+.create-suplemento-success-message {
   background-color: #d4edda;
   color: #155724;
   padding: 1rem 1.25rem;
@@ -272,103 +201,86 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  animation: create-especial-fade-in 0.3s ease-in;
+  animation: create-suplemento-fade-in 0.3s ease-in;
 }
 
-.create-especial-success-message::before {
+.create-suplemento-success-message::before {
   content: "✓";
   font-weight: bold;
   font-size: 1.2rem;
 }
 
-@keyframes create-especial-fade-in {
+@keyframes create-suplemento-fade-in {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 /* ========== MODO OSCURO ========== */
-.create-especial-form-dark-mode .create-especial-form-group label {
+.create-suplemento-form-dark-mode .create-suplemento-form-group label {
   color: #e2e8f0;
 }
 
-.create-especial-form-dark-mode .create-especial-input,
-.create-especial-form-dark-mode .create-especial-select {
+.create-suplemento-form-dark-mode .create-suplemento-input,
+.create-suplemento-form-dark-mode .create-suplemento-select,
+.create-suplemento-form-dark-mode .create-suplemento-textarea {
   background-color: #1a1a1a;
   border-color: #333;
   color: #e2e8f0;
 }
 
-.create-especial-form-dark-mode .create-especial-input:focus,
-.create-especial-form-dark-mode .create-especial-select:focus {
+.create-suplemento-form-dark-mode .create-suplemento-input:focus,
+.create-suplemento-form-dark-mode .create-suplemento-select:focus,
+.create-suplemento-form-dark-mode .create-suplemento-textarea:focus {
   border-color: #D4AF37;
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
-.create-especial-form-dark-mode .create-especial-input::placeholder,
-.create-especial-form-dark-mode .create-especial-select::placeholder {
+.create-suplemento-form-dark-mode .create-suplemento-input::placeholder,
+.create-suplemento-form-dark-mode .create-suplemento-select::placeholder,
+.create-suplemento-form-dark-mode .create-suplemento-textarea::placeholder {
   color: #718096;
 }
 
-.create-especial-form-dark-mode .create-especial-input:disabled,
-.create-especial-form-dark-mode .create-especial-select:disabled {
+.create-suplemento-form-dark-mode .create-suplemento-input:disabled,
+.create-suplemento-form-dark-mode .create-suplemento-select:disabled,
+.create-suplemento-form-dark-mode .create-suplemento-textarea:disabled {
   background-color: #2a2a2a;
 }
 
-.create-especial-form-dark-mode .create-especial-input-error {
+.create-suplemento-form-dark-mode .create-suplemento-input-error {
   border-color: #dc3545 !important;
 }
 
-.create-especial-form-dark-mode .create-especial-remove-ingrediente-btn {
-  background: #dc3545;
-}
+/* Eliminados estilos de ingredientes */
 
-.create-especial-form-dark-mode .create-especial-remove-ingrediente-btn:hover:not(:disabled) {
-  background: #c82333;
-}
-
-.create-especial-form-dark-mode .create-especial-loading-ingredientes {
-  background-color: #1a1a1a;
-  border: 1px solid #333;
-  color: #999;
-}
-
-.create-especial-form-dark-mode .create-especial-loading-text {
-  color: #a0aec0;
-}
-
-.create-especial-form-dark-mode .create-especial-spinner-small {
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #D4AF37;
-}
-
-.create-especial-form-dark-mode .create-especial-form-actions {
+.create-suplemento-form-dark-mode .create-suplemento-form-actions {
   border-top-color: #333;
 }
 
-.create-especial-form-dark-mode .create-especial-btn-cancel {
+.create-suplemento-form-dark-mode .create-suplemento-btn-cancel {
   background-color: #6c757d;
 }
 
-.create-especial-form-dark-mode .create-especial-btn-cancel:hover:not(:disabled) {
+.create-suplemento-form-dark-mode .create-suplemento-btn-cancel:hover:not(:disabled) {
   background-color: #5a6268;
 }
 
-.create-especial-form-dark-mode .create-especial-btn-submit {
+.create-suplemento-form-dark-mode .create-suplemento-btn-submit {
   background-color: #D4AF37;
   color: #000000;
 }
 
-.create-especial-form-dark-mode .create-especial-btn-submit:hover:not(:disabled) {
+.create-suplemento-form-dark-mode .create-suplemento-btn-submit:hover:not(:disabled) {
   background-color: #b8941f;
 }
 
-.create-especial-form-dark-mode .create-especial-success-message {
+.create-suplemento-form-dark-mode .create-suplemento-success-message {
   background-color: #1e3a2c;
   color: #4ade80;
   border-color: #2d5a3d;
 }
 
-.create-especial-form-dark-mode .create-especial-error-message-box {
+.create-suplemento-form-dark-mode .create-suplemento-error-message-box {
   background-color: #491c1c;
   color: #ff6b6b;
   border-color: #6b2e2e;
@@ -376,39 +288,28 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .create-especial-form-form {
+  .create-suplemento-form-form {
     gap: 1.25rem;
   }
 
-  .create-especial-row {
+  .create-suplemento-row {
     flex-direction: column;
     gap: 0;
   }
 
-  .create-especial-price-status-fields {
+  .create-suplemento-price-status-fields {
     flex-direction: column;
     gap: 0.5rem;
   }
 
-  .create-especial-ingrediente-row {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .create-especial-remove-ingrediente-btn {
-    align-self: flex-start;
-    width: auto;
-    padding: 0.5rem 1rem;
-  }
-
-  .create-especial-form-actions {
+  .create-suplemento-form-actions {
     flex-direction: column;
     margin-top: 1.5rem;
     gap: 0.75rem;
   }
 
-  .create-especial-btn-cancel,
-  .create-especial-btn-submit {
+  .create-suplemento-btn-cancel,
+  .create-suplemento-btn-submit {
     width: 100%;
     min-width: auto;
     padding: 0.85rem 1.5rem;
@@ -416,12 +317,13 @@
 }
 
 @media (max-width: 480px) {
-  .create-especial-form-form {
+  .create-suplemento-form-form {
     gap: 1rem;
   }
   
-  .create-especial-input,
-  .create-especial-select {
+  .create-suplemento-input,
+  .create-suplemento-select,
+  .create-suplemento-textarea {
     padding: 0.65rem 0.9rem;
     font-size: 0.95rem;
   }

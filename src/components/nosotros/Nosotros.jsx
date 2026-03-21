@@ -13,6 +13,8 @@ import logolechuga from '../../img/DietLettuce.png';
 // Importa tus archivos PDF
 import canvaDietLettuce from '../../docs/canva-diet-lettuce.pdf';
 import cartaUsuario from '../../docs/carta-usuario.pdf';
+import FODADietLettuce from '../../docs/foda-diet-lettuce.pdf';
+import BalanceDietLettuce from '../../docs/balance-diet-lettuce.pdf';
 
 const Nosotros = () => {
   const { t } = useConfig();
@@ -282,6 +284,52 @@ const Nosotros = () => {
                 <button 
                   className="nosotros-documento-btn descargar"
                   onClick={() => downloadFile(cartaUsuario, 'carta-usuario.pdf')}
+                >
+                  <FiDownload /> Descargar
+                </button>
+              </div>
+            </div>
+
+            {/* Balance Document */}
+            <div className="nosotros-documento-card">
+              <div className="nosotros-documento-icon">
+                <MdPictureAsPdf />
+              </div>
+              <h3>Balance Diet Lettuce</h3>
+              <p>Presentación y diseño de nuestra marca</p>
+              <div className="nosotros-documento-buttons">
+                <button 
+                  className="nosotros-documento-btn ver"
+                  onClick={() => openModal('Balance Diet Lettuce', BalanceDietLettuce, 'pdf')}
+                >
+                  Ver
+                </button>
+                <button 
+                  className="nosotros-documento-btn descargar"
+                  onClick={() => downloadFile(BalanceDietLettuce, 'balance-diet-lettuce.pdf')}
+                >
+                  <FiDownload /> Descargar
+                </button>
+              </div>
+            </div>
+
+            {/* FODA Document */}
+            <div className="nosotros-documento-card">
+              <div className="nosotros-documento-icon">
+                <MdPictureAsPdf />
+              </div>
+              <h3>Foda Diet Lettuce</h3>
+              <p>Presentación y diseño de nuestra marca</p>
+              <div className="nosotros-documento-buttons">
+                <button 
+                  className="nosotros-documento-btn ver"
+                  onClick={() => openModal('FODA Diet Lettuce', FODADietLettuce, 'pdf')}
+                >
+                  Ver
+                </button>
+                <button 
+                  className="nosotros-documento-btn descargar"
+                  onClick={() => downloadFile(FODADietLettuce, 'foda-diet-lettuce.pdf')}
                 >
                   <FiDownload /> Descargar
                 </button>

@@ -1,4 +1,4 @@
-/* Variables CSS - Agrega esto al principio del archivo */
+/* Variables CSS */
 :root {
   --primary-color: #96bd44;
   --primary-dark: #2d6a4f;
@@ -11,7 +11,6 @@
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* El resto de tu CSS existente continúa aquí... */
 /* home.css */
 .home {
   min-height: 100vh;
@@ -57,18 +56,29 @@
   object-fit: cover;
 }
 
+/* ===== DIET LETTUCE EN UNA SOLA LÍNEA CON ESPACIO - HEADER ===== */
 .home-nav-brand h2 {
   color: var(--primary-dark);
   font-size: 1.5rem;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.30rem; /* Espacio entre Diet y Lettuce */
+  white-space: nowrap;
 }
 
-/* Adlery Swash en el header */
 .home-nav-brand h2 .home-crazy-swash {
   font-family: 'Brush Script MT', cursive;
   font-size: 1.8rem;
   font-weight: 400;
   color: var(--primary-dark);
+  display: inline;
+  line-height: normal;
+  margin-right: 0; /* El gap del padre maneja el espacio */
+}
+
+.home-nav-brand h2 span:last-child {
+  margin-left: 0; /* El gap del padre maneja el espacio */
 }
 
 .home-nav-menu {
@@ -99,7 +109,7 @@
   background: rgba(40, 167, 69, 0.1);
 }
 
-/* ========== HERO SECTION - SIN CUADROS BLANCOS ========== */
+/* Hero Section */
 .home-hero {
   min-height: 100vh;
   background-image: url('../../img/Fondo-Diet.jpg');
@@ -115,7 +125,6 @@
   position: relative;
 }
 
-/* Overlay oscuro sutil para que el texto sea legible */
 .home-hero-overlay {
   position: absolute;
   top: 0;
@@ -138,7 +147,6 @@
   padding: 0 2rem;
 }
 
-/* TEXTO SIN CUADRO BLANCO - DIRECTO SOBRE LA IMAGEN */
 .home-hero-text {
   background: transparent;
   backdrop-filter: none;
@@ -147,25 +155,27 @@
   color: white;
 }
 
+/* ===== DIET LETTUCE EN UNA SOLA LÍNEA CON ESPACIO - HERO ===== */
 .home-hero-title {
   font-size: 4rem;
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.2;
   margin-bottom: 1.5rem;
   color: white;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Espacio entre Diet y Lettuce */
+  flex-wrap: wrap;
 }
 
-/* Adlery Swash más grande en el hero */
-.home-hero-title .home-crazy-large-swash {
+.home-hero-title .home-crazy-swash {
   font-family: 'Brush Script MT', cursive;
-  font-size: 10.5rem;
+  font-size: 4rem;
   font-weight: 400;
-  display: block;
-  line-height: 0.9;
-  margin-bottom: 0.5rem;
   color: white;
-  letter-spacing: 1px;
+  display: inline;
+  line-height: normal;
   text-shadow: 3px 3px 6px rgba(0,0,0,0.9);
 }
 
@@ -175,6 +185,7 @@
   font-size: 4rem;
   font-weight: 700;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  display: inline;
 }
 
 .home-hero-description {
@@ -205,7 +216,7 @@
   object-fit: cover;
 }
 
-/* ========== PRODUCTS SECTION ========== */
+/* Products Section */
 .home-products {
   padding: 6rem 2rem;
   background: var(--background-light);
@@ -237,7 +248,6 @@
   border-radius: 2px;
 }
 
-/* Subtítulo de la sección */
 .home-section-subtitle {
   text-align: center;
   font-size: 1.2rem;
@@ -294,8 +304,6 @@
 .home-product-card p {
   color: var(--text-light);
 }
-
-/* ========== ESTILOS PARA LOS PRODUCTOS POPULARES ========== */
 
 /* Loading Spinner */
 .home-loading-container {
@@ -445,7 +453,6 @@
   margin-top: 60px;
 }
 
-/* Botón Ver Todos los Productos */
 .home-ver-todos-btn {
   background: transparent;
   color: var(--primary-color);
@@ -470,7 +477,7 @@
   border-color: transparent;
 }
 
-/* ========== FIND US SECTION ========== */
+/* Find Us Section */
 .home-find-us {
   padding: 6rem 2rem;
   background: var(--primary-color);
@@ -521,7 +528,7 @@
   border-radius: 50%;
 }
 
-/* ========== FOOTER ========== */
+/* Footer */
 .home-footer {
   background: var(--footer-dark);
   color: white;
@@ -541,12 +548,21 @@
   color: white;
 }
 
-/* Adlery Swash en el footer */
+/* ===== DIET LETTUCE EN UNA SOLA LÍNEA CON ESPACIO - FOOTER ===== */
+.home-footer-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem; /* Espacio entre Diet y Lettuce */
+  white-space: nowrap;
+}
+
 .home-footer-section h3 .home-crazy-swash {
   font-family: 'Brush Script MT', cursive;
   font-size: 1.8rem;
   font-weight: 400;
   color: white;
+  display: inline;
+  line-height: normal;
 }
 
 .home-footer-section ul {
@@ -592,7 +608,7 @@
   color: #bbf7d0;
 }
 
-/* ========== ESTILOS PARA EL ICONO DE PERFIL ========== */
+/* Icono de perfil */
 .nav-profile-icon {
   display: flex;
   align-items: center;
@@ -648,7 +664,111 @@
   transform: translateY(-1px);
 }
 
-/* ========== MODO OSCURO ========== */
+/* Botón Volver Arriba */
+.scroll-top-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s ease;
+  z-index: 999;
+  animation: fadeIn 0.3s ease;
+}
+
+.scroll-top-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(150, 189, 68, 0.4);
+}
+
+/* Mensaje de error */
+.home-error-container {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  margin: 20px 0;
+}
+
+.error-message {
+  color: #e53e3e;
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+.retry-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(150, 189, 68, 0.3);
+}
+
+/* Animaciones de entrada para secciones */
+.home-hero,
+.home-products,
+.home-find-us,
+.home-footer {
+  animation: fadeInUp 0.8s ease;
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Tooltip para botones */
+[title] {
+  position: relative;
+}
+
+[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: 5px;
+}
+
+/* ===== MODO OSCURO ===== */
 .dark-mode .home {
   background: var(--text-dark);
 }
@@ -766,6 +886,10 @@
   background: #185f1f;
 }
 
+.dark-mode .home-footer-section h3 .home-crazy-swash {
+  color: #ffffff;
+}
+
 .dark-mode .home-logout-btn {
   background-color: #fc8181;
   color: #000000;
@@ -774,34 +898,6 @@
 .dark-mode .home-logout-btn:hover {
   background-color: #f56565;
   color: #000000;
-}
-
-/* ========== MEJORAS ADICIONALES ========== */
-
-/* Botón Volver Arriba */
-.scroll-top-btn {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  cursor: pointer;
-  font-size: 24px;
-  font-weight: bold;
-  box-shadow: var(--shadow-lg);
-  transition: all 0.3s ease;
-  z-index: 999;
-  animation: fadeIn 0.3s ease;
-}
-
-.scroll-top-btn:hover {
-  background: var(--primary-dark);
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(150, 189, 68, 0.4);
 }
 
 .dark-mode .scroll-top-btn {
@@ -813,90 +909,6 @@
   background: #b8941f;
 }
 
-/* Mensaje de error */
-.home-error-container {
-  text-align: center;
-  padding: 60px 20px;
-  background: white;
-  border-radius: 20px;
-  box-shadow: var(--shadow);
-  margin: 20px 0;
-}
-
-.dark-mode .home-error-container {
-  background: #212121;
-}
-
-.error-message {
-  color: #e53e3e;
-  font-size: 1.1rem;
-  margin-bottom: 20px;
-}
-
-.retry-btn {
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 12px 30px;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.retry-btn:hover {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(150, 189, 68, 0.3);
-}
-
-/* Animaciones de entrada para secciones */
-.home-hero,
-.home-products,
-.home-find-us,
-.home-footer {
-  animation: fadeInUp 0.8s ease;
-}
-
-/* Mejoras de accesibilidad */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* Enfoque visible para accesibilidad */
-a:focus-visible,
-button:focus-visible {
-  outline: 3px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-/* Tooltip para botones */
-[title] {
-  position: relative;
-}
-
-[title]:hover::after {
-  content: attr(title);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  z-index: 1000;
-  margin-bottom: 5px;
-}
-
-/* ========== MODO OSCURO MEJORADO ========== */
 .dark-mode .home-error-container {
   background: #2a2a2a;
   border: 1px solid #333;
@@ -915,7 +927,7 @@ button:focus-visible {
   background: #b8941f;
 }
 
-/* ========== RESPONSIVE ========== */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 992px) {
   .home-products-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -931,6 +943,10 @@ button:focus-visible {
   .home-nav {
     flex-direction: column;
     gap: 1rem;
+  }
+  
+  .home-nav-brand h2 {
+    white-space: normal;
   }
   
   .home-nav-menu {
@@ -956,21 +972,20 @@ button:focus-visible {
     text-align: center;
   }
   
+  /* ===== RESPONSIVE PARA EL TEXTO DEL HERO ===== */
   .home-hero-title {
     font-size: 2.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem; /* Espacio reducido en móviles */
   }
   
-  .home-hero-title .home-crazy-large-swash {
-    font-size: 4rem;
+  .home-hero-title .home-crazy-swash {
+    font-size: 2.5rem;
   }
   
   .home-highlight {
     font-size: 2.5rem;
-  }
-  
-  .home-nav-brand h2 .home-crazy-swash,
-  .home-footer-section h3 .home-crazy-swash {
-    font-size: 1.5rem;
   }
   
   .home-image-container {
@@ -1024,6 +1039,11 @@ button:focus-visible {
     width: 60px;
     height: 60px;
   }
+  
+  .home-footer-section h3 {
+    white-space: normal;
+    gap: 0.15rem; /* Espacio reducido en móviles */
+  }
 }
 
 @media (max-width: 480px) {
@@ -1050,17 +1070,18 @@ button:focus-visible {
     height: 50px;
   }
   
-  .home-hero-title .home-crazy-large-swash {
-    font-size: 3.2rem;
+  /* ===== RESPONSIVE EXTREMO PARA EL TEXTO DEL HERO ===== */
+  .home-hero-title {
+    font-size: 2rem;
+    gap: 0.2rem;
+  }
+  
+  .home-hero-title .home-crazy-swash {
+    font-size: 2rem;
   }
   
   .home-highlight {
     font-size: 2rem;
-  }
-  
-  .home-nav-brand h2 .home-crazy-swash,
-  .home-footer-section h3 .home-crazy-swash {
-    font-size: 1.3rem;
   }
   
   .home-products {

@@ -1,127 +1,33 @@
 import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faEye, faEyeSlash, faPlus, faTrash,
+  faChevronLeft, faChevronRight, faMapMarkerAlt,
+  faCreditCard, faCheckCircle, faChild, faUser, faPhone
+} from '@fortawesome/free-solid-svg-icons';
 import '../../css/Users/create-user.css';
 
 const CreateUserForm = ({ onClose, onUserCreated }) => {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [showDireccionForm, setShowDireccionForm] = useState(false);
+  const [skipTarjeta, setSkipTarjeta] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   
-  // Datos personales del usuario
-  const [userData, setUserData] = useState({
-    nombre: '',
-    correo: '',
-    contraseña: '',
-    confirmarContraseña: '',
-    telefono: '',
-    sexo: '',
-    rol: 2
-  });
+  const [accountType, setAccountType] = useState('personal');
   
-  // Lista de direcciones
-  const [direcciones, setDirecciones] = useState([]);
-  
-  // Datos de la dirección actual (para el formulario)
-  const [direccionActual, setDireccionActual] = useState({
-    calle: '',
-    numero_exterior: '',
-    numero_interior: '',
-    colonia: '',
-    ciudad: '',
-    estado: '',
-    codigo_postal: '',
-    referencias: '',
-    tipo: 'casa',
-    predeterminada: false
-  });
-
-  const [errors, setErrors] = useState({});
-
-  // Validar datos personales
-  const validateUserData = () => {
-    const newErrors = {};
-
-    if (!userData.nombre.trim()) {
-      newErrors.nombre = 'El nombre es requerido';
-    }
-
-    if (!userData.correo.trim()) {
-      newErrors.correo = 'El correo es requerido';
-    } else if (!/\S+@\S+\.\S+/.test(userData.correo)) {
-      newErrors.correo = 'Correo inválido';
-    }
-
-    if (!userData.contraseña) {
-      newErrors.contraseña = 'La contraseña es requerida';
-    } else if (userData.contraseña.length < 6) {
-      newErrors.contraseña = 'Mínimo 6 caracteres';
-    }
-
-    if (userData.contraseña !== userData.confirmarContraseña) {
-      newErrors.confirmarContraseña = 'Las contraseñas no coinciden';
-    }
-
-    if (userData.telefono && !/^\d{10}$/.test(userData.telefono)) {
-      newErrors.telefono = 'Teléfono inválido (10 dígitos)';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Validar dirección
-  const validateDireccion = () => {
-    const newErrors = {};
-
-    if (!direccionActual.calle.trim()) {
-      newErrors.calle = 'La calle es requerida';
-    }
-    if (!direccionActual.numero_exterior.trim()) {
-      newErrors.numero_exterior = 'El número exterior es requerido';
-    }
-    if (!direccionActual.colonia.trim()) {
-      newErrors.colonia = 'La colonia es requerida';
-    }
-    if (!direccionActual.ciudad.trim()) {
-      newErrors.ciudad = 'La ciudad es requerida';
-    }
-    if (!direccionActual.estado.trim()) {
-      newErrors.estado = 'El estado es requerido';
-    }
-    if (!direccionActual.codigo_postal.trim()) {
-      newErrors.codigo_postal = 'El código postal es requerido';
-    } else if (!/^\d{5}$/.test(direccionActual.codigo_postal)) {
-      newErrors.codigo_postal = 'Código postal inválido (5 dígitos)';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Agregar dirección a la lista
-  const handleAddDireccion = () => {
-    if (validateDireccion()) {
-      // Si es la primera dirección, marcarla como predeterminada automáticamente
-      const nuevaDireccion = {
-        ...direccionActual,
-        predeterminada: direcciones.length === 0 ? true : direccionActual.predeterminada
-      };
-
-      // Si se marca como predeterminada, quitar predeterminada de las demás
-      let direccionesActualizadas = [...direcciones];
-      if (nuevaDireccion.predeterminada) {
-        direccionesActualizadas = direccionesActualizadas.map(dir => ({
-          ...dir,
-          predeterminada: false
-        }));
-      }
-
-      setDirecciones([...direccionesActualizadas, nuevaDireccion]);
-      setShowDireccionForm(false);
-      
-      // Resetear formulario de dirección
-      setDireccionActual({
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phone: '',
+    gender: '',
+    edad: '',
+    tutor_nombre: '',
+    tutor_telefono: '',
+    direcciones: [
+      {
         calle: '',
         numero_exterior: '',
         numero_interior: '',
@@ -131,560 +37,1236 @@ const CreateUserForm = ({ onClose, onUserCreated }) => {
         codigo_postal: '',
         referencias: '',
         tipo: 'casa',
-        predeterminada: false
-      });
-      setErrors({});
+        predeterminada: true
+      }
+    ],
+    tarjeta: {
+      nombre_titular: '',
+      numero_tarjeta: '',
+      mes_expiracion: '',
+      anio_expiracion: '',
+      predeterminada: true
     }
+  });
+
+  const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showTarjetaNumber, setShowTarjetaNumber] = useState(false);
+
+  const t = {
+    step1: "Información Personal",
+    step2: "Direcciones de Entrega",
+    step3: "Tarjeta de Crédito",
+    title: "Crear Cuenta",
+    accountTypeTitle: "Tipo de Cuenta",
+    accountPersonal: "Cuenta Personal",
+    accountInfantil: "Cuenta Infantil",
+    accountPersonalDesc: "Para comprar y gestionar pedidos",
+    accountInfantilDesc: "Para niños (3-17 años) - Necesitarás los datos del tutor",
+    name: "Nombre completo",
+    namePlaceholder: "Tu nombre completo",
+    childNamePlaceholder: "Nombre del niño/a",
+    email: "Correo electrónico",
+    emailPlaceholder: "correo@example.com",
+    childEmailPlaceholder: "correo_del_nino@example.com",
+    password: "Contraseña",
+    passwordPlaceholder: "••••••••",
+    childPasswordPlaceholder: "Contraseña para el niño",
+    confirmPassword: "Confirmar contraseña",
+    confirmPasswordPlaceholder: "••••••••",
+    phone: "Teléfono",
+    phonePlaceholder: "1234567890",
+    gender: "Sexo",
+    genderOptions: {
+      select: "Seleccionar Sexo",
+      M: "Masculino",
+      F: "Femenino",
+    },
+    edadPersonal: "Edad",
+    edadPersonalPlaceholder: "Tu edad (mayor de 18 años)",
+    edadInfantil: "Edad del niño/a",
+    edadInfantilPlaceholder: "Edad (3-17 años)",
+    tutor_nombre: "Nombre del tutor (padre/madre)",
+    tutor_nombrePlaceholder: "Nombre completo del tutor",
+    tutor_telefono: "Teléfono del tutor",
+    tutor_telefonoPlaceholder: "Teléfono del tutor",
+    tutorInfo: "Datos del tutor (padre/madre)",
+    
+    direccionTitle: "Dirección de Entrega",
+    calle: "Calle",
+    callePlaceholder: "Nombre de la calle",
+    numeroExterior: "Número Exterior",
+    numeroExteriorPlaceholder: "123",
+    numeroInterior: "Número Interior",
+    numeroInteriorPlaceholder: "A",
+    colonia: "Colonia",
+    coloniaPlaceholder: "Nombre de la colonia",
+    ciudad: "Ciudad",
+    ciudadPlaceholder: "Nombre de la ciudad",
+    estado: "Estado",
+    estadoPlaceholder: "Nombre del estado",
+    codigoPostal: "Código Postal",
+    codigoPostalPlaceholder: "12345",
+    referencias: "Referencias adicionales",
+    referenciasPlaceholder: "Entre calles, puntos de referencia, etc.",
+    tipoDireccion: "Tipo de dirección",
+    tipoOptions: {
+      casa: "Casa",
+      trabajo: "Trabajo",
+      otro: "Otro"
+    },
+    predeterminada: "Dirección predeterminada",
+    agregarDireccion: "Agregar otra dirección",
+    eliminarDireccion: "Eliminar dirección",
+    seleccionarPredeterminada: "Marcar como predeterminada",
+    
+    tarjetaTitle: "Tarjeta de Crédito",
+    skipTarjeta: "Omitir este paso (lo haré después)",
+    nombreTitular: "Nombre del titular",
+    nombreTitularPlaceholder: "Como aparece en la tarjeta",
+    numeroTarjeta: "Número de tarjeta",
+    numeroTarjetaPlaceholder: "1234 5678 9012 3456",
+    mesExpiracion: "Mes",
+    mesExpiracionPlaceholder: "MM",
+    anioExpiracion: "Año",
+    anioExpiracionPlaceholder: "AAAA",
+    tarjetaPredeterminada: "Usar como método de pago predeterminado",
+    
+    siguiente: "Siguiente",
+    anterior: "Anterior",
+    registrar: "Registrarse",
+    loading: "Creando cuenta...",
+    
+    errorComplete: "Por favor, completa todos los campos obligatorios",
+    errorPasswordMatch: "Las contraseñas no coinciden",
+    errorConnection: "Error de conexión con el servidor",
+    errorDireccionComplete: "Completa al menos una dirección completa",
+    errorCP: "El código postal debe tener 5 dígitos",
+    errorTarjeta: "Los datos de la tarjeta no son válidos",
+    errorTarjetaNumero: "Número de tarjeta inválido",
+    errorTarjetaFecha: "Fecha de expiración inválida",
+    errorEdadPersonal: "Debes ser mayor de 18 años",
+    errorEdadInfantil: "La edad debe ser entre 3 y 17 años",
+    errorEdadRequerida: "La edad es requerida",
+    errorTutorData: "El nombre y teléfono del tutor son requeridos",
+    close: "Cerrar",
+    successMessage: "Cuenta creada exitosamente",
   };
 
-  // Eliminar dirección
-  const handleRemoveDireccion = (index) => {
-    const nuevasDirecciones = direcciones.filter((_, i) => i !== index);
-    
-    // Si eliminamos la dirección predeterminada y quedan direcciones,
-    // marcar la primera como predeterminada
-    if (direcciones[index].predeterminada && nuevasDirecciones.length > 0) {
-      nuevasDirecciones[0].predeterminada = true;
-    }
-    
-    setDirecciones(nuevasDirecciones);
-  };
-
-  // Marcar dirección como predeterminada
-  const handleSetPredeterminada = (index) => {
-    const nuevasDirecciones = direcciones.map((dir, i) => ({
-      ...dir,
-      predeterminada: i === index
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
     }));
-    setDirecciones(nuevasDirecciones);
   };
 
-  // Continuar al paso 2 (direcciones)
-  const handleNextStep = () => {
-    setErrorMessage('');
-    if (validateUserData()) {
-      setStep(2);
-      setErrors({});
+  const handleDireccionChange = (index, field, value) => {
+    const updatedDirecciones = [...formData.direcciones];
+    updatedDirecciones[index][field] = value;
+    
+    if (field === 'predeterminada' && value === true) {
+      updatedDirecciones.forEach((dir, i) => {
+        if (i !== index) dir.predeterminada = false;
+      });
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      direcciones: updatedDirecciones
+    }));
+  };
+
+  const handleTarjetaChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      tarjeta: {
+        ...prev.tarjeta,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleAddDireccion = () => {
+    setFormData(prev => ({
+      ...prev,
+      direcciones: [
+        ...prev.direcciones,
+        {
+          calle: '',
+          numero_exterior: '',
+          numero_interior: '',
+          colonia: '',
+          ciudad: '',
+          estado: '',
+          codigo_postal: '',
+          referencias: '',
+          tipo: 'casa',
+          predeterminada: false
+        }
+      ]
+    }));
+  };
+
+  const handleRemoveDireccion = (index) => {
+    if (formData.direcciones.length > 1) {
+      const updatedDirecciones = formData.direcciones.filter((_, i) => i !== index);
+      
+      const removedWasPredeterminada = formData.direcciones[index].predeterminada;
+      if (removedWasPredeterminada && updatedDirecciones.length > 0) {
+        updatedDirecciones[0].predeterminada = true;
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        direcciones: updatedDirecciones
+      }));
     }
   };
 
-  // Volver al paso 1
+  const validateStep1 = () => {
+    if (!formData.name || !formData.email || !formData.password) {
+      setError(t.errorComplete);
+      return false;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError(t.errorPasswordMatch);
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError("Por favor ingresa un correo electrónico válido");
+      return false;
+    }
+
+    if (!formData.edad) {
+      setError(t.errorEdadRequerida);
+      return false;
+    }
+
+    const edad = parseInt(formData.edad);
+    if (isNaN(edad)) {
+      setError(t.errorEdadRequerida);
+      return false;
+    }
+
+    if (accountType === 'personal') {
+      if (edad < 18) {
+        setError(t.errorEdadPersonal);
+        return false;
+      }
+    } else {
+      if (edad < 3 || edad > 17) {
+        setError(t.errorEdadInfantil);
+        return false;
+      }
+
+      if (!formData.tutor_nombre || !formData.tutor_telefono) {
+        setError(t.errorTutorData);
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const validateStep2 = () => {
+    const direccionCompleta = formData.direcciones.some(dir => 
+      dir.calle && 
+      dir.numero_exterior && 
+      dir.colonia && 
+      dir.ciudad && 
+      dir.estado && 
+      dir.codigo_postal
+    );
+
+    if (!direccionCompleta) {
+      setError(t.errorDireccionComplete);
+      return false;
+    }
+
+    for (const dir of formData.direcciones) {
+      if (dir.codigo_postal && !/^\d{5}$/.test(dir.codigo_postal)) {
+        setError(t.errorCP);
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const validateTarjeta = () => {
+    if (skipTarjeta) return true;
+    
+    if (!formData.tarjeta.nombre_titular && 
+        !formData.tarjeta.numero_tarjeta && 
+        !formData.tarjeta.mes_expiracion && 
+        !formData.tarjeta.anio_expiracion) {
+      return true;
+    }
+
+    if (!formData.tarjeta.nombre_titular || 
+        !formData.tarjeta.numero_tarjeta || 
+        !formData.tarjeta.mes_expiracion || 
+        !formData.tarjeta.anio_expiracion) {
+      setError(t.errorTarjeta);
+      return false;
+    }
+
+    const numeroLimpio = formData.tarjeta.numero_tarjeta.replace(/\s/g, '');
+    if (!/^\d{13,19}$/.test(numeroLimpio)) {
+      setError(t.errorTarjetaNumero);
+      return false;
+    }
+
+    const mes = parseInt(formData.tarjeta.mes_expiracion);
+    if (isNaN(mes) || mes < 1 || mes > 12) {
+      setError(t.errorTarjetaFecha);
+      return false;
+    }
+
+    const anio = parseInt(formData.tarjeta.anio_expiracion);
+    const fechaActual = new Date();
+    const anioActual = fechaActual.getFullYear();
+    const mesActual = fechaActual.getMonth() + 1;
+
+    if (isNaN(anio) || anio < anioActual || anio > anioActual + 10) {
+      setError(t.errorTarjetaFecha);
+      return false;
+    }
+
+    if (anio === anioActual && mes < mesActual) {
+      setError(t.errorTarjetaFecha);
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleNextStep = () => {
+    if (step === 0) {
+      setStep(1);
+    } else if (step === 1) {
+      if (validateStep1()) {
+        setError('');
+        setStep(2);
+      }
+    } else if (step === 2) {
+      if (validateStep2()) {
+        setError('');
+        setStep(3);
+      }
+    }
+  };
+
   const handlePrevStep = () => {
-    setStep(1);
-    setErrorMessage('');
-    setErrors({});
+    if (step === 1) {
+      setStep(0);
+    } else if (step === 2) {
+      setStep(1);
+    } else if (step === 3) {
+      setStep(2);
+    }
+    setError('');
   };
 
-  // Limpiar mensajes
-  const clearMessages = () => {
-    setSuccessMessage('');
-    setErrorMessage('');
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
-  // Enviar formulario completo - CORREGIDO para usar /add_user
-  const handleSubmit = async () => {
+    if (step === 0) {
+      handleNextStep();
+      setLoading(false);
+      return;
+    }
+
+    if (step === 1) {
+      if (!validateStep1()) {
+        setLoading(false);
+        return;
+      }
+      handleNextStep();
+      setLoading(false);
+      return;
+    }
+
+    if (step === 2) {
+      if (!validateStep2()) {
+        setLoading(false);
+        return;
+      }
+      handleNextStep();
+      setLoading(false);
+      return;
+    }
+
+    if (step === 3) {
+      if (!validateTarjeta()) {
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
-      setLoading(true);
-      setErrorMessage('');
-      setSuccessMessage('');
+      // Preparar datos del usuario
+      const userData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: 2,
+        telefono: formData.phone,
+        sexo: formData.gender,
+        tipo_cuenta: accountType,
+        edad: parseInt(formData.edad)
+      };
 
-      // Validar que haya al menos una dirección
-      if (direcciones.length === 0) {
-        setErrorMessage('⚠️ Debes agregar al menos una dirección');
+      console.log('1. Datos básicos:', userData);
+
+      // Agregar datos del tutor para cuenta infantil
+      if (accountType === 'infantil') {
+        userData.tutor_nombre = formData.tutor_nombre;
+        userData.tutor_telefono = formData.tutor_telefono;
+        console.log('2. Datos tutor:', { tutor_nombre: formData.tutor_nombre, tutor_telefono: formData.tutor_telefono });
+      }
+
+      // VERIFICAR que las direcciones existen
+      console.log('3. Direcciones en formData:', formData.direcciones);
+      console.log('4. Longitud de direcciones:', formData.direcciones.length);
+
+      // Enviar la dirección - AHORA COMO "direccion" en lugar de "direccion_data"
+      if (formData.direcciones.length > 0) {
+        const primeraDireccion = formData.direcciones[0];
+        console.log('5. Primera dirección:', primeraDireccion);
+        
+        // Verificar campos de la dirección
+        console.log('6. Campos de dirección:');
+        console.log('   - calle:', primeraDireccion.calle);
+        console.log('   - numero_exterior:', primeraDireccion.numero_exterior);
+        console.log('   - colonia:', primeraDireccion.colonia);
+        console.log('   - ciudad:', primeraDireccion.ciudad);
+        console.log('   - estado:', primeraDireccion.estado);
+        console.log('   - codigo_postal:', primeraDireccion.codigo_postal);
+        
+        if (!primeraDireccion.calle || !primeraDireccion.numero_exterior || !primeraDireccion.colonia || 
+            !primeraDireccion.ciudad || !primeraDireccion.estado || !primeraDireccion.codigo_postal) {
+          console.log('❌ ERROR: La dirección está incompleta');
+          setError('La dirección está incompleta. Por favor completa todos los campos obligatorios.');
+          setLoading(false);
+          return;
+        }
+
+        userData.direccion = {
+          calle: primeraDireccion.calle,
+          numero_exterior: primeraDireccion.numero_exterior,
+          numero_interior: primeraDireccion.numero_interior || '',
+          colonia: primeraDireccion.colonia,
+          ciudad: primeraDireccion.ciudad,
+          estado: primeraDireccion.estado,
+          codigo_postal: primeraDireccion.codigo_postal,
+          referencias: primeraDireccion.referencias || '',
+          tipo: primeraDireccion.tipo,
+          predeterminada: true
+        };
+        console.log('7. direccion a enviar:', userData.direccion);
+      } else {
+        console.log('❌ ERROR: No hay direcciones');
+        setError('Debes agregar al menos una dirección');
         setLoading(false);
         return;
       }
 
-      // Encontrar la dirección predeterminada (el backend solo acepta una dirección)
-      const direccionPredeterminada = direcciones.find(d => d.predeterminada) || direcciones[0];
+      // Agregar tarjeta si no se omitió
+      if (!skipTarjeta && formData.tarjeta.nombre_titular && formData.tarjeta.numero_tarjeta) {
+        userData.tarjeta_data = {
+          nombre_titular: formData.tarjeta.nombre_titular,
+          numero_tarjeta: formData.tarjeta.numero_tarjeta.replace(/\s/g, ''),
+          mes_expiracion: formData.tarjeta.mes_expiracion,
+          anio_expiracion: formData.tarjeta.anio_expiracion,
+          predeterminada: formData.tarjeta.predeterminada
+        };
+        console.log('8. tarjeta_data:', userData.tarjeta_data);
+      }
 
-      // Preparar datos para el backend - usando direccion (singular) como espera el backend
-      const requestData = {
-        name: userData.nombre,
-        email: userData.correo,
-        password: userData.contraseña,
-        role: parseInt(userData.rol),
-        telefono: userData.telefono || '',
-        sexo: userData.sexo || '',
-        direccion: {  // Importante: es "direccion" en singular, no "direcciones"
-          calle: direccionPredeterminada.calle,
-          numero_exterior: direccionPredeterminada.numero_exterior,
-          numero_interior: direccionPredeterminada.numero_interior || '',
-          colonia: direccionPredeterminada.colonia,
-          ciudad: direccionPredeterminada.ciudad,
-          estado: direccionPredeterminada.estado,
-          codigo_postal: direccionPredeterminada.codigo_postal,
-          referencias: direccionPredeterminada.referencias || '',
-          tipo: direccionPredeterminada.tipo,
-          predeterminada: true
-        }
-      };
+      console.log('9. DATOS FINALES A ENVIAR:', JSON.stringify(userData, null, 2));
 
-      console.log('Enviando datos:', requestData);
-
-      // Usar el endpoint /add_user que SÍ existe y NO requiere token
       const response = await fetch('http://127.0.0.1:5000/user/add_user', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'  // Sin token porque es público
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify(requestData)
+        body: JSON.stringify(userData),
       });
 
       const data = await response.json();
+      console.log('10. RESPUESTA DEL SERVIDOR:', data);
 
-      if (response.ok) {
-        // Mostrar mensaje de éxito
-        setSuccessMessage('¡Usuario creado exitosamente!');
-        
-        // Esperar 2 segundos y luego cerrar el modal
-        setTimeout(() => {
-          onUserCreated();
-          onClose();
-        }, 2000);
-      } else {
-        setErrorMessage(`❌ Error: ${data.msg || 'Error al crear usuario'}`);
+      if (!response.ok) {
+        setError(data.msg || t.errorConnection);
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error('Error:', error);
-      setErrorMessage('❌ Error de conexión al crear usuario');
+
+      setSuccessMessage(t.successMessage);
+      
+      setTimeout(() => {
+        onUserCreated();
+        onClose();
+      }, 2000);
+
+    } catch (err) {
+      console.error('Error en registro:', err);
+      setError(t.errorConnection);
     } finally {
       setLoading(false);
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const toggleTarjetaNumberVisibility = () => {
+    setShowTarjetaNumber(!showTarjetaNumber);
+  };
+
+  const formatCardNumber = (value) => {
+    const v = value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+    const matches = v.match(/\d{4,16}/g);
+    const match = (matches && matches[0]) || '';
+    const parts = [];
+    
+    for (let i = 0; i < match.length; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    
+    if (parts.length) {
+      return parts.join(' ');
+    } else {
+      return value;
+    }
+  };
+
+  const renderAccountTypeSelector = () => (
+    <div className="auth-account-type">
+      <h2 className="auth-form-title">{t.accountTypeTitle}</h2>
+      <div className="auth-account-type-options">
+        <button
+          type="button"
+          className={`auth-account-type-option ${accountType === 'personal' ? 'active' : ''}`}
+          onClick={() => setAccountType('personal')}
+        >
+          <FontAwesomeIcon icon={faUser} size="2x" />
+          <div className="auth-account-type-text">
+            <strong>{t.accountPersonal}</strong>
+            <small>{t.accountPersonalDesc}</small>
+          </div>
+        </button>
+        
+        <button
+          type="button"
+          className={`auth-account-type-option ${accountType === 'infantil' ? 'active' : ''}`}
+          onClick={() => setAccountType('infantil')}
+        >
+          <FontAwesomeIcon icon={faChild} size="2x" />
+          <div className="auth-account-type-text">
+            <strong>{t.accountInfantil}</strong>
+            <small>{t.accountInfantilDesc}</small>
+          </div>
+        </button>
+      </div>
+      
+      <div className="auth-step-navigation" style={{ marginTop: '30px' }}>
+        <button 
+          type="button" 
+          className="auth-next-button"
+          onClick={handleNextStep}
+        >
+          {t.siguiente} <FontAwesomeIcon icon={faChevronRight} />
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderStep1 = () => (
+    <>
+      <h2 className="auth-form-title">
+        {accountType === 'infantil' ? (
+          <>
+            <FontAwesomeIcon icon={faChild} style={{ marginRight: '10px' }} />
+            {t.accountInfantil}
+          </>
+        ) : (
+          t.step1
+        )}
+      </h2>
+      
+      {error && (
+        <div className="auth-error-message">
+          {error}
+          <button 
+            type="button" 
+            className="auth-retry-button"
+            onClick={() => setError('')}
+          >
+            {t.close}
+          </button>
+        </div>
+      )}
+      
+      <form onSubmit={(e) => { e.preventDefault(); handleNextStep(); }} className="auth-form">
+        <div className="auth-form-group">
+          <label htmlFor="name">
+            {accountType === 'infantil' ? t.childNamePlaceholder : t.name} *
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            className="auth-form-input"
+            value={formData.name}
+            onChange={handleInputChange}
+            placeholder={accountType === 'infantil' ? t.childNamePlaceholder : t.namePlaceholder}
+            required
+            disabled={loading}
+          />
+        </div>
+        
+        <div className="auth-form-group">
+          <label htmlFor="email">
+            {accountType === 'infantil' ? t.childEmailPlaceholder : t.email} *
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            className="auth-form-input"
+            value={formData.email}
+            onChange={handleInputChange}
+            placeholder={accountType === 'infantil' ? t.childEmailPlaceholder : t.emailPlaceholder}
+            required
+            disabled={loading}
+          />
+        </div>
+
+        <div className="auth-form-group">
+          <label htmlFor="edad">
+            {accountType === 'infantil' ? t.edadInfantil : t.edadPersonal} *
+          </label>
+          <input
+            id="edad"
+            name="edad"
+            type="number"
+            min={accountType === 'infantil' ? "3" : "18"}
+            max={accountType === 'infantil' ? "17" : "120"}
+            className="auth-form-input"
+            value={formData.edad}
+            onChange={handleInputChange}
+            placeholder={accountType === 'infantil' ? t.edadInfantilPlaceholder : t.edadPersonalPlaceholder}
+            required
+            disabled={loading}
+          />
+        </div>
+
+        {accountType === 'personal' && (
+          <div className="auth-form-group">
+            <label htmlFor="phone">{t.phone}</label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              className="auth-form-input"
+              value={formData.phone}
+              onChange={handleInputChange}
+              placeholder={t.phonePlaceholder}
+              disabled={loading}
+            />
+          </div>
+        )}
+
+        {accountType === 'infantil' && (
+          <>
+            <div className="auth-form-section">
+              <h3 className="auth-section-title">
+                <FontAwesomeIcon icon={faUser} style={{ marginRight: '10px' }} />
+                {t.tutorInfo}
+              </h3>
+              
+              <div className="auth-form-group">
+                <label htmlFor="tutor_nombre">
+                  <FontAwesomeIcon icon={faUser} style={{ marginRight: '5px' }} />
+                  {t.tutor_nombre} *
+                </label>
+                <input
+                  id="tutor_nombre"
+                  name="tutor_nombre"
+                  type="text"
+                  className="auth-form-input"
+                  value={formData.tutor_nombre}
+                  onChange={handleInputChange}
+                  placeholder={t.tutor_nombrePlaceholder}
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="auth-form-group">
+                <label htmlFor="tutor_telefono">
+                  <FontAwesomeIcon icon={faPhone} style={{ marginRight: '5px' }} />
+                  {t.tutor_telefono} *
+                </label>
+                <input
+                  id="tutor_telefono"
+                  name="tutor_telefono"
+                  type="tel"
+                  className="auth-form-input"
+                  value={formData.tutor_telefono}
+                  onChange={handleInputChange}
+                  placeholder={t.tutor_telefonoPlaceholder}
+                  required
+                  disabled={loading}
+                />
+              </div>
+            </div>
+          </>
+        )}
+
+        <div className="auth-form-group">
+          <label htmlFor="gender">{t.gender}</label>
+          <select
+            id="gender"
+            name="gender"
+            className="auth-form-input"
+            value={formData.gender}
+            onChange={handleInputChange}
+            disabled={loading}
+          >
+            <option value="">{t.genderOptions.select}</option>
+            <option value="Masculino">{t.genderOptions.M}</option>
+            <option value="Femenino">{t.genderOptions.F}</option>
+          </select>
+        </div>
+        
+        <div className="auth-form-group">
+          <label htmlFor="password">
+            {accountType === 'infantil' ? t.childPasswordPlaceholder : t.password} *
+          </label>
+          <div className="auth-password-container">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              className="auth-form-input"
+              value={formData.password}
+              onChange={handleInputChange}
+              placeholder={accountType === 'infantil' ? t.childPasswordPlaceholder : t.passwordPlaceholder}
+              required
+              disabled={loading}
+            />
+            <button 
+              type="button" 
+              className="auth-password-toggle"
+              onClick={togglePasswordVisibility}
+              disabled={loading}
+            >
+              <FontAwesomeIcon 
+                icon={showPassword ? faEyeSlash : faEye} 
+              />
+            </button>
+          </div>
+        </div>
+
+        <div className="auth-form-group">
+          <label htmlFor="confirmPassword">{t.confirmPassword} *</label>
+          <div className="auth-password-container">
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              className="auth-form-input"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              placeholder={t.confirmPasswordPlaceholder}
+              required
+              disabled={loading}
+            />
+            <button 
+              type="button" 
+              className="auth-password-toggle"
+              onClick={toggleConfirmPasswordVisibility}
+              disabled={loading}
+            >
+              <FontAwesomeIcon 
+                icon={showConfirmPassword ? faEyeSlash : faEye} 
+              />
+            </button>
+          </div>
+        </div>
+        
+        <div className="auth-step-navigation">
+          <button 
+            type="button" 
+            className="auth-prev-button"
+            onClick={handlePrevStep}
+          >
+            <FontAwesomeIcon icon={faChevronLeft} /> {t.anterior}
+          </button>
+          
+          <button 
+            type="submit" 
+            className="auth-next-button"
+            disabled={loading}
+          >
+            {t.siguiente} <FontAwesomeIcon icon={faChevronRight} />
+          </button>
+        </div>
+      </form>
+    </>
+  );
+
+  const renderStep2 = () => (
+    <>
+      <h2 className="auth-form-title">{t.step2}</h2>
+      
+      {error && (
+        <div className="auth-error-message">
+          {error}
+          <button 
+            type="button" 
+            className="auth-retry-button"
+            onClick={() => setError('')}
+          >
+            {t.close}
+          </button>
+        </div>
+      )}
+      
+      <form onSubmit={(e) => { e.preventDefault(); handleNextStep(); }} className="auth-form">
+        {formData.direcciones.map((direccion, index) => (
+          <div key={index} className="auth-direccion-form">
+            <div className="auth-direccion-header">
+              <h3>
+                {t.direccionTitle} {index + 1}
+                {direccion.predeterminada && (
+                  <span className="auth-predeterminada-badge">
+                    <FontAwesomeIcon icon={faMapMarkerAlt} /> {t.predeterminada}
+                  </span>
+                )}
+              </h3>
+              {formData.direcciones.length > 1 && (
+                <button
+                  type="button"
+                  className="auth-remove-direccion-button"
+                  onClick={() => handleRemoveDireccion(index)}
+                  disabled={loading || (direccion.predeterminada && formData.direcciones.length > 1)}
+                  title={t.eliminarDireccion}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              )}
+            </div>
+            
+            <div className="auth-direccion-grid">
+              <div className="auth-form-group">
+                <label htmlFor={`calle-${index}`}>{t.calle} *</label>
+                <input
+                  id={`calle-${index}`}
+                  type="text"
+                  className="auth-form-input"
+                  value={direccion.calle}
+                  onChange={(e) => handleDireccionChange(index, 'calle', e.target.value)}
+                  placeholder={t.callePlaceholder}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              
+              <div className="auth-form-group">
+                <label htmlFor={`numero_exterior-${index}`}>{t.numeroExterior} *</label>
+                <input
+                  id={`numero_exterior-${index}`}
+                  type="text"
+                  className="auth-form-input"
+                  value={direccion.numero_exterior}
+                  onChange={(e) => handleDireccionChange(index, 'numero_exterior', e.target.value)}
+                  placeholder={t.numeroExteriorPlaceholder}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              
+              <div className="auth-form-group">
+                <label htmlFor={`numero_interior-${index}`}>{t.numeroInterior}</label>
+                <input
+                  id={`numero_interior-${index}`}
+                  type="text"
+                  className="auth-form-input"
+                  value={direccion.numero_interior}
+                  onChange={(e) => handleDireccionChange(index, 'numero_interior', e.target.value)}
+                  placeholder={t.numeroInteriorPlaceholder}
+                  disabled={loading}
+                />
+              </div>
+              
+              <div className="auth-form-group">
+                <label htmlFor={`colonia-${index}`}>{t.colonia} *</label>
+                <input
+                  id={`colonia-${index}`}
+                  type="text"
+                  className="auth-form-input"
+                  value={direccion.colonia}
+                  onChange={(e) => handleDireccionChange(index, 'colonia', e.target.value)}
+                  placeholder={t.coloniaPlaceholder}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              
+              <div className="auth-form-group">
+                <label htmlFor={`ciudad-${index}`}>{t.ciudad} *</label>
+                <input
+                  id={`ciudad-${index}`}
+                  type="text"
+                  className="auth-form-input"
+                  value={direccion.ciudad}
+                  onChange={(e) => handleDireccionChange(index, 'ciudad', e.target.value)}
+                  placeholder={t.ciudadPlaceholder}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              
+              <div className="auth-form-group">
+                <label htmlFor={`estado-${index}`}>{t.estado} *</label>
+                <input
+                  id={`estado-${index}`}
+                  type="text"
+                  className="auth-form-input"
+                  value={direccion.estado}
+                  onChange={(e) => handleDireccionChange(index, 'estado', e.target.value)}
+                  placeholder={t.estadoPlaceholder}
+                  required
+                  disabled={loading}
+                />
+              </div>
+              
+              <div className="auth-form-group">
+                <label htmlFor={`codigo_postal-${index}`}>{t.codigoPostal} *</label>
+                <input
+                  id={`codigo_postal-${index}`}
+                  type="text"
+                  className="auth-form-input"
+                  value={direccion.codigo_postal}
+                  onChange={(e) => handleDireccionChange(index, 'codigo_postal', e.target.value)}
+                  placeholder={t.codigoPostalPlaceholder}
+                  required
+                  disabled={loading}
+                  maxLength="5"
+                />
+              </div>
+              
+              <div className="auth-form-group">
+                <label htmlFor={`tipo-${index}`}>{t.tipoDireccion}</label>
+                <select
+                  id={`tipo-${index}`}
+                  className="auth-form-input"
+                  value={direccion.tipo}
+                  onChange={(e) => handleDireccionChange(index, 'tipo', e.target.value)}
+                  disabled={loading}
+                >
+                  <option value="casa">{t.tipoOptions.casa}</option>
+                  <option value="trabajo">{t.tipoOptions.trabajo}</option>
+                  <option value="otro">{t.tipoOptions.otro}</option>
+                </select>
+              </div>
+              
+              <div className="auth-form-group auth-full-width">
+                <label htmlFor={`referencias-${index}`}>{t.referencias}</label>
+                <textarea
+                  id={`referencias-${index}`}
+                  className="auth-form-input"
+                  value={direccion.referencias}
+                  onChange={(e) => handleDireccionChange(index, 'referencias', e.target.value)}
+                  placeholder={t.referenciasPlaceholder}
+                  disabled={loading}
+                  rows="3"
+                />
+              </div>
+              
+              <div className="auth-form-group auth-checkbox-group">
+                <label className="auth-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={direccion.predeterminada}
+                    onChange={(e) => handleDireccionChange(index, 'predeterminada', e.target.checked)}
+                    disabled={loading}
+                  />
+                  <span className="auth-checkbox-custom"></span>
+                  {t.seleccionarPredeterminada}
+                </label>
+              </div>
+            </div>
+          </div>
+        ))}
+        
+        <div className="auth-add-direccion-container">
+          <button
+            type="button"
+            className="auth-add-direccion-button"
+            onClick={handleAddDireccion}
+            disabled={loading}
+          >
+            <FontAwesomeIcon icon={faPlus} /> {t.agregarDireccion}
+          </button>
+        </div>
+        
+        <div className="auth-step-navigation">
+          <button 
+            type="button" 
+            className="auth-prev-button"
+            onClick={handlePrevStep}
+            disabled={loading}
+          >
+            <FontAwesomeIcon icon={faChevronLeft} /> {t.anterior}
+          </button>
+          
+          <button 
+            type="submit" 
+            className="auth-next-button"
+            disabled={loading}
+          >
+            {t.siguiente} <FontAwesomeIcon icon={faChevronRight} />
+          </button>
+        </div>
+      </form>
+    </>
+  );
+
+  const renderStep3 = () => (
+    <>
+      <h2 className="auth-form-title">
+        <FontAwesomeIcon icon={faCreditCard} style={{ marginRight: '10px' }} />
+        {t.step3}
+      </h2>
+      
+      {error && (
+        <div className="auth-error-message">
+          {error}
+          <button 
+            type="button" 
+            className="auth-retry-button"
+            onClick={() => setError('')}
+          >
+            {t.close}
+          </button>
+        </div>
+      )}
+      
+      <div className="auth-skip-option">
+        <label className="auth-checkbox-label skip-checkbox">
+          <input
+            type="checkbox"
+            checked={skipTarjeta}
+            onChange={(e) => setSkipTarjeta(e.target.checked)}
+          />
+          <span className="auth-checkbox-custom"></span>
+          <span className="skip-text">
+            <FontAwesomeIcon icon={faCheckCircle} style={{ marginRight: '8px', color: '#96bd44' }} />
+            {t.skipTarjeta}
+          </span>
+        </label>
+      </div>
+      
+      {!skipTarjeta && (
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="auth-tarjeta-form">
+            <div className="auth-form-group">
+              <label htmlFor="nombre_titular">{t.nombreTitular}</label>
+              <input
+                id="nombre_titular"
+                type="text"
+                className="auth-form-input"
+                value={formData.tarjeta.nombre_titular}
+                onChange={(e) => handleTarjetaChange('nombre_titular', e.target.value)}
+                placeholder={t.nombreTitularPlaceholder}
+                disabled={loading}
+              />
+            </div>
+            
+            <div className="auth-form-group">
+              <label htmlFor="numero_tarjeta">{t.numeroTarjeta}</label>
+              <div className="auth-password-container">
+                <input
+                  id="numero_tarjeta"
+                  type={showTarjetaNumber ? "text" : "password"}
+                  className="auth-form-input"
+                  value={formData.tarjeta.numero_tarjeta}
+                  onChange={(e) => handleTarjetaChange('numero_tarjeta', formatCardNumber(e.target.value))}
+                  placeholder={t.numeroTarjetaPlaceholder}
+                  disabled={loading}
+                  maxLength="19"
+                />
+                <button 
+                  type="button" 
+                  className="auth-password-toggle"
+                  onClick={toggleTarjetaNumberVisibility}
+                  disabled={loading}
+                >
+                  <FontAwesomeIcon 
+                    icon={showTarjetaNumber ? faEyeSlash : faEye} 
+                  />
+                </button>
+              </div>
+            </div>
+            
+            <div className="auth-tarjeta-fecha">
+              <div className="auth-form-group" style={{ flex: 1 }}>
+                <label htmlFor="mes_expiracion">{t.mesExpiracion}</label>
+                <input
+                  id="mes_expiracion"
+                  type="text"
+                  className="auth-form-input"
+                  value={formData.tarjeta.mes_expiracion}
+                  onChange={(e) => handleTarjetaChange('mes_expiracion', e.target.value.replace(/[^0-9]/g, '').slice(0, 2))}
+                  placeholder={t.mesExpiracionPlaceholder}
+                  disabled={loading}
+                  maxLength="2"
+                />
+              </div>
+              
+              <div className="auth-form-group" style={{ flex: 1 }}>
+                <label htmlFor="anio_expiracion">{t.anioExpiracion}</label>
+                <input
+                  id="anio_expiracion"
+                  type="text"
+                  className="auth-form-input"
+                  value={formData.tarjeta.anio_expiracion}
+                  onChange={(e) => handleTarjetaChange('anio_expiracion', e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
+                  placeholder={t.anioExpiracionPlaceholder}
+                  disabled={loading}
+                  maxLength="4"
+                />
+              </div>
+            </div>
+            
+            <div className="auth-form-group auth-checkbox-group">
+              <label className="auth-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={formData.tarjeta.predeterminada}
+                  onChange={(e) => handleTarjetaChange('predeterminada', e.target.checked)}
+                  disabled={loading}
+                />
+                <span className="auth-checkbox-custom"></span>
+                {t.tarjetaPredeterminada}
+              </label>
+            </div>
+          </div>
+          
+          <div className="auth-step-navigation">
+            <button 
+              type="button" 
+              className="auth-prev-button"
+              onClick={handlePrevStep}
+              disabled={loading}
+            >
+              <FontAwesomeIcon icon={faChevronLeft} /> {t.anterior}
+            </button>
+            
+            <button 
+              type="submit" 
+              className="auth-submit-button"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="auth-spinner"></span>
+                  {t.loading}
+                </>
+              ) : t.registrar}
+            </button>
+          </div>
+        </form>
+      )}
+      
+      {skipTarjeta && (
+        <div className="auth-step-navigation" style={{ marginTop: '30px' }}>
+          <button 
+            type="button" 
+            className="auth-prev-button"
+            onClick={handlePrevStep}
+            disabled={loading}
+          >
+            <FontAwesomeIcon icon={faChevronLeft} /> {t.anterior}
+          </button>
+          
+          <button 
+            type="button" 
+            className="auth-submit-button"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="auth-spinner"></span>
+                {t.loading}
+              </>
+            ) : t.registrar}
+          </button>
+        </div>
+      )}
+    </>
+  );
+
   return (
-    <div className="create-user-form">
-      {/* Mensajes de éxito/error */}
+    <div className="auth-form-inner create-user-container">
       {successMessage && (
-        <div className="create-success-message">
+        <div className="auth-success-message">
           {successMessage}
         </div>
       )}
       
-      {errorMessage && (
-        <div className="create-error-message-box">
-          {errorMessage}
-        </div>
-      )}
-
-      {/* Indicador de pasos (solo visible si no hay mensaje de éxito) */}
       {!successMessage && (
-        <div className="create-form-steps">
-          <div className={`create-step-indicator ${step >= 1 ? 'active' : ''} ${step > 1 ? 'completed' : ''}`}>
-            <span className="create-step-number">1</span>
-            <span className="create-step-label">Datos Personales</span>
-          </div>
-          <div className="create-step-line"></div>
-          <div className={`create-step-indicator ${step >= 2 ? 'active' : ''}`}>
-            <span className="create-step-number">2</span>
-            <span className="create-step-label">Direcciones</span>
-          </div>
-        </div>
-      )}
-
-      {/* PASO 1: DATOS PERSONALES */}
-      {step === 1 && !successMessage && (
         <>
-          <div className="create-form-group">
-            <label className="create-form-label">
-              Nombre completo <span className="create-required">*</span>
-            </label>
-            <input
-              type="text"
-              className={`create-form-control ${errors.nombre ? 'create-input-error' : ''}`}
-              value={userData.nombre}
-              onChange={(e) => {
-                setUserData({...userData, nombre: e.target.value});
-                clearMessages();
-              }}
-              placeholder="Ej: Juan Pérez"
-              maxLength="100"
-            />
-            {errors.nombre && <span className="create-error-message">{errors.nombre}</span>}
-          </div>
-
-          <div className="create-form-group">
-            <label className="create-form-label">
-              Correo electrónico <span className="create-required">*</span>
-            </label>
-            <input
-              type="email"
-              className={`create-form-control ${errors.correo ? 'create-input-error' : ''}`}
-              value={userData.correo}
-              onChange={(e) => {
-                setUserData({...userData, correo: e.target.value});
-                clearMessages();
-              }}
-              placeholder="Ej: correo@ejemplo.com"
-              maxLength="100"
-            />
-            {errors.correo && <span className="create-error-message">{errors.correo}</span>}
-          </div>
-
-          <div className="create-form-row">
-            <div className="create-form-group create-half">
-              <label className="create-form-label">
-                Contraseña <span className="create-required">*</span>
-              </label>
-              <input
-                type="password"
-                className={`create-form-control ${errors.contraseña ? 'create-input-error' : ''}`}
-                value={userData.contraseña}
-                onChange={(e) => {
-                  setUserData({...userData, contraseña: e.target.value});
-                  clearMessages();
-                }}
-                placeholder="Mínimo 6 caracteres"
-                maxLength="50"
-              />
-              {errors.contraseña && <span className="create-error-message">{errors.contraseña}</span>}
+          <div className="auth-step-indicator" style={{ marginBottom: '30px' }}>
+            <div className={`auth-step ${step === 0 ? 'active' : ''}`}>
+              <div className="auth-step-number">1</div>
+              <div className="auth-step-label">Tipo de Cuenta</div>
             </div>
-
-            <div className="create-form-group create-half">
-              <label className="create-form-label">
-                Confirmar contraseña <span className="create-required">*</span>
-              </label>
-              <input
-                type="password"
-                className={`create-form-control ${errors.confirmarContraseña ? 'create-input-error' : ''}`}
-                value={userData.confirmarContraseña}
-                onChange={(e) => {
-                  setUserData({...userData, confirmarContraseña: e.target.value});
-                  clearMessages();
-                }}
-                placeholder="Repite la contraseña"
-                maxLength="50"
-              />
-              {errors.confirmarContraseña && <span className="create-error-message">{errors.confirmarContraseña}</span>}
-            </div>
-          </div>
-
-          <div className="create-form-row">
-            <div className="create-form-group create-half">
-              <label className="create-form-label">Teléfono</label>
-              <input
-                type="tel"
-                className={`create-form-control ${errors.telefono ? 'create-input-error' : ''}`}
-                value={userData.telefono}
-                onChange={(e) => {
-                  setUserData({...userData, telefono: e.target.value.replace(/\D/g, '').slice(0, 10)});
-                  clearMessages();
-                }}
-                placeholder="10 dígitos"
-                maxLength="10"
-              />
-              {errors.telefono && <span className="create-error-message">{errors.telefono}</span>}
-            </div>
-
-            <div className="create-form-group create-half">
-              <label className="create-form-label">Sexo</label>
-              <select
-                className="create-select"
-                value={userData.sexo}
-                onChange={(e) => {
-                  setUserData({...userData, sexo: e.target.value});
-                  clearMessages();
-                }}
-              >
-                <option value="">Seleccionar</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Femenino">Femenino</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="create-form-group">
-            <label className="create-form-label">Rol</label>
-            <select
-              className="create-select"
-              value={userData.rol}
-              onChange={(e) => {
-                setUserData({...userData, rol: parseInt(e.target.value)});
-                clearMessages();
-              }}
-            >
-              <option value="2">Usuario</option>
-              <option value="1">Administrador</option>
-            </select>
-          </div>
-
-          <div className="create-form-actions">
-            <button type="button" className="create-btn-cancel" onClick={onClose}>
-              Cancelar
-            </button>
-            <button 
-              type="button" 
-              className="create-btn-next"
-              onClick={handleNextStep}
-            >
-              Siguiente: Direcciones →
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* PASO 2: DIRECCIONES */}
-      {step === 2 && !successMessage && (
-        <>
-          <div className="create-direcciones-section">
-            <div className="create-direcciones-header">
-              <h4 className="create-direcciones-title">Direcciones del usuario</h4>
-              {!showDireccionForm && (
-                <button 
-                  type="button"
-                  className="create-btn-add-direccion"
-                  onClick={() => {
-                    setShowDireccionForm(true);
-                    clearMessages();
-                  }}
-                >
-                  + Agregar dirección
-                </button>
-              )}
-            </div>
-
-            {/* Lista de direcciones agregadas */}
-            {direcciones.length > 0 && (
-              <div className="create-direcciones-list">
-                {direcciones.map((dir, index) => (
-                  <div key={index} className={`create-direccion-item ${dir.predeterminada ? 'predeterminada' : ''}`}>
-                    <div className="create-direccion-header">
-                      <span className="create-direccion-tipo">{dir.tipo}</span>
-                      {dir.predeterminada && (
-                        <span className="create-predeterminada-badge">Predeterminada</span>
-                      )}
-                    </div>
-                    <div className="create-direccion-contenido">
-                      <p><strong>{dir.calle} #{dir.numero_exterior}</strong></p>
-                      {dir.numero_interior && <p>Int. {dir.numero_interior}</p>}
-                      <p>{dir.colonia}, {dir.ciudad}, {dir.estado}</p>
-                      <p>CP: {dir.codigo_postal}</p>
-                      {dir.referencias && <p className="create-referencias">{dir.referencias}</p>}
-                    </div>
-                    <div className="create-direccion-acciones">
-                      {!dir.predeterminada && direcciones.length > 1 && (
-                        <button
-                          type="button"
-                          className="create-btn-set-predeterminada"
-                          onClick={() => handleSetPredeterminada(index)}
-                          title="Marcar como predeterminada"
-                        >
-                          ★
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        className="create-btn-remove-direccion"
-                        onClick={() => handleRemoveDireccion(index)}
-                        title="Eliminar dirección"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  </div>
-                ))}
+            
+            <div className="auth-step-connector"></div>
+            <div className={`auth-step ${step === 1 ? 'active' : ''}`}>
+              <div className="auth-step-number">2</div>
+              <div className="auth-step-label">
+                {accountType === 'infantil' ? 'Datos del Niño' : 'Datos Personales'}
               </div>
-            )}
-
-            {/* Formulario para agregar nueva dirección */}
-            {showDireccionForm && (
-              <div className="create-direccion-form">
-                <h5 className="create-form-subtitle">Nueva dirección</h5>
-                
-                <div className="create-form-group">
-                  <label className="create-form-label">
-                    Tipo de dirección <span className="create-required">*</span>
-                  </label>
-                  <select
-                    className="create-select"
-                    value={direccionActual.tipo}
-                    onChange={(e) => setDireccionActual({...direccionActual, tipo: e.target.value})}
-                  >
-                    <option value="casa">Casa</option>
-                    <option value="trabajo">Trabajo</option>
-                    <option value="otro">Otro</option>
-                  </select>
-                </div>
-
-                <div className="create-form-group">
-                  <label className="create-form-label">
-                    Calle <span className="create-required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    className={`create-form-control ${errors.calle ? 'create-input-error' : ''}`}
-                    value={direccionActual.calle}
-                    onChange={(e) => setDireccionActual({...direccionActual, calle: e.target.value})}
-                    placeholder="Ej: Av. Principal"
-                  />
-                  {errors.calle && <span className="create-error-message">{errors.calle}</span>}
-                </div>
-
-                <div className="create-form-row">
-                  <div className="create-form-group create-half">
-                    <label className="create-form-label">
-                      Número exterior <span className="create-required">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className={`create-form-control ${errors.numero_exterior ? 'create-input-error' : ''}`}
-                      value={direccionActual.numero_exterior}
-                      onChange={(e) => setDireccionActual({...direccionActual, numero_exterior: e.target.value})}
-                      placeholder="Ej: 123"
-                    />
-                    {errors.numero_exterior && <span className="create-error-message">{errors.numero_exterior}</span>}
-                  </div>
-
-                  <div className="create-form-group create-half">
-                    <label className="create-form-label">Número interior</label>
-                    <input
-                      type="text"
-                      className="create-form-control"
-                      value={direccionActual.numero_interior}
-                      onChange={(e) => setDireccionActual({...direccionActual, numero_interior: e.target.value})}
-                      placeholder="Ej: A, 2B (opcional)"
-                    />
-                  </div>
-                </div>
-
-                <div className="create-form-group">
-                  <label className="create-form-label">
-                    Colonia <span className="create-required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    className={`create-form-control ${errors.colonia ? 'create-input-error' : ''}`}
-                    value={direccionActual.colonia}
-                    onChange={(e) => setDireccionActual({...direccionActual, colonia: e.target.value})}
-                    placeholder="Ej: Centro"
-                  />
-                  {errors.colonia && <span className="create-error-message">{errors.colonia}</span>}
-                </div>
-
-                <div className="create-form-row">
-                  <div className="create-form-group create-half">
-                    <label className="create-form-label">
-                      Ciudad <span className="create-required">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className={`create-form-control ${errors.ciudad ? 'create-input-error' : ''}`}
-                      value={direccionActual.ciudad}
-                      onChange={(e) => setDireccionActual({...direccionActual, ciudad: e.target.value})}
-                      placeholder="Ej: Ciudad de México"
-                    />
-                    {errors.ciudad && <span className="create-error-message">{errors.ciudad}</span>}
-                  </div>
-
-                  <div className="create-form-group create-half">
-                    <label className="create-form-label">
-                      Estado <span className="create-required">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className={`create-form-control ${errors.estado ? 'create-input-error' : ''}`}
-                      value={direccionActual.estado}
-                      onChange={(e) => setDireccionActual({...direccionActual, estado: e.target.value})}
-                      placeholder="Ej: CDMX"
-                    />
-                    {errors.estado && <span className="create-error-message">{errors.estado}</span>}
-                  </div>
-                </div>
-
-                <div className="create-form-group">
-                  <label className="create-form-label">
-                    Código postal <span className="create-required">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    className={`create-form-control ${errors.codigo_postal ? 'create-input-error' : ''}`}
-                    value={direccionActual.codigo_postal}
-                    onChange={(e) => setDireccionActual({...direccionActual, codigo_postal: e.target.value.replace(/\D/g, '').slice(0, 5)})}
-                    placeholder="5 dígitos"
-                    maxLength="5"
-                  />
-                  {errors.codigo_postal && <span className="create-error-message">{errors.codigo_postal}</span>}
-                </div>
-
-                <div className="create-form-group">
-                  <label className="create-form-label">Referencias</label>
-                  <textarea
-                    className="create-form-control"
-                    value={direccionActual.referencias}
-                    onChange={(e) => setDireccionActual({...direccionActual, referencias: e.target.value})}
-                    placeholder="Ej: Entre calles, puntos de referencia, etc."
-                    rows="3"
-                  />
-                </div>
-
-                <div className="create-checkbox-group">
-                  <label className="create-checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={direccionActual.predeterminada}
-                      onChange={(e) => setDireccionActual({...direccionActual, predeterminada: e.target.checked})}
-                      disabled={direcciones.length === 0}
-                    />
-                    <span>Marcar como dirección predeterminada</span>
-                  </label>
-                </div>
-
-                <div className="create-direccion-form-actions">
-                  <button
-                    type="button"
-                    className="create-btn-cancel-small"
-                    onClick={() => {
-                      setShowDireccionForm(false);
-                      setDireccionActual({
-                        calle: '',
-                        numero_exterior: '',
-                        numero_interior: '',
-                        colonia: '',
-                        ciudad: '',
-                        estado: '',
-                        codigo_postal: '',
-                        referencias: '',
-                        tipo: 'casa',
-                        predeterminada: false
-                      });
-                      setErrors({});
-                    }}
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="button"
-                    className="create-btn-save-direccion"
-                    onClick={handleAddDireccion}
-                  >
-                    Guardar dirección
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {direcciones.length === 0 && !showDireccionForm && (
-              <div className="create-no-direcciones">
-                <p>No hay direcciones agregadas</p>
-                <p className="create-no-direcciones-sub">Haz clic en "Agregar dirección" para comenzar</p>
-              </div>
-            )}
+            </div>
+            
+            <div className="auth-step-connector"></div>
+            <div className={`auth-step ${step === 2 ? 'active' : ''}`}>
+              <div className="auth-step-number">3</div>
+              <div className="auth-step-label">Direcciones</div>
+            </div>
+            
+            <div className="auth-step-connector"></div>
+            <div className={`auth-step ${step === 3 ? 'active' : ''}`}>
+              <div className="auth-step-number">4</div>
+              <div className="auth-step-label">Tarjeta</div>
+            </div>
           </div>
-
-          <div className="create-form-actions-step">
-            <button type="button" className="create-btn-back" onClick={handlePrevStep}>
-              ← Atrás
-            </button>
-            <button 
-              type="button" 
-              className="create-btn-submit"
-              onClick={handleSubmit}
-              disabled={loading || direcciones.length === 0}
-            >
-              {loading ? 'Creando...' : 'Crear Usuario'}
-            </button>
-          </div>
+          
+          {step === 0 && renderAccountTypeSelector()}
+          {step === 1 && renderStep1()}
+          {step === 2 && renderStep2()}
+          {step === 3 && renderStep3()}
         </>
       )}
     </div>

@@ -20,8 +20,9 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
         confirmPassword: '',
         phone: '',
         gender: '',
-        // Nuevos campos para cuentas infantiles
+        // Edad para AMBOS tipos de cuenta
         edad: '',
+        // Campos para cuentas infantiles
         tutor_nombre: '',  // Nombre del tutor (para cuenta infantil)
         tutor_telefono: '', // Teléfono del tutor (para cuenta infantil)
         // Paso 2: Direcciones (para ambos tipos de cuenta)
@@ -100,8 +101,11 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                 M: "Masculino",
                 F: "Femenino",
             },
-            edad: "Edad del niño/a",
-            edadPlaceholder: "Edad (3-17 años)",
+            // Textos para edad según tipo de cuenta
+            edadPersonal: "Edad",
+            edadPersonalPlaceholder: "Tu edad (mayor de 18 años)",
+            edadInfantil: "Edad del niño/a",
+            edadInfantilPlaceholder: "Edad (3-17 años)",
             tutor_nombre: "Nombre del tutor (padre/madre)",
             tutor_nombrePlaceholder: "Nombre completo del tutor",
             tutor_telefono: "Teléfono del tutor",
@@ -168,7 +172,9 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             errorTarjeta: "Los datos de la tarjeta no son válidos",
             errorTarjetaNumero: "Número de tarjeta inválido",
             errorTarjetaFecha: "Fecha de expiración inválida",
-            errorEdad: "La edad debe ser entre 3 y 17 años",
+            errorEdadPersonal: "Debes ser mayor de 18 años",
+            errorEdadInfantil: "La edad debe ser entre 3 y 17 años",
+            errorEdadRequerida: "La edad es requerida",
             errorTutorData: "El nombre y teléfono del tutor son requeridos",
             close: "Cerrar",
             successMessage: "Cuenta creada exitosamente. Redirigiendo...",
@@ -205,8 +211,11 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                 M: "Male",
                 F: "Female",
             },
-            edad: "Child's age",
-            edadPlaceholder: "Age (3-17 years)",
+            // Texts for age according to account type
+            edadPersonal: "Age",
+            edadPersonalPlaceholder: "Your age (over 18)",
+            edadInfantil: "Child's age",
+            edadInfantilPlaceholder: "Age (3-17 years)",
             tutor_nombre: "Tutor's name (parent)",
             tutor_nombrePlaceholder: "Tutor's full name",
             tutor_telefono: "Tutor's phone",
@@ -273,7 +282,9 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             errorTarjeta: "Invalid card data",
             errorTarjetaNumero: "Invalid card number",
             errorTarjetaFecha: "Invalid expiration date",
-            errorEdad: "Age must be between 3 and 17 years",
+            errorEdadPersonal: "You must be over 18 years old",
+            errorEdadInfantil: "Age must be between 3 and 17 years",
+            errorEdadRequerida: "Age is required",
             errorTutorData: "Tutor's name and phone are required",
             close: "Close",
             successMessage: "Account created successfully. Redirecting...",
@@ -357,6 +368,7 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
     };
 
     const validateStep1 = () => {
+        // Validar campos básicos
         if (!formData.name || !formData.email || !formData.password) {
             setError(t.errorComplete);
             return false;
@@ -373,19 +385,31 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             return false;
         }
 
-        // Validaciones específicas para cuenta infantil
-        if (accountType === 'infantil') {
-            if (!formData.edad) {
-                setError(t.errorEdad);
+        // Validar edad para AMBOS tipos de cuenta
+        if (!formData.edad) {
+            setError(t.errorEdadRequerida);
+            return false;
+        }
+
+        const edad = parseInt(formData.edad);
+        if (isNaN(edad)) {
+            setError(t.errorEdadRequerida);
+            return false;
+        }
+
+        // Validaciones específicas según tipo de cuenta
+        if (accountType === 'personal') {
+            if (edad < 18) {
+                setError(t.errorEdadPersonal);
                 return false;
             }
-            
-            const edad = parseInt(formData.edad);
-            if (isNaN(edad) || edad < 3 || edad > 17) {
-                setError(t.errorEdad);
+        } else { // infantil
+            if (edad < 3 || edad > 17) {
+                setError(t.errorEdadInfantil);
                 return false;
             }
 
+            // Validar datos del tutor para cuenta infantil
             if (!formData.tutor_nombre || !formData.tutor_telefono) {
                 setError(t.errorTutorData);
                 return false;
@@ -573,12 +597,12 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                 password: formData.password,
                 telefono: formData.phone,
                 sexo: formData.gender,
-                tipo_cuenta: accountType
+                tipo_cuenta: accountType,
+                edad: parseInt(formData.edad) // Edad para AMBOS tipos de cuenta
             };
 
             // Agregar campos específicos para cuenta infantil
             if (accountType === 'infantil') {
-                userData.edad = parseInt(formData.edad);
                 userData.tutor_nombre = formData.tutor_nombre;
                 userData.tutor_telefono = formData.tutor_telefono;
             }
@@ -800,28 +824,44 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                     />
                 </div>
 
+                {/* Campo de edad para AMBOS tipos de cuenta - SIN ICONO */}
+                <div className="auth-form-group">
+                    <label htmlFor="edad">
+                        {accountType === 'infantil' ? t.edadInfantil : t.edadPersonal} *
+                    </label>
+                    <input
+                        id="edad"
+                        name="edad"
+                        type="number"
+                        min={accountType === 'infantil' ? "3" : "18"}
+                        max={accountType === 'infantil' ? "17" : "120"}
+                        className="auth-form-input"
+                        value={formData.edad}
+                        onChange={handleInputChange}
+                        placeholder={accountType === 'infantil' ? t.edadInfantilPlaceholder : t.edadPersonalPlaceholder}
+                        required
+                        disabled={loading}
+                    />
+                </div>
+
+                {accountType === 'personal' && (
+                    <div className="auth-form-group">
+                        <label htmlFor="phone">{t.phone}</label>
+                        <input
+                            id="phone"
+                            name="phone"
+                            type="tel"
+                            className="auth-form-input"
+                            value={formData.phone}
+                            onChange={handleInputChange}
+                            placeholder={t.phonePlaceholder}
+                            disabled={loading}
+                        />
+                    </div>
+                )}
+
                 {accountType === 'infantil' && (
                     <>
-                        <div className="auth-form-group">
-                            <label htmlFor="edad">
-                                <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: '5px' }} />
-                                {t.edad} *
-                            </label>
-                            <input
-                                id="edad"
-                                name="edad"
-                                type="number"
-                                min="3"
-                                max="17"
-                                className="auth-form-input"
-                                value={formData.edad}
-                                onChange={handleInputChange}
-                                placeholder={t.edadPlaceholder}
-                                required
-                                disabled={loading}
-                            />
-                        </div>
-
                         <div className="auth-form-section">
                             <h3 className="auth-section-title">
                                 <FontAwesomeIcon icon={faUser} style={{ marginRight: '10px' }} />
@@ -865,22 +905,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                             </div>
                         </div>
                     </>
-                )}
-
-                {accountType === 'personal' && (
-                    <div className="auth-form-group">
-                        <label htmlFor="phone">{t.phone}</label>
-                        <input
-                            id="phone"
-                            name="phone"
-                            type="tel"
-                            className="auth-form-input"
-                            value={formData.phone}
-                            onChange={handleInputChange}
-                            placeholder={t.phonePlaceholder}
-                            disabled={loading}
-                        />
-                    </div>
                 )}
 
                 <div className="auth-form-group">

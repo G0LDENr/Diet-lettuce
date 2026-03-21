@@ -355,7 +355,7 @@ const HeroSection = ({ t }) => (
     <div className="home-hero-content">
       <div className="home-hero-text">
         <h1 className="home-hero-title">
-          <span className="home-crazy-large-swash">Diet</span>
+          <span className="home-crazy-large-swash">Diet </span>
           <span className="home-highlight"> Lettuce</span>
         </h1>
         <p className="home-hero-description">

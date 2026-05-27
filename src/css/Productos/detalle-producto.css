@@ -1,0 +1,331 @@
+/* Modal de Producto */
+.modal-overlay-producto {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-overlay-producto .modal-content {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.3s ease;
+}
+
+.modal-overlay-producto.dark-mode .modal-content {
+  background: #1e1e1e;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #666;
+  z-index: 10;
+  transition: color 0.3s;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.modal-close-btn:hover {
+  color: #e74c3c;
+  background-color: #fef5f5;
+}
+
+.dark-mode .modal-close-btn {
+  color: #aaa;
+}
+
+.dark-mode .modal-close-btn:hover {
+  color: #e74c3c;
+  background-color: #2a2a2a;
+}
+
+.product-modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+/* Lado izquierdo */
+.product-modal-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.product-modal-image-container {
+  width: 100%;
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #e0e0e0;
+}
+
+.dark-mode .product-modal-image-container {
+  background: #2d2d2d;
+  border-color: #404040;
+}
+
+.product-modal-image {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+}
+
+.product-modal-price {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ffffff;
+  text-align: center;
+}
+
+.dark-mode .product-modal-price {
+  color: #96bd44;
+}
+
+/* Lado derecho */
+.product-modal-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.product-modal-title {
+  font-size: 1.8rem;
+  margin: 0;
+  color: #2c3e50;
+}
+
+.dark-mode .product-modal-title {
+  color: #ffffff;
+}
+
+.product-modal-info {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.product-modal-categoria,
+.product-modal-presentacion {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.product-modal-categoria {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.product-modal-presentacion {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.dark-mode .product-modal-categoria {
+  background: #2e7d32;
+  color: #ffffff;
+}
+
+.dark-mode .product-modal-presentacion {
+  background: #1976d2;
+  color: #ffffff;
+}
+
+.product-modal-stock {
+  margin-top: 0.5rem;
+}
+
+.stock-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.stock-badge.in-stock {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.stock-badge.out-stock {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.dark-mode .stock-badge.in-stock {
+  background: #1b5e20;
+  color: #ffffff;
+}
+
+.dark-mode .stock-badge.out-stock {
+  background: #b71c1c;
+  color: #ffffff;
+}
+
+.product-modal-descripcion h3,
+.product-modal-beneficios h3,
+.product-modal-modo-uso h3,
+.product-modal-ingredientes h3,
+.product-modal-advertencias h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+}
+
+.dark-mode .product-modal-descripcion h3,
+.dark-mode .product-modal-beneficios h3,
+.dark-mode .product-modal-modo-uso h3,
+.dark-mode .product-modal-ingredientes h3,
+.dark-mode .product-modal-advertencias h3 {
+  color: #e2e8f0;
+}
+
+.product-modal-descripcion p,
+.product-modal-beneficios p,
+.product-modal-modo-uso p,
+.product-modal-ingredientes p,
+.product-modal-advertencias p {
+  margin: 0;
+  line-height: 1.6;
+  color: #666;
+}
+
+.dark-mode .product-modal-descripcion p,
+.dark-mode .product-modal-beneficios p,
+.dark-mode .product-modal-modo-uso p,
+.dark-mode .product-modal-ingredientes p,
+.dark-mode .product-modal-advertencias p {
+  color: #aaa;
+}
+
+.product-modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.product-modal-btn {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.product-modal-btn.add-to-cart {
+  background: white;
+  color: #96bd44;
+  border: 2px solid #96bd44;
+}
+
+.product-modal-btn.add-to-cart:hover:not(:disabled) {
+  background: #96bd44;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(150, 189, 68, 0.3);
+}
+
+.product-modal-btn.buy-now {
+  background: #96bd44;
+  color: white;
+  border: 2px solid #96bd44;
+}
+
+.product-modal-btn.buy-now:hover:not(:disabled) {
+  background: #86ac3a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(150, 189, 68, 0.3);
+}
+
+.product-modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .product-modal-grid {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+  
+  .product-modal-left {
+    order: 1;
+  }
+  
+  .product-modal-right {
+    order: 2;
+  }
+  
+  .product-modal-image-container {
+    padding: 1rem;
+  }
+  
+  .product-modal-title {
+    font-size: 1.5rem;
+  }
+  
+  .product-modal-actions {
+    flex-direction: column;
+  }
+  
+  .product-modal-btn {
+    width: 100%;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

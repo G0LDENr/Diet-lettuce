@@ -15,6 +15,8 @@ import canvaDietLettuce from '../../docs/canva-diet-lettuce.pdf';
 import cartaUsuario from '../../docs/carta-usuario.pdf';
 import FODADietLettuce from '../../docs/foda-diet-lettuce.pdf';
 import BalanceDietLettuce from '../../docs/balance-diet-lettuce.pdf';
+import CartaMaduresDietLettuce from '../../docs/carta-madures-diet-lettuce.pdf';
+import FichaTecnicaDietLettuce from '../../docs/ficha-tecnica-diet-lettuce.pdf';
 
 const Nosotros = () => {
   const { t } = useConfig();
@@ -330,6 +332,52 @@ const Nosotros = () => {
                 <button 
                   className="nosotros-documento-btn descargar"
                   onClick={() => downloadFile(FODADietLettuce, 'foda-diet-lettuce.pdf')}
+                >
+                  <FiDownload /> Descargar
+                </button>
+              </div>
+            </div>
+
+            {/* Carta de Madures Document */}
+            <div className="nosotros-documento-card">
+              <div className="nosotros-documento-icon">
+                <MdPictureAsPdf />
+              </div>
+              <h3>Carta de Madures Diet Lettuce</h3>
+              <p>Presentación y diseño de nuestra marca</p>
+              <div className="nosotros-documento-buttons">
+                <button 
+                  className="nosotros-documento-btn ver"
+                  onClick={() => openModal('FODA Diet Lettuce', CartaMaduresDietLettuce, 'pdf')}
+                >
+                  Ver
+                </button>
+                <button 
+                  className="nosotros-documento-btn descargar"
+                  onClick={() => downloadFile(CartaMaduresDietLettuce, 'foda-diet-lettuce.pdf')}
+                >
+                  <FiDownload /> Descargar
+                </button>
+              </div>
+            </div>
+
+            {/* Ficha Tecnica Document */}
+            <div className="nosotros-documento-card">
+              <div className="nosotros-documento-icon">
+                <MdPictureAsPdf />
+              </div>
+              <h3>Ficha Técnica Diet Lettuce</h3>
+              <p>Presentación y diseño de nuestra marca</p>
+              <div className="nosotros-documento-buttons">
+                <button 
+                  className="nosotros-documento-btn ver"
+                  onClick={() => openModal('FODA Diet Lettuce', FichaTecnicaDietLettuce, 'pdf')}
+                >
+                  Ver
+                </button>
+                <button 
+                  className="nosotros-documento-btn descargar"
+                  onClick={() => downloadFile(FichaTecnicaDietLettuce, 'ficha-tecnica-diet-lettuce.pdf')}
                 >
                   <FiDownload /> Descargar
                 </button>

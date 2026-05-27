@@ -19,7 +19,39 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
 
-  // Opciones de categorías (sin emojis)
+  // Mapeo de nombres de categoría a IDs
+  const categoriaMap = {
+    'Quemadores de Grasa': 'quemadores',
+    'Quemadores': 'quemadores',
+    'Proteínas': 'proteinas',
+    'Proteinas': 'proteinas',
+    'Fibras y Digestivos': 'fibras',
+    'Fibras': 'fibras',
+    'Detox y Limpieza': 'detox',
+    'Detox': 'detox',
+    'Termogénicos': 'termogenicos',
+    'Termogenicos': 'termogenicos',
+    'Control de Apetito': 'control_apetito',
+    'Control Apetito': 'control_apetito',
+    'Energéticos Naturales': 'energeticos',
+    'Energeticos': 'energeticos',
+    'Vitaminas y Minerales': 'vitaminas',
+    'Vitaminas': 'vitaminas'
+  };
+
+  // Mapeo de nombres de presentación a IDs
+  const presentacionMap = {
+    'Polvo': 'polvo',
+    'Cápsulas': 'capsulas',
+    'Capsulas': 'capsulas',
+    'Tabletas': 'tabletas',
+    'Líquido': 'liquido',
+    'Liquido': 'liquido',
+    'Gomitas': 'gomitas',
+    'Barritas': 'barritas'
+  };
+
+  // Opciones de categorías
   const categorias = [
     { value: 'quemadores', label: 'Quemadores de Grasa' },
     { value: 'proteinas', label: 'Proteínas' },
@@ -31,7 +63,7 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
     { value: 'vitaminas', label: 'Vitaminas y Minerales' }
   ];
 
-  // Opciones de presentaciones (sin emojis)
+  // Opciones de presentaciones
   const presentaciones = [
     { value: 'polvo', label: 'Polvo' },
     { value: 'capsulas', label: 'Cápsulas' },
@@ -41,18 +73,54 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
     { value: 'barritas', label: 'Barritas' }
   ];
 
+  // Función para normalizar categoría (convertir nombre a ID)
+  const normalizarCategoria = (categoria) => {
+    if (!categoria) return 'quemadores';
+    
+    // Si ya es un ID válido, devolverlo
+    const idsValidos = ['quemadores', 'proteinas', 'fibras', 'detox', 'termogenicos', 'control_apetito', 'energeticos', 'vitaminas'];
+    if (idsValidos.includes(categoria)) {
+      return categoria;
+    }
+    
+    // Si es un nombre, convertirlo a ID
+    return categoriaMap[categoria] || 'quemadores';
+  };
+
+  // Función para normalizar presentación (convertir nombre a ID)
+  const normalizarPresentacion = (presentacion) => {
+    if (!presentacion) return 'polvo';
+    
+    // Si ya es un ID válido, devolverlo
+    const idsValidos = ['polvo', 'capsulas', 'tabletas', 'liquido', 'gomitas', 'barritas'];
+    if (idsValidos.includes(presentacion)) {
+      return presentacion;
+    }
+    
+    // Si es un nombre, convertirlo a ID
+    return presentacionMap[presentacion] || 'polvo';
+  };
+
   // Cargar datos del suplemento
   useEffect(() => {
     if (suplemento) {
       console.log('Suplemento recibido para editar:', suplemento);
+      console.log('Categoría original:', suplemento.categoria);
+      console.log('Presentación original:', suplemento.presentacion);
 
-      // Inicializar el formulario con los datos del suplemento existente
+      // Normalizar categoría y presentación
+      const categoriaNormalizada = normalizarCategoria(suplemento.categoria);
+      const presentacionNormalizada = normalizarPresentacion(suplemento.presentacion);
+
+      console.log('Categoría normalizada:', categoriaNormalizada);
+      console.log('Presentación normalizada:', presentacionNormalizada);
+
       setFormData({
         nombre: suplemento.nombre || '',
         descripcion: suplemento.descripcion || '',
         precio: suplemento.precio ? suplemento.precio.toString() : '',
-        categoria: suplemento.categoria || 'quemadores',
-        presentacion: suplemento.presentacion || 'polvo',
+        categoria: categoriaNormalizada,
+        presentacion: presentacionNormalizada,
         beneficios: suplemento.beneficios || '',
         modo_uso: suplemento.modo_uso || '',
         stock: suplemento.stock ? suplemento.stock.toString() : '0',
@@ -67,14 +135,12 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
       ...prev,
       [name]: value
     }));
-    // Limpiar error del campo cuando el usuario empiece a escribir
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
         [name]: ''
       }));
     }
-    // Limpiar mensaje de éxito cuando el usuario modifique algún campo
     if (successMessage) {
       setSuccessMessage('');
     }
@@ -102,18 +168,15 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
       }
     }
 
-    // Validar stock
     const stock = parseInt(formData.stock);
     if (isNaN(stock) || stock < 0) {
       newErrors.stock = 'El stock debe ser un número mayor o igual a 0';
     }
 
-    // Validar categoría
     if (!formData.categoria) {
       newErrors.categoria = 'Debe seleccionar una categoría';
     }
 
-    // Validar presentación
     if (!formData.presentacion) {
       newErrors.presentacion = 'Debe seleccionar una presentación';
     }
@@ -146,7 +209,7 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
       };
 
       console.log('Actualizando suplemento ID:', suplemento.id);
-      console.log('Enviando datos del suplemento:', suplementoData);
+      console.log('Datos a enviar:', suplementoData);
 
       const response = await fetch(`http://127.0.0.1:5000/suplementos/${suplemento.id}`, {
         method: 'PUT',
@@ -165,10 +228,8 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
       if (response.ok) {
         try {
           const result = JSON.parse(responseText);
-          // Mostrar mensaje de éxito
           setSuccessMessage('El suplemento fue actualizado exitosamente');
           
-          // Esperar 2 segundos antes de cerrar el modal y actualizar la lista
           setTimeout(() => {
             if (onSuplementoUpdated) {
               onSuplementoUpdated(result.suplemento);
@@ -213,21 +274,18 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
     <div className={`edit-suplemento-form ${darkMode ? 'edit-suplemento-form-dark-mode' : ''}`}>
       <form className="edit-suplemento-form-form" onSubmit={handleSubmit}>
         
-        {/* Mensaje de éxito */}
         {successMessage && (
           <div className="edit-suplemento-success-message">
             {successMessage}
           </div>
         )}
 
-        {/* Mensaje de error general */}
         {errors.general && (
           <div className="edit-suplemento-error-message-box">
             {errors.general}
           </div>
         )}
 
-        {/* Nombre del suplemento */}
         <div className="edit-suplemento-form-group">
           <label htmlFor="edit-suplemento-nombre">Nombre del suplemento *</label>
           <input
@@ -244,7 +302,6 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
           {errors.nombre && <span className="edit-suplemento-error-message">{errors.nombre}</span>}
         </div>
 
-        {/* Descripción */}
         <div className="edit-suplemento-form-group">
           <label htmlFor="edit-suplemento-descripcion">Descripción *</label>
           <textarea
@@ -261,7 +318,6 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
           {errors.descripcion && <span className="edit-suplemento-error-message">{errors.descripcion}</span>}
         </div>
 
-        {/* Fila: Categoría y Presentación */}
         <div className="edit-suplemento-row">
           <div className="edit-suplemento-price-status-fields">
             <div className="edit-suplemento-form-group">
@@ -304,7 +360,6 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
           </div>
         </div>
 
-        {/* Beneficios */}
         <div className="edit-suplemento-form-group">
           <label htmlFor="edit-suplemento-beneficios">Beneficios</label>
           <textarea
@@ -320,7 +375,6 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
           />
         </div>
 
-        {/* Modo de Uso */}
         <div className="edit-suplemento-form-group">
           <label htmlFor="edit-suplemento-modo-uso">Modo de Uso</label>
           <textarea
@@ -336,7 +390,6 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
           />
         </div>
 
-        {/* Fila: Precio, Stock y Estado */}
         <div className="edit-suplemento-row">
           <div className="edit-suplemento-price-status-fields">
             <div className="edit-suplemento-form-group">
@@ -390,7 +443,6 @@ const EditSuplementoForm = ({ suplemento, onClose, onSuplementoUpdated }) => {
           </div>
         </div>
 
-        {/* Botones de acción */}
         <div className="edit-suplemento-form-actions">
           <button 
             type="button" 

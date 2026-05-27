@@ -9,7 +9,6 @@ import '../../css/Productos/productos.css';
 import '../../css/Productos/carrito.css';
 
 import logo from '../../img/DietLettuce.png';
-// Íconos para categorías de suplementos
 import quemadorIcon from '../../img/quemador.png';
 import proteinaIcon from '../../img/suplemento.png';
 import fibraIcon from '../../img/fibra.png';
@@ -22,6 +21,7 @@ import suplementoGenericoIcon from '../../img/suplemento.png';
 import searchIcon from '../../img/search.png';
 
 import ComprarProductoModal from './comprar-producto';
+import ModalDetalleProducto from './Detalle-Producto';
 
 const Productos = () => {
   const navigate = useNavigate();
@@ -207,7 +207,6 @@ const Productos = () => {
       
       if (response.ok) {
         const data = await response.json();
-        // Mantener las categorías con sus IDs originales
         setCategorias([
           { id: 'todos', nombre: 'Todas las categorías' },
           ...data.categorias
@@ -215,7 +214,6 @@ const Productos = () => {
       }
     } catch (error) {
       console.error('Error al obtener categorías:', error);
-      // Fallback a categorías por defecto con los IDs correctos
       setCategorias([
         { id: 'todos', nombre: 'Todas las categorías' },
         { id: 'quemadores', nombre: 'Quemadores de Grasa' },
@@ -239,7 +237,6 @@ const Productos = () => {
       
       if (response.ok) {
         const data = await response.json();
-        // Mantener las presentaciones con sus IDs originales
         setPresentaciones([
           { id: 'todas', nombre: 'Todas las presentaciones' },
           ...data.presentaciones
@@ -247,7 +244,6 @@ const Productos = () => {
       }
     } catch (error) {
       console.error('Error al obtener presentaciones:', error);
-      // Fallback a presentaciones por defecto con los IDs correctos
       setPresentaciones([
         { id: 'todas', nombre: 'Todas las presentaciones' },
         { id: 'polvo', nombre: 'Polvo' },
@@ -264,7 +260,6 @@ const Productos = () => {
     try {
       setLoading(true);
       
-      // Obtener suplementos
       const productosResponse = await fetch('http://127.0.0.1:5000/suplementos/', {
         headers: getAuthHeaders()
       });
@@ -275,7 +270,6 @@ const Productos = () => {
         productosData = await productosResponse.json();
         const productosActivos = productosData.filter(producto => producto.activo);
         
-        // Asignar icono según categoría
         const productosConIcono = productosActivos.map(producto => ({
           ...producto,
           icono: obtenerIconoPorCategoria(producto.categoria || 'quemadores')
@@ -285,7 +279,6 @@ const Productos = () => {
         productosData = productosConIcono;
       }
 
-      // Para populares, usar los más vendidos o los que tienen más stock
       const productosPopularesOrdenados = [...productosData]
         .sort((a, b) => (b.stock || 0) - (a.stock || 0))
         .slice(0, 3);
@@ -302,14 +295,13 @@ const Productos = () => {
     }
   };
 
-  // Filtrar productos por búsqueda, categoría y presentación - CORREGIDO
+  // Filtrar productos por búsqueda, categoría y presentación
   const filteredProductos = productos.filter(producto => {
     const matchesSearch = 
       (producto.nombre && producto.nombre.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (producto.descripcion && producto.descripcion.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (producto.beneficios && producto.beneficios.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    // Comparar directamente con los IDs (no con los nombres)
     const matchesCategoria = categoriaSeleccionada === 'todos' || producto.categoria === categoriaSeleccionada;
     const matchesPresentacion = presentacionSeleccionada === 'todas' || producto.presentacion === presentacionSeleccionada;
     
@@ -335,11 +327,8 @@ const Productos = () => {
     const userIsAuthenticated = !!token;
     setIsAuthenticated(userIsAuthenticated);
     
-    // Obtener categorías y presentaciones primero
     fetchCategorias();
     fetchPresentaciones();
-    
-    // Luego obtener productos
     fetchProductosYPopulares();
     updateCarritoCount();
   }, []);
@@ -351,19 +340,17 @@ const Productos = () => {
 
   const handleAddToCart = (producto) => {
     agregarAlCarrito(producto, 1);
-    
-    if (showProductModal) {
-      closeModal();
-    }
+    setShowProductModal(false);
+    setSelectedProduct(null);
   };
 
-  const handleComprarProducto = (producto) => {
+  const handleBuyNow = (producto) => {
     setProductoParaComprar(producto);
     setShowComprarModal(true);
     setShowProductModal(false);
   };
 
-  const closeModal = () => {
+  const closeProductModal = () => {
     setShowProductModal(false);
     setSelectedProduct(null);
   };
@@ -528,7 +515,7 @@ const Productos = () => {
                 </div>
               </div>
 
-              {/* Select de Categorías - AHORA USA LOS IDs CORRECTOS */}
+              {/* Select de Categorías */}
               <div className="categoria-select-container">
                 <select
                   value={categoriaSeleccionada}
@@ -543,7 +530,7 @@ const Productos = () => {
                 </select>
               </div>
 
-              {/* Select de Presentaciones - AHORA USA LOS IDs CORRECTOS */}
+              {/* Select de Presentaciones */}
               <div className="presentacion-select-container">
                 <select
                   value={presentacionSeleccionada}
@@ -706,87 +693,15 @@ const Productos = () => {
         </div>
       </footer>
 
-      {/* Modal de Producto */}
-      {showProductModal && selectedProduct && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content product-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close-btn" onClick={closeModal}>×</button>
-            <div className="product-modal-grid">
-              
-              {/* Lado Izquierdo - Imagen con cuadro */}
-              <div className="product-modal-left">
-                <div className="product-modal-image-container">
-                  <img 
-                    src={selectedProduct.icono || suplementoGenericoIcon} 
-                    alt={selectedProduct.nombre} 
-                    className="product-modal-image"
-                  />
-                </div>
-                <div className="product-modal-price">
-                  {formatPrice(selectedProduct.precio)}
-                </div>
-              </div>
-
-              {/* Lado Derecho - Información */}
-              <div className="product-modal-right">
-                <h2 className="product-modal-title">{selectedProduct.nombre}</h2>
-                
-                {/* Categoría y Presentación */}
-                <div className="product-modal-info">
-                  <span className="product-modal-categoria">
-                    {obtenerNombreCategoria(selectedProduct.categoria)}
-                  </span>
-                  <span className="product-modal-presentacion">
-                    {obtenerNombrePresentacion(selectedProduct.presentacion)}
-                  </span>
-                </div>
-
-                {/* Descripción */}
-                {selectedProduct.descripcion && (
-                  <div className="product-modal-descripcion">
-                    <h3>Descripción</h3>
-                    <p>{selectedProduct.descripcion}</p>
-                  </div>
-                )}
-
-                {/* Beneficios */}
-                {selectedProduct.beneficios && (
-                  <div className="product-modal-beneficios">
-                    <h3>Beneficios</h3>
-                    <p>{selectedProduct.beneficios}</p>
-                  </div>
-                )}
-
-                {/* Modo de Uso */}
-                {selectedProduct.modo_uso && (
-                  <div className="product-modal-modo-uso">
-                    <h3>Modo de Uso</h3>
-                    <p>{selectedProduct.modo_uso}</p>
-                  </div>
-                )}
-
-                {/* Botones de acción */}
-                <div className="product-modal-actions">
-                  <button 
-                    className="product-modal-btn add-to-cart"
-                    onClick={() => handleAddToCart(selectedProduct)}
-                    disabled={selectedProduct.stock === 0}
-                  >
-                    Agregar al Carrito
-                  </button>
-                  <button 
-                    className="product-modal-btn buy-now"
-                    onClick={() => handleComprarProducto(selectedProduct)}
-                    disabled={selectedProduct.stock === 0}
-                  >
-                    Comprar Ahora
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal de Detalle de Producto - Componente Separado */}
+      <ModalDetalleProducto
+        show={showProductModal}
+        onClose={closeProductModal}
+        producto={selectedProduct}
+        onAddToCart={handleAddToCart}
+        onBuyNow={handleBuyNow}
+        darkMode={darkMode}
+      />
 
       {/* Modal para Comprar Producto */}
       {showComprarModal && productoParaComprar && (

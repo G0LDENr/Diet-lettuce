@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faEye, faEyeSlash, faPlus, faTrash,
   faChevronLeft, faChevronRight, faMapMarkerAlt,
-  faCreditCard, faCheckCircle, faChild, faUser, faPhone
+  faCreditCard, faCheckCircle, faChild, faUser, faPhone, faUserShield
 } from '@fortawesome/free-solid-svg-icons';
 import '../../css/Users/create-user.css';
 
@@ -15,6 +15,7 @@ const CreateUserForm = ({ onClose, onUserCreated }) => {
   const [errorMessage, setErrorMessage] = useState('');
   
   const [accountType, setAccountType] = useState('personal');
+  const [userRole, setUserRole] = useState(2); // 2 = cliente, 1 = admin (solo para cuentas personales)
   
   const [formData, setFormData] = useState({
     name: '',
@@ -60,6 +61,11 @@ const CreateUserForm = ({ onClose, onUserCreated }) => {
     step3: "Tarjeta de Crédito",
     title: "Crear Cuenta",
     accountTypeTitle: "Tipo de Cuenta",
+    userRoleTitle: "Rol del Usuario",
+    userRoleClient: "Cliente",
+    userRoleAdmin: "Administrador",
+    userRoleClientDesc: "Puede realizar compras y gestionar sus pedidos",
+    userRoleAdminDesc: "Acceso completo al panel de administración",
     accountPersonal: "Cuenta Personal",
     accountInfantil: "Cuenta Infantil",
     accountPersonalDesc: "Para comprar y gestionar pedidos",
@@ -412,53 +418,26 @@ const CreateUserForm = ({ onClose, onUserCreated }) => {
     }
 
     try {
-      // Preparar datos del usuario
       const userData = {
         name: formData.name,
         email: formData.email,
         password: formData.password,
-        role: 2,
+        role: userRole, // Solo se usa si es cuenta personal, si es infantil se fuerza a cliente
         telefono: formData.phone,
         sexo: formData.gender,
         tipo_cuenta: accountType,
         edad: parseInt(formData.edad)
       };
 
-      console.log('1. Datos básicos:', userData);
-
-      // Agregar datos del tutor para cuenta infantil
+      // Si es cuenta infantil, forzar rol de cliente (2)
       if (accountType === 'infantil') {
+        userData.role = 2;
         userData.tutor_nombre = formData.tutor_nombre;
         userData.tutor_telefono = formData.tutor_telefono;
-        console.log('2. Datos tutor:', { tutor_nombre: formData.tutor_nombre, tutor_telefono: formData.tutor_telefono });
       }
 
-      // VERIFICAR que las direcciones existen
-      console.log('3. Direcciones en formData:', formData.direcciones);
-      console.log('4. Longitud de direcciones:', formData.direcciones.length);
-
-      // Enviar la dirección - AHORA COMO "direccion" en lugar de "direccion_data"
       if (formData.direcciones.length > 0) {
         const primeraDireccion = formData.direcciones[0];
-        console.log('5. Primera dirección:', primeraDireccion);
-        
-        // Verificar campos de la dirección
-        console.log('6. Campos de dirección:');
-        console.log('   - calle:', primeraDireccion.calle);
-        console.log('   - numero_exterior:', primeraDireccion.numero_exterior);
-        console.log('   - colonia:', primeraDireccion.colonia);
-        console.log('   - ciudad:', primeraDireccion.ciudad);
-        console.log('   - estado:', primeraDireccion.estado);
-        console.log('   - codigo_postal:', primeraDireccion.codigo_postal);
-        
-        if (!primeraDireccion.calle || !primeraDireccion.numero_exterior || !primeraDireccion.colonia || 
-            !primeraDireccion.ciudad || !primeraDireccion.estado || !primeraDireccion.codigo_postal) {
-          console.log('❌ ERROR: La dirección está incompleta');
-          setError('La dirección está incompleta. Por favor completa todos los campos obligatorios.');
-          setLoading(false);
-          return;
-        }
-
         userData.direccion = {
           calle: primeraDireccion.calle,
           numero_exterior: primeraDireccion.numero_exterior,
@@ -471,15 +450,8 @@ const CreateUserForm = ({ onClose, onUserCreated }) => {
           tipo: primeraDireccion.tipo,
           predeterminada: true
         };
-        console.log('7. direccion a enviar:', userData.direccion);
-      } else {
-        console.log('❌ ERROR: No hay direcciones');
-        setError('Debes agregar al menos una dirección');
-        setLoading(false);
-        return;
       }
 
-      // Agregar tarjeta si no se omitió
       if (!skipTarjeta && formData.tarjeta.nombre_titular && formData.tarjeta.numero_tarjeta) {
         userData.tarjeta_data = {
           nombre_titular: formData.tarjeta.nombre_titular,
@@ -488,10 +460,7 @@ const CreateUserForm = ({ onClose, onUserCreated }) => {
           anio_expiracion: formData.tarjeta.anio_expiracion,
           predeterminada: formData.tarjeta.predeterminada
         };
-        console.log('8. tarjeta_data:', userData.tarjeta_data);
       }
-
-      console.log('9. DATOS FINALES A ENVIAR:', JSON.stringify(userData, null, 2));
 
       const response = await fetch('http://127.0.0.1:5000/user/add_user', {
         method: 'POST',
@@ -503,7 +472,6 @@ const CreateUserForm = ({ onClose, onUserCreated }) => {
       });
 
       const data = await response.json();
-      console.log('10. RESPUESTA DEL SERVIDOR:', data);
 
       if (!response.ok) {
         setError(data.msg || t.errorConnection);
@@ -562,7 +530,10 @@ const CreateUserForm = ({ onClose, onUserCreated }) => {
         <button
           type="button"
           className={`auth-account-type-option ${accountType === 'personal' ? 'active' : ''}`}
-          onClick={() => setAccountType('personal')}
+          onClick={() => {
+            setAccountType('personal');
+            setUserRole(2); // Resetear a cliente por defecto
+          }}
         >
           <FontAwesomeIcon icon={faUser} size="2x" />
           <div className="auth-account-type-text">
@@ -574,7 +545,10 @@ const CreateUserForm = ({ onClose, onUserCreated }) => {
         <button
           type="button"
           className={`auth-account-type-option ${accountType === 'infantil' ? 'active' : ''}`}
-          onClick={() => setAccountType('infantil')}
+          onClick={() => {
+            setAccountType('infantil');
+            setUserRole(2); // Forzar rol de cliente para cuentas infantiles
+          }}
         >
           <FontAwesomeIcon icon={faChild} size="2x" />
           <div className="auth-account-type-text">
@@ -623,6 +597,33 @@ const CreateUserForm = ({ onClose, onUserCreated }) => {
       )}
       
       <form onSubmit={(e) => { e.preventDefault(); handleNextStep(); }} className="auth-form">
+        {/* Selector de Rol - SOLO PARA CUENTAS PERSONALES */}
+        {accountType === 'personal' && (
+          <div className="auth-form-group">
+            <label>{t.userRoleTitle} *</label>
+            <div className="auth-role-selector">
+              <button
+                type="button"
+                className={`auth-role-option ${userRole === 2 ? 'active' : ''}`}
+                onClick={() => setUserRole(2)}
+              >
+                <FontAwesomeIcon icon={faUser} />
+                <span>{t.userRoleClient}</span>
+                <small>{t.userRoleClientDesc}</small>
+              </button>
+              <button
+                type="button"
+                className={`auth-role-option ${userRole === 1 ? 'active' : ''}`}
+                onClick={() => setUserRole(1)}
+              >
+                <FontAwesomeIcon icon={faUserShield} />
+                <span>{t.userRoleAdmin}</span>
+                <small>{t.userRoleAdminDesc}</small>
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="auth-form-group">
           <label htmlFor="name">
             {accountType === 'infantil' ? t.childNamePlaceholder : t.name} *
@@ -1226,8 +1227,80 @@ const CreateUserForm = ({ onClose, onUserCreated }) => {
     </>
   );
 
+  // Estilos para el selector de roles y mensaje informativo
+  const styles = `
+    .auth-role-selector {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
+    }
+    .auth-role-option {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 15px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .auth-role-option.active {
+      border-color: #96bd44;
+      background: #f0fdf4;
+    }
+    .auth-role-option svg {
+      font-size: 1.5rem;
+      color: #666;
+    }
+    .auth-role-option.active svg {
+      color: #96bd44;
+    }
+    .auth-role-option span {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .auth-role-option small {
+      font-size: 0.75rem;
+      color: #666;
+      text-align: center;
+    }
+    .auth-info-message {
+      background: #e7f3ff;
+      border-left: 4px solid #96bd44;
+      padding: 12px 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: #333;
+    }
+    .dark-mode .auth-role-option {
+      background: #1a1a1a;
+      border-color: #333;
+      color: #e2e8f0;
+    }
+    .dark-mode .auth-role-option.active {
+      border-color: #D4AF37;
+      background: #2a2a2a;
+    }
+    .dark-mode .auth-role-option.active svg {
+      color: #D4AF37;
+    }
+    .dark-mode .auth-info-message {
+      background: #2d3748;
+      border-left-color: #D4AF37;
+      color: #e2e8f0;
+    }
+  `;
+
   return (
     <div className="auth-form-inner create-user-container">
+      <style>{styles}</style>
       {successMessage && (
         <div className="auth-success-message">
           {successMessage}

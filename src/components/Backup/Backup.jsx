@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useConfig } from '../../context/config';
 import '../../css/Backup/backup.css';
+import RequestCodeButton from './RequestCodeButton';
 
 // Componentes separados
 import DiagramaModal from './DiagramaModal';
@@ -37,12 +38,13 @@ const Backup = () => {
   // Estados para modales
   const [showDiagramModal, setShowDiagramModal] = useState(false);
   const [showMessageModal, setShowMessageModal] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showRestoreConfirm, setShowRestoreConfirm] = useState(false);
   const [showFullBackupModal, setShowFullBackupModal] = useState(false);
   const [showPartialBackupModal, setShowPartialBackupModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showDeleteCodeModal, setShowDeleteCodeModal] = useState(false);
+  const [showDownloadCodeModal, setShowDownloadCodeModal] = useState(false);
   
   // Estados para datos
   const [messageData, setMessageData] = useState({ title: '', message: '', type: 'success' });
@@ -56,6 +58,14 @@ const Backup = () => {
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
   const [backupToDelete, setBackupToDelete] = useState(null);
   const [backupToRestore, setBackupToRestore] = useState(null);
+  const [pendingDeleteBackup, setPendingDeleteBackup] = useState(null);
+  const [pendingDownload, setPendingDownload] = useState(null);
+  const [downloadFilename, setDownloadFilename] = useState('');
+  const [downloadBackupCode, setDownloadBackupCode] = useState('');
+  
+  // Estado para el tipo de base de datos
+  const [dbType, setDbType] = useState('mysql');
+  const [userHasCode, setUserHasCode] = useState(false);
   
   const [scheduleData, setScheduleData] = useState({
     dias: {
@@ -69,7 +79,7 @@ const Backup = () => {
     }
   });
 
-  const backupsPerPage = 10; // Cambiado a 10
+  const backupsPerPage = 10;
 
   // ============================================
   // FUNCIONES DE UTILIDAD
@@ -84,6 +94,36 @@ const Backup = () => {
   // ============================================
   // FUNCIONES DE FETCH
   // ============================================
+
+  const fetchDbType = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://127.0.0.1:5000/db-info', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setDbType(data.db_type || 'mysql');
+        console.log('📊 Tipo de BD detectado:', data.db_type);
+      }
+      
+      // También verificar si el usuario actual tiene código
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      if (userData.id) {
+        const userResponse = await fetch(`http://127.0.0.1:5000/user/${userData.id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (userResponse.ok) {
+          const user = await userResponse.json();
+          setUserHasCode(user.has_backup_code === true);
+          console.log('Usuario tiene código:', user.has_backup_code);
+        }
+      }
+    } catch (error) {
+      console.error('Error detectando tipo de BD:', error);
+      setDbType('mysql');
+    }
+  };
 
   const fetchBackups = async () => {
     try {
@@ -134,148 +174,229 @@ const Backup = () => {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      await Promise.all([fetchBackups(), fetchScheduledJobs()]);
+      await Promise.all([fetchDbType(), fetchBackups(), fetchScheduledJobs()]);
       setLoading(false);
     };
     loadData();
   }, []);
 
-const handleDownload = async (backupId, filename) => {
-  try {
-    const token = localStorage.getItem('token');
+  // ============================================
+  // MANEJADORES DE ACCIONES
+  // ============================================
+
+  // Descarga
+  const handleDownload = (backupId, filename) => {
+    setPendingDownload(backupId);
+    setDownloadFilename(filename);
+    setShowDownloadCodeModal(true);
+  };
+
+  const executeDownloadWithCode = async (backupCode) => {
+    if (!pendingDownload) return;
     
-    showMessage(
-      'Preparando descarga',
-      'Obteniendo el archivo de respaldo...',
-      'info'
-    );
-    
-    const response = await fetch(`http://127.0.0.1:5000/backups/${backupId}/download`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error('Error en la descarga');
-    }
-
-    const blob = await response.blob();
-
-    // Verificar si el navegador soporta la API File System Access
-    if ('showSaveFilePicker' in window) {
-      try {
-        // Mostrar diálogo para elegir ubicación
-        const fileHandle = await window.showSaveFilePicker({
-          suggestedName: filename,
-          types: [{
-            description: 'SQL Backup',
-            accept: {
-              'application/sql': ['.sql', '.sql.gz', '.gz'],
-              'application/gzip': ['.gz', '.sql.gz'],
-              'application/octet-stream': ['.sql', '.gz', '.sql.gz']
-            }
-          }]
-        });
-        
-        // Crear un archivo escribible
-        const writable = await fileHandle.createWritable();
-        await writable.write(blob);
-        await writable.close();
-        
-        showMessage(
-          'Archivo guardado',
-          `El respaldo se guardó correctamente en la ubicación seleccionada.`,
-          'success'
-        );
-      } catch (err) {
-        // Usuario canceló la selección
-        if (err.name !== 'AbortError') {
-          console.error('Error al guardar:', err);
-          showMessage(
-            'Error',
-            'No se pudo guardar el archivo',
-            'error'
-          );
-        }
-      }
-    } else {
-      // Fallback para navegadores que no soportan File System Access
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      
-      // Forzar el diálogo de guardado
-      a.style.display = 'none';
-      document.body.appendChild(a);
-      a.click();
-      
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }, 100);
-      
-      showMessage(
-        'Descarga iniciada',
-        'El archivo se está descargando. Revisa tu carpeta de descargas.',
-        'success'
-      );
-    }
-  } catch (error) {
-    console.error('Error al descargar:', error);
-    showMessage(
-      'Error al descargar',
-      'No se pudo descargar el respaldo',
-      'error'
-    );
-  }
-};
-
-  const handleDeleteConfirm = async (backup) => {
-    if (!backup) return;
     try {
+      setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:5000/backups/${backup.id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      let cleanCode = backupCode;
+      const codeMatch = backupCode.match(/[A-Z0-9]{16}/i);
+      if (codeMatch) {
+        cleanCode = codeMatch[0];
+      }
+      
+      showMessage('Preparando descarga', 'Obteniendo el archivo de respaldo...', 'info');
+      
+      const response = await fetch(`http://127.0.0.1:5000/backups/${pendingDownload}/download?backup_code=${encodeURIComponent(cleanCode)}&user_id=${userData.id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
-      if (response.ok) {
-        setBackups(prev => prev.filter(b => b.id !== backup.id));
-        setFilteredBackups(prev => prev.filter(b => b.id !== backup.id));
-        setShowDeleteConfirm(false);
-        showMessage('Eliminado', 'Respaldo eliminado', 'success');
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Error en la descarga');
+      }
+
+      const blob = await response.blob();
+
+      if ('showSaveFilePicker' in window) {
+        try {
+          const fileHandle = await window.showSaveFilePicker({
+            suggestedName: downloadFilename,
+            types: [{
+              description: 'Backup',
+              accept: {
+                'application/sql': ['.sql', '.sql.gz', '.gz'],
+                'application/json': ['.json', '.json.gz'],
+                'application/gzip': ['.gz', '.sql.gz', '.json.gz'],
+                'application/octet-stream': ['.sql', '.gz', '.sql.gz', '.json', '.json.gz']
+              }
+            }]
+          });
+          
+          const writable = await fileHandle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+          
+          showMessage('Archivo guardado', `El respaldo se guardó correctamente.`, 'success');
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            console.error('Error al guardar:', err);
+            showMessage('Error', 'No se pudo guardar el archivo', 'error');
+          }
+        }
+      } else {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = downloadFilename;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        
+        setTimeout(() => {
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        }, 100);
+        
+        showMessage('Descarga iniciada', 'El archivo se está descargando.', 'success');
       }
     } catch (error) {
-      showMessage('Error', 'No se pudo eliminar', 'error');
+      console.error('Error al descargar:', error);
+      showMessage('Error al descargar', error.message || 'No se pudo descargar el respaldo', 'error');
+    } finally {
+      setLoading(false);
+      setShowDownloadCodeModal(false);
+      setPendingDownload(null);
+      setDownloadFilename('');
     }
   };
 
-  const handleRestoreConfirm = async (backup) => {
-    if (!backup) return;
+  // Eliminar
+  const handleDeleteClick = (backup) => {
+    setPendingDeleteBackup(backup);
+    setShowDeleteCodeModal(true);
+  };
+
+  const executeDeleteWithCode = async (backupCode) => {
+    if (!pendingDeleteBackup) return;
+    
     try {
+      setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:5000/backups/${backup.id}/restore`, {
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      let cleanCode = backupCode;
+      const codeMatch = backupCode.match(/[A-Z0-9]{16}/i);
+      if (codeMatch) {
+        cleanCode = codeMatch[0];
+      }
+      
+      const response = await fetch(`http://127.0.0.1:5000/backups/${pendingDeleteBackup.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          backup_code: cleanCode,
+          user_id: userData.id
+        })
+      });
+      
+      if (response.ok) {
+        setBackups(prev => prev.filter(b => b.id !== pendingDeleteBackup.id));
+        setFilteredBackups(prev => prev.filter(b => b.id !== pendingDeleteBackup.id));
+        setShowDeleteCodeModal(false);
+        setPendingDeleteBackup(null);
+        showMessage('Eliminado', 'Respaldo eliminado exitosamente', 'success');
+        fetchBackups();
+      } else {
+        const error = await response.json();
+        showMessage('Error', error.message || 'No se pudo eliminar', 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showMessage('Error', 'No se pudo eliminar el respaldo', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Restaurar
+  const handleRestoreConfirm = async (backupCode) => {
+    if (!backupToRestore) return false;
+    
+    if (!backupCode) {
+      showMessage('Código requerido', 'Se requiere el código de respaldo', 'warning');
+      return false;
+    }
+    
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      let cleanCode = backupCode;
+      const codeMatch = backupCode.match(/[A-Z0-9]{16}/i);
+      if (codeMatch) {
+        cleanCode = codeMatch[0];
+      }
+      
+      const response = await fetch(`http://127.0.0.1:5000/backups/${backupToRestore.id}/restore`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ confirm: true })
+        body: JSON.stringify({ 
+          confirm: true,
+          backup_code: cleanCode,
+          user_id: userData.id
+        })
       });
+      
+      const result = await response.json();
+      
       if (response.ok) {
         setShowRestoreConfirm(false);
-        showMessage('Restaurado', 'Base de datos restaurada', 'success');
+        setBackupToRestore(null);
+        showMessage('Restaurado', 'Base de datos restaurada exitosamente', 'success');
+        fetchBackups();
+        return true;
+      } else {
+        showMessage('Error', result.message || 'No se pudo restaurar', 'error');
+        return false;
       }
     } catch (error) {
+      console.error('Error en restauración:', error);
       showMessage('Error', 'No se pudo restaurar', 'error');
+      return false;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleCreateFullBackup = async () => {
+  // Backup completo
+  const handleCreateFullBackup = async (backupCode) => {
+    if (!backupCode) {
+      showMessage('Código requerido', 'Se requiere el código de respaldo', 'warning');
+      return;
+    }
+    
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      let cleanCode = backupCode;
+      const codeMatch = backupCode.match(/[A-Z0-9]{16}/i);
+      if (codeMatch) {
+        cleanCode = codeMatch[0];
+      }
+      
       const response = await fetch('http://127.0.0.1:5000/backups/create', {
         method: 'POST',
         headers: {
@@ -284,14 +405,20 @@ const handleDownload = async (backupId, filename) => {
         },
         body: JSON.stringify({
           backup_type: 'full',
-          custom_name: customName || undefined
+          custom_name: customName || undefined,
+          backup_code: cleanCode,
+          user_id: userData.id
         })
       });
+      
       if (response.ok) {
         showMessage('Creado', 'Respaldo completo creado', 'success');
         fetchBackups();
         setShowFullBackupModal(false);
         setCustomName('');
+      } else {
+        const error = await response.json();
+        showMessage('Error', error.message || 'No se pudo crear', 'error');
       }
     } catch (error) {
       showMessage('Error', 'No se pudo crear', 'error');
@@ -300,32 +427,61 @@ const handleDownload = async (backupId, filename) => {
     }
   };
 
-  const handleCreatePartialBackup = async () => {
+  // Backup parcial
+  const handleCreatePartialBackup = async (backupCode) => {
+    const itemLabel = dbType === 'mongodb' ? 'colección' : 'tabla';
     if (selectedTables.length === 0) {
-      showMessage('Selección requerida', 'Selecciona al menos una tabla', 'warning');
+      showMessage('Selección requerida', `Selecciona al menos una ${itemLabel}`, 'warning');
       return;
     }
+    
+    if (!backupCode) {
+      showMessage('Código requerido', 'Se requiere el código de respaldo', 'warning');
+      return;
+    }
+    
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      let cleanCode = backupCode;
+      const codeMatch = backupCode.match(/[A-Z0-9]{16}/i);
+      if (codeMatch) {
+        cleanCode = codeMatch[0];
+      }
+      
+      const body = {
+        backup_type: 'partial',
+        custom_name: customName || undefined,
+        backup_code: cleanCode,
+        user_id: userData.id
+      };
+      
+      if (dbType === 'mongodb') {
+        body.collections = selectedTables;
+      } else {
+        body.tables = selectedTables;
+      }
+      
       const response = await fetch('http://127.0.0.1:5000/backups/create', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          backup_type: 'partial',
-          tables: selectedTables,
-          custom_name: customName || undefined
-        })
+        body: JSON.stringify(body)
       });
+      
       if (response.ok) {
         showMessage('Creado', 'Respaldo parcial creado', 'success');
         fetchBackups();
         setShowPartialBackupModal(false);
         setSelectedTables([]);
         setCustomName('');
+      } else {
+        const error = await response.json();
+        showMessage('Error', error.message || 'No se pudo crear', 'error');
       }
     } catch (error) {
       showMessage('Error', 'No se pudo crear', 'error');
@@ -334,7 +490,13 @@ const handleDownload = async (backupId, filename) => {
     }
   };
 
-  const handleScheduleBackup = async () => {
+  // Programar respaldos
+  const handleScheduleBackup = async (backupCode) => {
+    if (!backupCode) {
+      showMessage('Código requerido', 'Se requiere el código de respaldo', 'warning');
+      return;
+    }
+    
     try {
       const trabajos = [];
       for (const [diaIndex, config] of Object.entries(scheduleData.dias)) {
@@ -350,6 +512,14 @@ const handleDownload = async (backupId, filename) => {
       }
       
       const token = localStorage.getItem('token');
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      let cleanCode = backupCode;
+      const codeMatch = backupCode.match(/[A-Z0-9]{16}/i);
+      if (codeMatch) {
+        cleanCode = codeMatch[0];
+      }
+      
       for (const trabajo of trabajos) {
         await fetch('http://127.0.0.1:5000/backups/schedule', {
           method: 'POST',
@@ -357,7 +527,11 @@ const handleDownload = async (backupId, filename) => {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify(trabajo)
+          body: JSON.stringify({
+            ...trabajo,
+            backup_code: cleanCode,
+            user_id: userData.id
+          })
         });
       }
       
@@ -366,6 +540,61 @@ const handleDownload = async (backupId, filename) => {
       setShowScheduleModal(false);
     } catch (error) {
       showMessage('Error', 'No se pudo programar', 'error');
+    }
+  };
+
+  // Importar respaldo
+  const handleUploadBackup = async (backupCode) => {
+    if (!uploadFile) {
+      showMessage('Archivo requerido', 'Selecciona un archivo', 'warning');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      setUploadProgress(30);
+      
+      const token = localStorage.getItem('token');
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      let cleanCode = backupCode;
+      const codeMatch = backupCode.match(/[A-Z0-9]{16}/i);
+      if (codeMatch) {
+        cleanCode = codeMatch[0];
+      }
+      
+      const formData = new FormData();
+      formData.append('backup_file', uploadFile);
+      formData.append('backup_code', cleanCode);
+      formData.append('user_id', userData.id);
+
+      const response = await fetch('http://127.0.0.1:5000/backups/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      setUploadProgress(70);
+      
+      if (response.ok) {
+        const result = await response.json();
+        setUploadProgress(100);
+        showMessage('Importado', 'Respaldo importado exitosamente', 'success');
+        setShowUploadModal(false);
+        setUploadFile(null);
+        fetchBackups();
+      } else {
+        const error = await response.json();
+        showMessage('Error', error.message || 'No se pudo importar', 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showMessage('Error', 'No se pudo importar', 'error');
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -391,43 +620,6 @@ const handleDownload = async (backupId, filename) => {
     } catch (error) {
       console.error('Error al cancelar:', error);
       showMessage('Error de conexión', 'No se pudo conectar con el servidor', 'error');
-    }
-  };
-
-  const handleUploadBackup = async () => {
-    if (!uploadFile) {
-      showMessage('Archivo requerido', 'Selecciona un archivo', 'warning');
-      return;
-    }
-
-    try {
-      setUploading(true);
-      setUploadProgress(30);
-      
-      const token = localStorage.getItem('token');
-      const formData = new FormData();
-      formData.append('backup_file', uploadFile);
-
-      const response = await fetch('http://127.0.0.1:5000/backups/upload', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
-      });
-
-      setUploadProgress(70);
-      
-      if (response.ok) {
-        setUploadProgress(100);
-        showMessage('Importado', 'Respaldo importado', 'success');
-        setShowUploadModal(false);
-        setUploadFile(null);
-        fetchBackups();
-      }
-    } catch (error) {
-      showMessage('Error', 'No se pudo importar', 'error');
-    } finally {
-      setUploading(false);
-      setUploadProgress(0);
     }
   };
 
@@ -517,6 +709,11 @@ const handleDownload = async (backupId, filename) => {
 
   const horasDisponibles = Array.from({ length: 24 }, (_, i) => ({ valor: i, label: `${i}:00` }));
 
+  const itemsLabel = dbType === 'mongodb' ? 'Colecciones' : 'Tablas';
+
+  const userData = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAdmin = userData.rol === 1;
+
   if (loading && backups.length === 0) {
     return (
       <div className={`backup-container ${darkMode ? 'dark-mode' : ''}`}>
@@ -538,10 +735,19 @@ const handleDownload = async (backupId, filename) => {
               <img src={refreshIcon} alt="Actualizar" className="backup-btn-icon-img-actualizar" />
             </button>
             
-            <button className="backup-diagram-btn" onClick={() => setShowDiagramModal(true)} title="Ver diagrama ER">
+            <button className="backup-diagram-btn" onClick={() => setShowDiagramModal(true)} title="Ver diagrama">
               <img src={diagramIcon} alt="Diagrama" className="backup-btn-icon-img" />
-              Diagrama ER
+              Diagrama
             </button>
+            
+            {/* Botón para solicitar código (solo admin y si no tiene código) */}
+            <RequestCodeButton 
+              onCodeGenerated={() => {
+                fetchDbType();
+                fetchBackups();
+              }}
+              userHasCode={userHasCode}
+            />
             
             <div className="backup-button-separator"></div>
             
@@ -591,7 +797,7 @@ const handleDownload = async (backupId, filename) => {
                     </div>
                     {job.tables && job.tables.length > 0 && (
                       <div className="backup-job-tables">
-                        <small>Tablas: {job.tables.length}</small>
+                        <small>{itemsLabel.slice(0, -1)}s: {job.tables.length}</small>
                       </div>
                     )}
                   </div>
@@ -639,7 +845,7 @@ const handleDownload = async (backupId, filename) => {
                 <th>Archivo</th>
                 <th>Fecha</th>
                 <th>Tipo</th>
-                <th>Tablas</th>
+                <th>{itemsLabel}</th>
                 <th>Tamaño</th>
                 <th>Estado</th>
                 <th className="backup-actions-header">Acciones</th>
@@ -655,7 +861,7 @@ const handleDownload = async (backupId, filename) => {
                     <td className="backup-tables">
                       {backup.tables_included && backup.tables_included.length > 0 ? (
                         <span title={backup.tables_included.join(', ')}>
-                          {backup.tables_included.length} tabla{backup.tables_included.length !== 1 ? 's' : ''}
+                          {backup.tables_included.length} {itemsLabel.toLowerCase()}
                         </span>
                       ) : (
                         <span className="backup-text-muted">Todas</span>
@@ -680,7 +886,7 @@ const handleDownload = async (backupId, filename) => {
                           <img src={restoreIcon} alt="Restaurar" className="backup-action-icon" />
                         </button>
                         <button 
-                          onClick={() => { setBackupToDelete(backup); setShowDeleteConfirm(true); }}
+                          onClick={() => handleDeleteClick(backup)}
                           className="backup-action-btn"
                           title="Eliminar respaldo"
                         >
@@ -700,14 +906,12 @@ const handleDownload = async (backupId, filename) => {
             </tbody>
           </table>
 
-          {/* Información de registros - SIEMPRE VISIBLE debajo de la tabla */}
           {filteredBackups.length > 0 && (
             <div className="backup-count-info">
               Mostrando {currentBackups.length} de {filteredBackups.length} respaldos
             </div>
           )}
 
-          {/* Paginación - SOLO cuando hay más de 10 respaldos */}
           {totalPages > 1 && (
             <div className="backup-pagination">
               <div className="backup-pagination-controls">
@@ -762,6 +966,7 @@ const handleDownload = async (backupId, filename) => {
         token={localStorage.getItem('token')}
         darkMode={darkMode}
         showMessage={showMessage}
+        dbType={dbType}
       />
 
       <MessageModal
@@ -773,16 +978,20 @@ const handleDownload = async (backupId, filename) => {
       />
 
       <DeleteConfirmModal
-        show={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={() => handleDeleteConfirm(backupToDelete)}
-        backupName={backupToDelete?.filename}
+        show={showDeleteCodeModal}
+        onClose={() => {
+          setShowDeleteCodeModal(false);
+          setPendingDeleteBackup(null);
+        }}
+        onCodeSubmit={executeDeleteWithCode}
+        backupName={pendingDeleteBackup?.filename}
+        loading={loading}
       />
 
       <RestoreConfirmModal
         show={showRestoreConfirm}
         onClose={() => setShowRestoreConfirm(false)}
-        onConfirm={() => handleRestoreConfirm(backupToRestore)}
+        onConfirm={handleRestoreConfirm}
         backupName={backupToRestore?.filename}
       />
 
@@ -793,6 +1002,7 @@ const handleDownload = async (backupId, filename) => {
         customName={customName}
         setCustomName={setCustomName}
         loading={loading}
+        dbType={dbType}
       />
 
       <PartialBackupModal
@@ -805,6 +1015,7 @@ const handleDownload = async (backupId, filename) => {
         selectedTables={selectedTables}
         setSelectedTables={setSelectedTables}
         loading={loading}
+        dbType={dbType}
       />
 
       <ScheduleModal
@@ -815,6 +1026,7 @@ const handleDownload = async (backupId, filename) => {
         setScheduleData={setScheduleData}
         availableTables={availableTables}
         horasDisponibles={horasDisponibles}
+        dbType={dbType}
       />
 
       <UploadModal
@@ -825,7 +1037,76 @@ const handleDownload = async (backupId, filename) => {
         setUploadFile={setUploadFile}
         uploading={uploading}
         uploadProgress={uploadProgress}
+        dbType={dbType}
       />
+
+      {/* Modal para código de descarga */}
+      {showDownloadCodeModal && (
+        <div className="backup-modal-overlay">
+          <div className="backup-modal-content backup-code-modal" style={{ maxWidth: '450px' }}>
+            <div className="backup-modal-header">
+              <h3>🔐 Código de Respaldo</h3>
+              <button 
+                onClick={() => {
+                  setShowDownloadCodeModal(false);
+                  setDownloadBackupCode('');
+                  setPendingDownload(null);
+                }} 
+                className="backup-close-modal"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="backup-modal-body">
+              <p>Para descargar el respaldo, necesitas ingresar tu código único de respaldo:</p>
+              <input
+                type="text"
+                className="backup-form-control"
+                placeholder="Código de 16 caracteres"
+                value={downloadBackupCode}
+                onChange={(e) => setDownloadBackupCode(e.target.value.toUpperCase())}
+                autoFocus
+                style={{ 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '1px',
+                  fontFamily: 'monospace',
+                  fontSize: '1rem',
+                  textAlign: 'center'
+                }}
+              />
+              <small className="backup-form-text" style={{ display: 'block', marginTop: '10px' }}>
+                ⚠️ Este código es PERMANENTE. Guárdalo en un lugar seguro.
+              </small>
+            </div>
+            <div className="backup-modal-footer">
+              <button 
+                className="backup-modal-btn cancel"
+                onClick={() => {
+                  setShowDownloadCodeModal(false);
+                  setDownloadBackupCode('');
+                  setPendingDownload(null);
+                }}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="backup-modal-btn primary"
+                onClick={() => executeDownloadWithCode(downloadBackupCode)}
+                disabled={!downloadBackupCode || loading}
+              >
+                {loading ? (
+                  <>
+                    <span className="backup-btn-spinner"></span>
+                    Descargando...
+                  </>
+                ) : (
+                  'Confirmar y Descargar'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

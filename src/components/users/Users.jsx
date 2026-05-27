@@ -63,13 +63,27 @@ const Users = () => {
       if (response.ok) {
         const data = await response.json();
         
-        const usersWithSimpleIds = data.map((user, index) => ({
+        // ORDENAR LOS USUARIOS POR ID (como en MySQL)
+        const sortedUsers = data.sort((a, b) => {
+          // Para MySQL: a.id y b.id son números
+          // Para MongoDB: a.id y b.id son strings (ObjectId)
+          // Comparar como números si son números, o como strings si son ObjectId
+          if (typeof a.id === 'number' && typeof b.id === 'number') {
+            return a.id - b.id;
+          } else {
+            // Para ObjectId de MongoDB, comparar como strings (mantiene orden cronológico)
+            return a.id.localeCompare(b.id);
+          }
+        });
+        
+        // Si quieres mostrar un número secuencial basado en el orden real
+        const usersWithSequentialId = sortedUsers.map((user, index) => ({
           ...user,
-          simpleId: index + 1
+          sequentialId: index + 1
         }));
         
-        setUsers(usersWithSimpleIds);
-        setFilteredUsers(usersWithSimpleIds);
+        setUsers(usersWithSequentialId);
+        setFilteredUsers(usersWithSequentialId);
       } else {
         console.error('Error al obtener usuarios:', response.status);
       }
@@ -86,7 +100,7 @@ const Users = () => {
     // Filtro por término de búsqueda
     if (searchTerm.trim() !== '') {
       filtered = filtered.filter(user => 
-        user.simpleId.toString().includes(searchTerm) || 
+        user.sequentialId.toString().includes(searchTerm) || 
         user.id.toString().includes(searchTerm) ||
         user.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.correo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -156,26 +170,11 @@ const Users = () => {
       if (response.ok) {
         console.log('✅ Usuario eliminado exitosamente');
         
-        // Actualizar la lista local
-        const updatedUsers = users.filter(user => user.id !== userToDelete.id);
+        // Recargar la lista completa para mantener el orden correcto
+        await fetchUsers();
         
-        const usersWithSimpleIds = updatedUsers.map((user, index) => ({
-          ...user,
-          simpleId: index + 1
-        }));
-        
-        setUsers(usersWithSimpleIds);
-        setFilteredUsers(usersWithSimpleIds);
-        
-        // Ajustar paginación si es necesario
-        if (currentUsers.length === 1 && currentPage > 1) {
-          setCurrentPage(currentPage - 1);
-        }
-        
-        // Cerrar el modal después de 1 segundo
-        setTimeout(() => {
-          closeDeleteModal();
-        }, 1000);
+        // Cerrar el modal
+        closeDeleteModal();
       } else {
         let errorMsg = `Error ${response.status}: ${response.statusText}`;
         try {
@@ -329,7 +328,6 @@ const Users = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="users-search-input"
               />
-              {/* ELIMINADO: botón de tache (✕) */}
             </div>
 
             <div className="users-filter-group">
@@ -379,7 +377,10 @@ const Users = () => {
                   
                   return (
                     <tr key={user.id} className="users-row">
-                      <td className="users-td users-id">{user.simpleId}</td>
+                      <td className="users-td users-id">
+                        {/* Mostrar el ID secuencial basado en el orden real */}
+                        {user.sequentialId}
+                      </td>
                       <td className="users-td users-name">{user.nombre || 'N/A'}</td>
                       <td className="users-td users-email">{user.correo || 'N/A'}</td>
                       <td className="users-td users-phone">{user.telefono || 'N/A'}</td>

@@ -29,6 +29,7 @@ const Ordenes = () => {
   const [deleteMessage, setDeleteMessage] = useState('');
   const [deleteDetail, setDeleteDetail] = useState('');
   const [deleteType, setDeleteType] = useState('');
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState('');
   const [showDetalleModal, setShowDetalleModal] = useState(false);
@@ -56,12 +57,8 @@ const Ordenes = () => {
       if (response.ok) {
         const data = await response.json();
         
-        // Debug: ver qué campos vienen del backend
         if (data.length > 0) {
           console.log('📦 Datos de la primera orden:', data[0]);
-          console.log('📦 Campos disponibles:', Object.keys(data[0]));
-          console.log('💰 precio_total:', data[0].precio_total);
-          console.log('💰 precio:', data[0].precio);
         }
         
         const ordenesWithSimpleIds = data.map((orden, index) => ({
@@ -126,6 +123,7 @@ const Ordenes = () => {
     setDeleteMessage('');
     setDeleteDetail('');
     setDeleteType('');
+    setDeleteLoading(false);
   };
 
   const handleShowAddress = (direccion) => {
@@ -165,11 +163,14 @@ const Ordenes = () => {
   const handleDeleteConfirm = async () => {
     if (!ordenToDelete) return;
 
+    setDeleteLoading(true);
+    setDeleteMessage('');
+    setDeleteDetail('');
+
     try {
-      setLoading(true);
       const token = localStorage.getItem('token');
       
-      console.log('Eliminando orden ID:', ordenToDelete.id, 'Estado:', ordenToDelete.estado);
+      console.log('🗑️ Eliminando orden ID:', ordenToDelete.id, 'Estado:', ordenToDelete.estado);
       
       const response = await fetch(`http://127.0.0.1:5000/ordenes/${ordenToDelete.id}`, {
         method: 'DELETE',
@@ -205,7 +206,7 @@ const Ordenes = () => {
           setOrdenes(ordenesWithSimpleIds);
           setFilteredOrdenes(ordenesWithSimpleIds);
           
-          setDeleteMessage('Orden eliminada permanentemente');
+          setDeleteMessage('✅ Orden eliminada permanentemente');
           setDeleteDetail(responseData.detalle || '');
           setDeleteType('success');
         } 
@@ -230,31 +231,31 @@ const Ordenes = () => {
           setOrdenes(ordenesWithSimpleIds);
           setFilteredOrdenes(ordenesWithSimpleIds);
           
-          setDeleteMessage('Orden marcada como eliminada (no se pudo borrar físicamente)');
+          setDeleteMessage('⚠️ Orden marcada como eliminada (no se pudo borrar físicamente)');
           setDeleteDetail(responseData.detalle || '');
           setDeleteType('warning');
         }
         else {
-          setDeleteMessage(responseData.msg || 'Orden eliminada');
+          setDeleteMessage('✅ Orden eliminada');
           setDeleteDetail('');
           setDeleteType('success');
           fetchOrdenes();
         }
         
-        if (response.ok) {
-          setTimeout(() => {
-            setShowDeleteConfirm(false);
-            setOrdenToDelete(null);
-            setDeleteMessage('');
-            setDeleteDetail('');
-            setDeleteType('');
-          }, 3000);
-        }
+        setTimeout(() => {
+          setShowDeleteConfirm(false);
+          setOrdenToDelete(null);
+          setDeleteMessage('');
+          setDeleteDetail('');
+          setDeleteType('');
+          setDeleteLoading(false);
+        }, 3000);
         
       } else {
         setDeleteMessage(responseData.msg || 'Error al eliminar la orden');
         setDeleteDetail(responseData.detalle || '');
         setDeleteType('error');
+        setDeleteLoading(false);
       }
       
     } catch (error) {
@@ -262,13 +263,7 @@ const Ordenes = () => {
       setDeleteMessage('Error de conexión con el servidor');
       setDeleteDetail('No se pudo comunicar con el servidor');
       setDeleteType('error');
-      
-      setTimeout(() => {
-        setDeleteMessage('');
-        setDeleteDetail('');
-      }, 3000);
-    } finally {
-      setLoading(false);
+      setDeleteLoading(false);
     }
   };
 
@@ -278,6 +273,7 @@ const Ordenes = () => {
     setDeleteMessage('');
     setDeleteDetail('');
     setDeleteType('');
+    setDeleteLoading(false);
   };
 
   const handleEdit = (orden) => {
@@ -317,7 +313,6 @@ const Ordenes = () => {
   };
 
   const formatPrice = (price) => {
-    // Asegurar que price sea un número válido
     const numPrice = parseFloat(price) || 0;
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
@@ -327,17 +322,13 @@ const Ordenes = () => {
     }).format(numPrice);
   };
 
-  // Función segura para obtener el precio
   const getPrecio = (orden) => {
-    // Intentar con precio_total primero
     if (orden.precio_total !== undefined && orden.precio_total !== null) {
       return orden.precio_total;
     }
-    // Si no, intentar con precio
     if (orden.precio !== undefined && orden.precio !== null) {
       return orden.precio;
     }
-    // Si no hay ninguno, calcular de los items si es carrito
     if (orden.tipo_pedido === 'carrito' && orden.pedido_json) {
       try {
         const pedidoData = JSON.parse(orden.pedido_json);
@@ -348,7 +339,6 @@ const Ordenes = () => {
         console.error('Error parseando pedido_json:', e);
       }
     }
-    // Valor por defecto
     return 0;
   };
 
@@ -365,19 +355,15 @@ const Ordenes = () => {
     };
     
     const config = statusConfig[estado] || { class: 'pending', text: estado || 'Desconocido' };
-    
     return <span className={`ordenes-status-badge ${config.class}`}>{config.text}</span>;
   };
 
   const getMetodoPagoDisplay = (orden) => {
     if (!orden.metodo_pago) return 'N/A';
-    
     let texto = orden.metodo_pago === 'efectivo' ? 'Efectivo' : 'Tarjeta';
-    
     if (orden.metodo_pago === 'tarjeta' && orden.info_pago) {
       texto += ` (${orden.info_pago.tipo || 'Tarjeta'} •••• ${orden.info_pago.ultimos_4 || '****'})`;
     }
-    
     return texto;
   };
 
@@ -514,7 +500,7 @@ const Ordenes = () => {
                 <th className="ordenes-th">Precio</th>
                 <th className="ordenes-th">Estado</th>
                 <th className="ordenes-th ordenes-actions-header">Acciones</th>
-              </tr>
+               </tr>
             </thead>
             <tbody>
               {currentOrdenes.length > 0 ? (
@@ -701,7 +687,7 @@ const Ordenes = () => {
           </div>
         )}
 
-        {/* Modal de confirmación de eliminación */}
+        {/* Modal de confirmación de eliminación con animación de carga */}
         {showDeleteConfirm && (
           <div className="ordenes-modal-overlay-delete">
             <div className="ordenes-modal-content ordenes-confirm-modal ordenes-direct-modal">
@@ -712,13 +698,18 @@ const Ordenes = () => {
                 {deleteMessage ? (
                   <div className={`ordenes-message-container ${deleteType}`}>
                     <div className="ordenes-message-icon">
-                      {deleteType === 'success' ? '' : 
+                      {deleteType === 'success' ? '✅' : 
                        deleteType === 'warning' ? '⚠️' : '❌'}
                     </div>
                     <p className="ordenes-message-text">{deleteMessage}</p>
                     {deleteDetail && (
                       <p className="ordenes-message-detail">{deleteDetail}</p>
                     )}
+                  </div>
+                ) : deleteLoading ? (
+                  <div className="ordenes-delete-loading">
+                    <div className="ordenes-delete-spinner"></div>
+                    <p className="ordenes-delete-loading-text">Eliminando orden...</p>
                   </div>
                 ) : (
                   <>
@@ -748,24 +739,25 @@ const Ordenes = () => {
                 )}
               </div>
               <div className="ordenes-confirm-actions">
-                {!deleteMessage ? (
+                {!deleteMessage && !deleteLoading && (
                   <>
                     <button 
                       className="ordenes-confirm-btn ordenes-cancel-btn"
                       onClick={handleDeleteCancel}
-                      disabled={loading}
+                      disabled={deleteLoading}
                     >
                       Cancelar
                     </button>
                     <button 
                       className="ordenes-confirm-btn ordenes-delete-permanent-btn"
                       onClick={handleDeleteConfirm}
-                      disabled={loading}
+                      disabled={deleteLoading}
                     >
-                      {loading ? 'Eliminando...' : 'Eliminar Permanentemente'}
+                      Eliminar Permanentemente
                     </button>
                   </>
-                ) : (
+                )}
+                {(deleteMessage || deleteLoading) && (
                   <button 
                     className="ordenes-confirm-btn ordenes-close-btn"
                     onClick={handleDeleteCancel}

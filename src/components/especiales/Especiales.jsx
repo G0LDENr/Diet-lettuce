@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import CreateSuplementoForm from './create-especial';
 import EditSuplementoForm from './edit-especial';
+import AnalisisSparkModal from './analisis-spark';
 import { useConfig } from '../../context/config';
 import '../../css/Especiales/especiales.css';
 
@@ -69,13 +70,12 @@ const Suplementos = () => {
     fetchPresentaciones();
   }, []);
 
-  // ===== FUNCIÓN CORREGIDA PARA OBTENER TODOS LOS SUPLEMENTOS (ACTIVOS E INACTIVOS) =====
+  // ===== FUNCIÓN PARA OBTENER TODOS LOS SUPLEMENTOS (ACTIVOS E INACTIVOS) =====
   const fetchSuplementos = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
       
-      // IMPORTANTE: Agregar query param 'all=true' para obtener TODOS los suplementos
       const response = await fetch('http://127.0.0.1:5000/suplementos/?all=true', {
         method: 'GET',
         headers: {
@@ -743,151 +743,16 @@ const Suplementos = () => {
           )}
         </div>
 
-        {/* Modal de Análisis con Spark */}
-        {showAnalisisModal && (
-          <div className="suplementos-modal-overlay">
-            <div className="suplementos-modal-content suplementos-analisis-modal">
-              <div className="suplementos-modal-header">
-                <h3 className="suplementos-modal-title">
-                  <span className="suplementos-spark-title-icon"></span>
-                  Análisis con Apache Spark
-                </h3>
-                <button 
-                  className="suplementos-close-modal" 
-                  onClick={() => setShowAnalisisModal(false)}
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="suplementos-modal-body">
-                {analisisLoading ? (
-                  <div className="suplementos-analisis-loading">
-                    <div className="suplementos-analisis-spinner"></div>
-                    <p>Ejecutando análisis con Spark...</p>
-                    <p className="suplementos-analisis-subtext">Procesando datos de suplementos</p>
-                  </div>
-                ) : analisisError ? (
-                  <div className="suplementos-analisis-error">
-                    <div className="suplementos-analisis-error-icon">⚠️</div>
-                    <p className="suplementos-analisis-error-message">{analisisError}</p>
-                  </div>
-                ) : analisisResultados && (
-                  <div className="suplementos-analisis-resultados">
-                    <div className="suplementos-analisis-stats">
-                      <div className="suplementos-analisis-stat-card">
-                        <div className="suplementos-analisis-stat-label">Total Suplementos</div>
-                        <div className="suplementos-analisis-stat-value">{analisisResultados.total_suplementos || 0}</div>
-                      </div>
-                      <div className="suplementos-analisis-stat-card">
-                        <div className="suplementos-analisis-stat-label">Precio Promedio</div>
-                        <div className="suplementos-analisis-stat-value">
-                          {formatPrice(analisisResultados.precio_promedio || 0)}
-                        </div>
-                      </div>
-                      <div className="suplementos-analisis-stat-card">
-                        <div className="suplementos-analisis-stat-label">Precio Mínimo</div>
-                        <div className="suplementos-analisis-stat-value">
-                          {formatPrice(analisisResultados.precio_minimo || 0)}
-                        </div>
-                      </div>
-                      <div className="suplementos-analisis-stat-card">
-                        <div className="suplementos-analisis-stat-label">Precio Máximo</div>
-                        <div className="suplementos-analisis-stat-value">
-                          {formatPrice(analisisResultados.precio_maximo || 0)}
-                        </div>
-                      </div>
-                    </div>
-
-                    {analisisResultados.distribucion_categorias && (
-                      <div className="suplementos-analisis-categorias">
-                        <h4>Distribución por Categorías</h4>
-                        <div className="suplementos-analisis-categoria-grid">
-                          {Object.entries(analisisResultados.distribucion_categorias).map(([categoria, cantidad]) => (
-                            <div key={categoria} className="suplementos-analisis-categoria-item">
-                              <span className="suplementos-analisis-categoria-nombre">
-                                {categoriaNombres[categoria] || categoria}
-                              </span>
-                              <span className="suplementos-analisis-categoria-cantidad">{cantidad}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {analisisResultados.distribucion_presentaciones && (
-                      <div className="suplementos-analisis-presentaciones">
-                        <h4>Distribución por Presentaciones</h4>
-                        <div className="suplementos-analisis-presentacion-grid">
-                          {Object.entries(analisisResultados.distribucion_presentaciones).map(([presentacion, cantidad]) => (
-                            <div key={presentacion} className="suplementos-analisis-presentacion-item">
-                              <span className="suplementos-analisis-presentacion-nombre">
-                                {presentacionNombres[presentacion] || presentacion}
-                              </span>
-                              <span className="suplementos-analisis-presentacion-cantidad">{cantidad}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {analisisResultados.suplementos_destacados && (
-                      <div className="suplementos-analisis-destacados">
-                        <h4>Suplementos Destacados</h4>
-                        <ul className="suplementos-analisis-destacados-lista">
-                          {analisisResultados.suplementos_destacados.map((suplemento, index) => (
-                            <li key={index} className="suplementos-analisis-destacado-item">
-                              <strong>{suplemento.nombre}</strong> - {formatPrice(suplemento.precio)}
-                              <span className="suplementos-analisis-destacado-categoria">
-                                ({categoriaNombres[suplemento.categoria] || suplemento.categoria})
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {analisisResultados.stock_total !== undefined && (
-                      <div className="suplementos-analisis-stock">
-                        <h4>Información de Stock</h4>
-                        <div className="suplementos-analisis-stock-grid">
-                          <div className="suplementos-analisis-stock-item">
-                            <span className="suplementos-analisis-stock-label">Stock Total:</span>
-                            <span className="suplementos-analisis-stock-value">{analisisResultados.stock_total}</span>
-                          </div>
-                          <div className="suplementos-analisis-stock-item">
-                            <span className="suplementos-analisis-stock-label">Stock Promedio:</span>
-                            <span className="suplementos-analisis-stock-value">{analisisResultados.stock_promedio}</span>
-                          </div>
-                          <div className="suplementos-analisis-stock-item">
-                            <span className="suplementos-analisis-stock-label">Productos con Stock Bajo (&lt;10):</span>
-                            <span className="suplementos-analisis-stock-value">{analisisResultados.suplementos_bajo_stock || 0}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="suplementos-modal-footer">
-                <button 
-                  className="suplementos-btn-cancel"
-                  onClick={() => setShowAnalisisModal(false)}
-                >
-                  Cerrar
-                </button>
-                {!analisisLoading && !analisisError && analisisResultados && (
-                  <button 
-                    className="suplementos-btn-reload-analisis"
-                    onClick={ejecutarAnalisisSpark}
-                  >
-                    <span className="suplementos-reload-icon">↻</span>
-                    Actualizar Análisis
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* MODAL DE ANÁLISIS CON SPARK - COMPONENTE SEPARADO */}
+        <AnalisisSparkModal
+          show={showAnalisisModal}
+          onClose={() => setShowAnalisisModal(false)}
+          analisisResultados={analisisResultados}
+          analisisLoading={analisisLoading}
+          analisisError={analisisError}
+          onRefresh={ejecutarAnalisisSpark}
+          darkMode={darkMode}
+        />
 
         {/* Modal de confirmación para eliminar */}
         {showDeleteModal && suplementoToAction && (

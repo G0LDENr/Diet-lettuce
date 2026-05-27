@@ -212,11 +212,6 @@ const Home = () => {
           className="home-product-icon-image" 
           loading="lazy"
         />
-        {producto.conteo > 0 && (
-          <div className="product-count-badge">
-            {producto.conteo} {producto.conteo === 1 ? 'pedido' : 'pedidos'}
-          </div>
-        )}
         {producto.stock !== undefined && producto.stock <= 5 && producto.stock > 0 && (
           <div className="stock-warning-badge">
             ¡Últimas {producto.stock} unidades!

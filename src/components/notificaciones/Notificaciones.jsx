@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useConfig } from '../../context/config';
 import PedidoModal from './Modal-Notificaciones';
+import BackupCodeModal from './Modal-BackupCode';
+import SendMessageModal from './SendMessageModal';
+import AnalyticsModal from './AnalyticsModal';
 import '../../css/Notificaciones/notificaciones.css';
 
 import deleteIcon from '../../img/delete.png';
@@ -8,6 +11,7 @@ import refreshIcon from '../../img/actualizar.png';
 import sendIcon from '../../img/enviar.png';
 import statsIcon from '../../img/spark.png';
 import readIcon from '../../img/leido.png';
+import copyIcon from '../../img/copiar.png';
 
 const Notificaciones = () => {
   const { darkMode, t } = useConfig();
@@ -23,20 +27,14 @@ const Notificaciones = () => {
   const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [notificationToDelete, setNotificationToDelete] = useState(null);
-  const [usuarios, setUsuarios] = useState([]);
-  const [analyticsData, setAnalyticsData] = useState(null);
-  const [sendingMessage, setSendingMessage] = useState(false);
   const [userRole, setUserRole] = useState(null);
-  const [messageForm, setMessageForm] = useState({
-    destinatario_tipo: 'todos',
-    destinatario_id: '',
-    titulo: 'Mensaje del Restaurante',
-    mensaje: ''
-  });
+  const [copiedCode, setCopiedCode] = useState(null);
   
-  // Estados para modal de detalles del pedido
+  // Estados para modales
   const [showPedidoModal, setShowPedidoModal] = useState(false);
+  const [showBackupCodeModal, setShowBackupCodeModal] = useState(false);
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
+  const [backupCodeNotif, setBackupCodeNotif] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   const [ordenesData, setOrdenesData] = useState({});
   
@@ -64,6 +62,18 @@ const Notificaciones = () => {
     } catch {
       return 'Fecha inválida';
     }
+  };
+
+  const extractBackupCodeFromMessage = (mensaje) => {
+    if (!mensaje) return null;
+    const match = mensaje.match(/\*\*([A-Za-z0-9]{16})\*\*/);
+    return match ? match[1] : null;
+  };
+
+  const copyToClipboard = (code) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
   };
 
   const extractCodigoFromTitulo = (titulo) => {
@@ -107,7 +117,8 @@ const Notificaciones = () => {
       'mensaje_admin': 'Mensaje',
       'pedido_cancelado': 'Pedido Cancelado',
       'ingrediente_inactivo': 'Ingrediente Inactivo',
-      'ingrediente_no_disponible': 'Ingrediente No Disponible'
+      'ingrediente_no_disponible': 'Ingrediente No Disponible',
+      'backup_code': 'Código de Respaldo'
     };
     return tipos[tipo] || tipo;
   };
@@ -120,22 +131,14 @@ const Notificaciones = () => {
       'mensaje_admin': '#6f42c1',
       'pedido_cancelado': '#dc3545',
       'ingrediente_inactivo': '#ffc107',
-      'ingrediente_no_disponible': '#fd7e14'
+      'ingrediente_no_disponible': '#fd7e14',
+      'backup_code': '#96bd44'
     };
     return colores[tipo] || '#666';
   };
 
-  const markAsReadFrontend = (notifId) => {
-    const updated = notificaciones.map(n => 
-      n.id === notifId ? { ...n, leida: true } : n
-    );
-    setNotificaciones(updated);
-    setFilteredNotificaciones(updated);
-  };
-
   const showMessage = (title, message, type = 'success') => {
     console.log(`${type}: ${title} - ${message}`);
-    // Si tienes un sistema de toasts, puedes usarlo aquí
     alert(`${title}: ${message}`);
   };
 
@@ -187,10 +190,12 @@ const Notificaciones = () => {
         setFilteredNotificaciones(data.notificaciones || []);
         
         data.notificaciones?.slice(0, 5).forEach(notif => {
-          const codigo = notif.metadata?.codigo_pedido || 
-                        notif.metadata?.codigo || 
-                        extractCodigoFromTitulo(notif.titulo);
-          if (codigo) fetchOrdenDetails(codigo);
+          if (notif.tipo !== 'backup_code') {
+            const codigo = notif.metadata?.codigo_pedido || 
+                          notif.metadata?.codigo || 
+                          extractCodigoFromTitulo(notif.titulo);
+            if (codigo) fetchOrdenDetails(codigo);
+          }
         });
       } else if (response.status === 401) {
         setError('Tu sesión ha expirado');
@@ -204,58 +209,32 @@ const Notificaciones = () => {
     }
   };
 
-  const fetchUsuarios = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/notificaciones/usuarios`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUsuarios(data);
-      }
-    } catch (error) {
-      console.error('Error al obtener usuarios:', error);
-    }
-  };
-
-  const fetchAnalytics = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/notificaciones/analiticas`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setAnalyticsData(data);
-      }
-    } catch (error) {
-      console.error('Error al obtener analíticas:', error);
-    }
-  };
-
   // ========== MANEJADORES DE EVENTOS ==========
 
   const handleRefresh = async () => {
     await fetchNotificaciones();
   };
 
-  // FUNCIÓN CORREGIDA: Marcar notificación individual como leída
   const handleMarkAsRead = async (notifId) => {
     try {
-      console.log(`\n=== MARCANDO NOTIFICACIÓN ${notifId} COMO LEÍDA ===`);
-      
       const token = localStorage.getItem('token');
       
-      // 1. Encontrar la notificación en el array local
       const notificacion = notificaciones.find(n => n.id === notifId);
-      if (!notificacion) {
-        console.log(`❌ Notificación ${notifId} no encontrada en el array local`);
-        return;
-      }
+      if (!notificacion) return;
       
-      // 2. PRIMERO: Llamar al backend
-      console.log(`🔄 Enviando solicitud al backend...`);
+      if (notificacion.tipo === 'backup_code' && !notificacion.leida) {
+        const backupCode = extractBackupCodeFromMessage(notificacion.mensaje);
+        const confirmar = window.confirm(
+          '⚠️ ADVERTENCIA: Esta notificación contiene tu código único de respaldo.\n\n' +
+          'Una vez que la marques como leída, NO podrás ver el código nuevamente en esta notificación.\n\n' +
+          `Tu código es: ${backupCode || 'No disponible'}\n\n` +
+          '¿Ya guardaste el código en un lugar seguro?'
+        );
+        
+        if (!confirmar) {
+          return;
+        }
+      }
       
       const response = await fetch(`${API_BASE_URL}/notificaciones/${notifId}/leer`, {
         method: 'PUT',
@@ -266,48 +245,23 @@ const Notificaciones = () => {
       });
 
       if (response.ok) {
-        console.log(`✅ Backend actualizado correctamente`);
-        
-        // 3. SOLO si el backend confirma, actualizar el frontend
         const updatedNotificaciones = notificaciones.map(notif => 
           notif.id === notifId ? { ...notif, leida: true } : notif
         );
         setNotificaciones(updatedNotificaciones);
         setFilteredNotificaciones(updatedNotificaciones);
-        
-        console.log(`✅ Notificación ${notifId} marcada como leída en frontend y backend`);
-      } else {
-        console.warn(`⚠️ Error ${response.status} del backend`);
-        showMessage(
-          'Error',
-          'No se pudo marcar la notificación como leída',
-          'error'
-        );
       }
       
-      console.log(`=== FIN MARCADO DE NOTIFICACIÓN ${notifId} ===\n`);
-      
     } catch (error) {
-      console.error('❌ Error inesperado:', error);
-      showMessage(
-        'Error de conexión',
-        'No se pudo conectar con el servidor',
-        'error'
-      );
+      console.error('Error:', error);
     }
   };
 
-  // FUNCIÓN CORREGIDA: Marcar TODAS como leídas
   const handleMarkAllAsRead = async () => {
     try {
-      console.log('🔄 MARCANDO TODAS LAS NOTIFICACIONES COMO LEÍDAS...');
-      
       const token = localStorage.getItem('token');
       const userType = getUserType();
       
-      console.log(`👤 User Type para marcar todas: ${userType}`);
-      
-      // 1. PRIMERO: Llamar al backend
       const response = await fetch(`${API_BASE_URL}/notificaciones/leer-todas?user_type=${userType}`, {
         method: 'PUT',
         headers: {
@@ -317,38 +271,40 @@ const Notificaciones = () => {
       });
 
       if (response.ok) {
-        console.log('✅ Backend actualizado correctamente');
-        
-        // 2. SOLO si el backend confirma, actualizar frontend
         const updatedNotificaciones = notificaciones.map(notif => ({
           ...notif,
           leida: true
         }));
         setNotificaciones(updatedNotificaciones);
         setFilteredNotificaciones(updatedNotificaciones);
-        
-        console.log('✅ Todas las notificaciones marcadas como leídas');
-        showMessage(
-          'Éxito',
-          'Todas las notificaciones han sido marcadas como leídas',
-          'success'
-        );
-      } else {
-        console.warn(`⚠️ Error ${response.status} del backend`);
-        showMessage(
-          'Error',
-          'No se pudieron marcar todas las notificaciones',
-          'error'
-        );
+        showMessage('Éxito', 'Todas las notificaciones han sido marcadas como leídas', 'success');
       }
-      
     } catch (error) {
-      console.error('Error al marcar todas como leídas:', error);
-      showMessage(
-        'Error de conexión',
-        'No se pudo conectar con el servidor',
-        'error'
-      );
+      console.error('Error:', error);
+    }
+  };
+
+  const handleDeleteNotification = async (notifId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/notificaciones/${notifId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const updatedNotificaciones = notificaciones.filter(n => n.id !== notifId);
+        setNotificaciones(updatedNotificaciones);
+        setFilteredNotificaciones(updatedNotificaciones);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error al eliminar notificación:', error);
+      return false;
     }
   };
 
@@ -362,39 +318,18 @@ const Notificaciones = () => {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
+      const success = await handleDeleteNotification(notificationToDelete.id);
       
-      const response = await fetch(`${API_BASE_URL}/notificaciones/${notificationToDelete.id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        const updated = notificaciones.filter(n => n.id !== notificationToDelete.id);
-        setNotificaciones(updated);
-        setFilteredNotificaciones(updated);
+      if (success) {
         setShowDeleteConfirm(false);
         setNotificationToDelete(null);
-        
-        showMessage(
-          'Notificación eliminada',
-          'La notificación ha sido eliminada correctamente',
-          'success'
-        );
+        showMessage('Notificación eliminada', 'La notificación ha sido eliminada correctamente', 'success');
       } else {
-        showMessage(
-          'Error',
-          'No se pudo eliminar la notificación',
-          'error'
-        );
+        showMessage('Error', 'No se pudo eliminar la notificación', 'error');
       }
     } catch (error) {
-      console.error('Error al eliminar notificación:', error);
-      showMessage(
-        'Error de conexión',
-        'No se pudo conectar con el servidor',
-        'error'
-      );
+      console.error('Error:', error);
+      showMessage('Error de conexión', 'No se pudo conectar con el servidor', 'error');
     } finally {
       setLoading(false);
     }
@@ -421,89 +356,43 @@ const Notificaciones = () => {
         const updated = notificaciones.filter(n => !n.leida);
         setNotificaciones(updated);
         setFilteredNotificaciones(updated);
-        
-        showMessage(
-          'Notificaciones eliminadas',
-          'Todas las notificaciones leídas han sido eliminadas',
-          'success'
-        );
-      } else {
-        showMessage(
-          'Error',
-          'No se pudieron eliminar las notificaciones',
-          'error'
-        );
+        showMessage('Notificaciones eliminadas', 'Todas las notificaciones leídas han sido eliminadas', 'success');
       }
     } catch (error) {
-      console.error('Error al eliminar notificaciones leídas:', error);
-      showMessage(
-        'Error de conexión',
-        'No se pudo conectar con el servidor',
-        'error'
-      );
+      console.error('Error:', error);
     }
   };
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    
-    if (!messageForm.mensaje.trim()) {
-      showMessage('Mensaje requerido', 'Por favor escribe un mensaje', 'warning');
-      return;
-    }
-
-    try {
-      setSendingMessage(true);
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch(`${API_BASE_URL}/notificaciones/mensaje`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(messageForm)
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        showMessage('Mensaje enviado', data.msg, 'success');
-        
-        setMessageForm({
-          destinatario_tipo: 'todos',
-          destinatario_id: '',
-          titulo: 'Mensaje del Restaurante',
-          mensaje: ''
-        });
-        setShowSendModal(false);
-        fetchNotificaciones();
-      } else {
-        const errorData = await response.json();
-        showMessage('Error', errorData.msg || 'Error al enviar mensaje', 'error');
-      }
-    } catch (error) {
-      console.error('Error al enviar mensaje:', error);
-      showMessage('Error de conexión', 'No se pudo conectar con el servidor', 'error');
-    } finally {
-      setSendingMessage(false);
-    }
-  };
-
-  // FUNCIÓN CORREGIDA: Abrir modal con detalles del pedido
+  // ========== FUNCIÓN MEJORADA PARA ABRIR MODAL (DIFERENCIA ENTRE PEDIDO Y MENSAJE) ==========
   const handleOpenPedidoModal = async (notif) => {
     try {
-      console.log(`🚀 Abriendo modal para notificación ${notif.id}`);
       setModalLoading(true);
       
-      // 1. Marcar como leída si no lo está - AHORA ESPERA CONFIRMACIÓN
       if (!notif.leida) {
         await handleMarkAsRead(notif.id);
       }
       
-      // 2. Abrir el modal
+      // Verificar si es un mensaje simple (tipo mensaje_admin)
+      const esMensajeSimple = notif.tipo === 'mensaje_admin';
+      
+      if (esMensajeSimple) {
+        // Es un mensaje simple, mostrar solo el mensaje en el modal
+        const datosModal = {
+          tipo: 'mensaje',
+          titulo: notif.titulo,
+          mensaje: notif.mensaje,
+          fecha: formatDate(notif.fecha_creacion),
+          notificacion: notif
+        };
+        setPedidoSeleccionado(datosModal);
+        setShowPedidoModal(true);
+        setModalLoading(false);
+        return;
+      }
+      
+      // Es una notificación de pedido, obtener detalles
       setShowPedidoModal(true);
       
-      // 3. Preparar datos iniciales
       const codigoPedido = cleanCodigoPedido(
         notif.metadata?.codigo_pedido || 
         notif.metadata?.codigo || 
@@ -512,13 +401,11 @@ const Notificaciones = () => {
         ''
       );
       
-      // Obtener datos de la orden si existe
       let ordenData = null;
       if (codigoPedido) {
         ordenData = await fetchOrdenDetails(codigoPedido);
       }
       
-      // Determinar el estado del pedido
       let estado = 'En proceso';
       if (notif.tipo === 'pedido_cancelado') {
         estado = 'Cancelado';
@@ -531,6 +418,7 @@ const Notificaciones = () => {
       }
       
       const datosModal = {
+        tipo: 'pedido',
         notificacion: notif,
         codigoPedido: codigoPedido,
         orden: ordenData,
@@ -546,19 +434,31 @@ const Notificaciones = () => {
       setPedidoSeleccionado(datosModal);
       
     } catch (error) {
-      console.error('Error al abrir modal:', error);
-      setPedidoSeleccionado({
-        notificacion: notif,
-        codigoPedido: '',
-        orden: null,
+      console.error('Error:', error);
+    } finally {
+      setModalLoading(false);
+    }
+  };
+
+  const handleOpenBackupCodeModal = async (notif) => {
+    try {
+      setModalLoading(true);
+      
+      const backupCode = extractBackupCodeFromMessage(notif.mensaje);
+      
+      setBackupCodeNotif({
+        id: notif.id,
+        titulo: notif.titulo,
+        mensaje: notif.mensaje,
         fecha: formatDate(notif.fecha_creacion),
-        estado: 'Error',
-        precio: 0,
-        metodo_pago: 'No especificado',
-        direccion: 'No especificada',
-        cliente_nombre: 'No especificado',
-        cliente_telefono: 'No especificado'
+        backupCode: backupCode,
+        leida: notif.leida
       });
+      
+      setShowBackupCodeModal(true);
+      
+    } catch (error) {
+      console.error('Error:', error);
     } finally {
       setModalLoading(false);
     }
@@ -569,108 +469,50 @@ const Notificaciones = () => {
     setPedidoSeleccionado(null);
   };
 
-  // FUNCIÓN CORREGIDA: Manejar clic en notificación
+  const handleCloseBackupCodeModal = async () => {
+    if (backupCodeNotif) {
+      await handleDeleteNotification(backupCodeNotif.id);
+    }
+    setShowBackupCodeModal(false);
+    setBackupCodeNotif(null);
+  };
+
   const handleNotificationClick = async (notif) => {
-    console.log(`🖱️ Click en notificación: ${notif.id} - ${notif.tipo}`);
-    
-    // Solo abrir modal para notificaciones de pedidos
-    const tiposConDetalles = ['nuevo_pedido', 'estado_cambiado', 'estado_pedido', 'pedido_cancelado'];
-    
-    if (tiposConDetalles.includes(notif.tipo)) {
-      console.log(`✅ Abriendo modal para pedido`);
+    if (notif.tipo === 'backup_code') {
+      await handleOpenBackupCodeModal(notif);
+    } else if (notif.tipo === 'mensaje_admin') {
+      // Mensaje simple - abre modal de mensaje
       await handleOpenPedidoModal(notif);
     } else {
-      console.log(`ℹ️ Solo marcando como leída`);
-      if (!notif.leida) {
-        await handleMarkAsRead(notif.id);
+      const tiposConDetalles = ['nuevo_pedido', 'estado_cambiado', 'estado_pedido', 'pedido_cancelado'];
+      if (tiposConDetalles.includes(notif.tipo)) {
+        await handleOpenPedidoModal(notif);
+      } else {
+        if (!notif.leida) {
+          await handleMarkAsRead(notif.id);
+        }
       }
     }
   };
 
-  // ========== EFECTOS ==========
-
-  useEffect(() => {
-    const loadInitialData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const userData = JSON.parse(localStorage.getItem('user'));
-        
-        if (userData) {
-          setUserRole(userData.rol || userData.role);
-        } else if (token) {
-          try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            setUserRole(payload.rol || payload.role);
-          } catch {}
-        }
-        
-        await fetchNotificaciones();
-      } catch (error) {
-        setError('Error al cargar las notificaciones');
-      }
-    };
-
-    loadInitialData();
-  }, []);
-
-  useEffect(() => {
-    if (showSendModal && userRole === 1) {
-      fetchUsuarios();
-    }
-  }, [showSendModal, userRole]);
-
-  useEffect(() => {
-    if (showAnalyticsModal && userRole === 1) {
-      fetchAnalytics();
-    }
-  }, [showAnalyticsModal, userRole]);
-
-  useEffect(() => {
-    let filtered = notificaciones;
-
-    if (searchTerm.trim()) {
-      filtered = filtered.filter(notif => 
-        notif.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        notif.mensaje?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        notif.metadata?.codigo_pedido?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        notif.metadata?.cliente_nombre?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (typeFilter) {
-      filtered = filtered.filter(notif => notif.tipo === typeFilter);
-    }
-
-    if (readFilter) {
-      filtered = filtered.filter(notif => notif.leida === (readFilter === 'leidas'));
-    }
-    
-    setFilteredNotificaciones(filtered);
-    setCurrentPage(1);
-  }, [searchTerm, typeFilter, readFilter, notificaciones]);
-
-  // ========== PAGINACIÓN ==========
-
-  const indexOfLastNotif = currentPage * notificacionesPerPage;
-  const indexOfFirstNotif = indexOfLastNotif - notificacionesPerPage;
-  const currentNotificaciones = filteredNotificaciones.slice(indexOfFirstNotif, indexOfLastNotif);
-  const totalPages = Math.ceil(filteredNotificaciones.length / notificacionesPerPage);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  // ========== RENDERIZADO ==========
-
+  // ========== RENDERIZADO DE NOTIFICACIÓN ==========
   const renderNotificacion = (notif) => {
     const tiposConDetalles = ['nuevo_pedido', 'estado_cambiado', 'estado_pedido', 'pedido_cancelado'];
+    const esMensajeSimple = notif.tipo === 'mensaje_admin';
     const tieneDetalles = tiposConDetalles.includes(notif.tipo);
+    const isBackupCode = notif.tipo === 'backup_code';
+    const backupCode = isBackupCode ? extractBackupCodeFromMessage(notif.mensaje) : null;
+    
+    // Los mensajes simples también deben ser clickeables
+    const esClickeable = tieneDetalles || isBackupCode || esMensajeSimple;
     
     return (
       <div 
         key={notif.id} 
-        className={`notificacion-item ${notif.leida ? 'leida' : 'no-leida'}`}
+        className={`notificacion-item ${notif.leida ? 'leida' : 'no-leida'} ${isBackupCode ? 'backup-code-notif' : ''} ${esMensajeSimple ? 'mensaje-simple-notif' : ''}`}
         style={{ 
           borderLeftColor: getNotificationColor(notif.tipo),
-          cursor: tieneDetalles ? 'pointer' : 'default'
+          cursor: esClickeable ? 'pointer' : 'default'
         }}
         onClick={() => handleNotificationClick(notif)}
       >
@@ -683,7 +525,6 @@ const Notificaciones = () => {
             <div className="notificacion-meta">
               <span className="notificacion-tipo">{getNotificationTypeText(notif.tipo)}</span>
               <span className="notificacion-fecha">{formatDate(notif.fecha_creacion)}</span>
-              {notif.hace_cuanto && <span className="notificacion-timeago">({notif.hace_cuanto})</span>}
             </div>
           </div>
           <div className="notificacion-actions">
@@ -692,32 +533,57 @@ const Notificaciones = () => {
                 onClick={(e) => { e.stopPropagation(); handleMarkAsRead(notif.id); }}
                 className="action-btn mark-read-btn"
                 title="Marcar como leída"
-                style={{
-                  width: '32px', height: '32px', backgroundColor: '#28a745',
-                  color: 'white', border: 'none', borderRadius: '4px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '16px', fontWeight: 'bold', cursor: 'pointer'
-                }}
-              >✓</button>
+              >
+                ✓
+              </button>
             )}
             <button 
               onClick={(e) => { e.stopPropagation(); handleDeleteClick(notif.id, notif.titulo); }}
               className="action-btn delete-btn"
               title="Eliminar notificación"
-              style={{
-                width: '32px', height: '32px', backgroundColor: '#dc3545',
-                border: 'none', borderRadius: '4px', cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
-              }}
             >
-              <img src={deleteIcon} alt="Eliminar" style={{ width: '16px', height: '16px', filter: 'invert(1)' }} />
+              <img src={deleteIcon} alt="Eliminar" />
             </button>
           </div>
         </div>
         
-        <div className="notificacion-mensaje">{notif.mensaje}</div>
+        <div className="notificacion-mensaje">
+          {isBackupCode ? (
+            <div className="backup-code-container">
+              <p>{notif.mensaje.replace(/\*\*([A-Za-z0-9]{16})\*\*/, '')}</p>
+              {backupCode && (
+                <div className="backup-code-box">
+                  <code className="backup-code-display">{backupCode}</code>
+                  <button 
+                    className="backup-copy-btn"
+                    onClick={(e) => { e.stopPropagation(); copyToClipboard(backupCode); }}
+                    title="Copiar código"
+                  >
+                    {copiedCode === backupCode ? '✓ Copiado' : 'Copiar'}
+                  </button>
+                </div>
+              )}
+              <div className="backup-code-warning">
+                ⚠️ <strong>IMPORTANTE:</strong> Este código es PERMANENTE. Guárdalo en un lugar seguro.<br />
+                Una vez que cierres esta ventana, la notificación se eliminará automáticamente.
+              </div>
+            </div>
+          ) : (
+            // Para mensajes simples, mostrar solo un preview del mensaje
+            esMensajeSimple ? (
+              <div className="mensaje-preview">
+                {notif.mensaje && notif.mensaje.length > 120 
+                  ? `${notif.mensaje.substring(0, 120)}...` 
+                  : notif.mensaje}
+                <span className="ver-mas-indicator">Ver más →</span>
+              </div>
+            ) : (
+              notif.mensaje
+            )
+          )}
+        </div>
         
-        {notif.metadata && Object.keys(notif.metadata).length > 0 && (
+        {notif.metadata && Object.keys(notif.metadata).length > 0 && !isBackupCode && !esMensajeSimple && (
           <div className="notificacion-metadata">
             {notif.metadata.codigo_pedido && (
               <div className="metadata-item">
@@ -754,14 +620,70 @@ const Notificaciones = () => {
           </div>
         )}
         
-        {tieneDetalles && !notif.leida && (
+        {((tieneDetalles && !notif.leida) || (isBackupCode && !notif.leida) || (esMensajeSimple && !notif.leida)) && (
           <div className="click-indicator">
-            <span className="click-hint">Haz clic para ver detalles</span>
+            <span className="click-hint">
+              {esMensajeSimple ? 'Haz clic para leer el mensaje completo' : 'Haz clic para ver detalles'}
+            </span>
           </div>
         )}
       </div>
     );
   };
+
+  // ========== EFECTOS ==========
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const userData = JSON.parse(localStorage.getItem('user'));
+        
+        if (userData) {
+          setUserRole(userData.rol || userData.role);
+        }
+        
+        await fetchNotificaciones();
+      } catch (error) {
+        setError('Error al cargar las notificaciones');
+      }
+    };
+
+    loadInitialData();
+  }, []);
+
+  useEffect(() => {
+    let filtered = notificaciones;
+
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(notif => 
+        notif.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        notif.mensaje?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (typeFilter) {
+      filtered = filtered.filter(notif => notif.tipo === typeFilter);
+    }
+
+    if (readFilter) {
+      filtered = filtered.filter(notif => notif.leida === (readFilter === 'leidas'));
+    }
+    
+    setFilteredNotificaciones(filtered);
+    setCurrentPage(1);
+  }, [searchTerm, typeFilter, readFilter, notificaciones]);
+
+  // ========== PAGINACIÓN ==========
+
+  const indexOfLastNotif = currentPage * notificacionesPerPage;
+  const indexOfFirstNotif = indexOfLastNotif - notificacionesPerPage;
+  const currentNotificaciones = filteredNotificaciones.slice(indexOfFirstNotif, indexOfLastNotif);
+  const totalPages = Math.ceil(filteredNotificaciones.length / notificacionesPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // ========== RENDERIZADO PRINCIPAL ==========
 
   if (loading && notificaciones.length === 0) {
     return (
@@ -873,6 +795,7 @@ const Notificaciones = () => {
                 <option value="pedido_cancelado">Pedidos Cancelados</option>
                 <option value="ingrediente_no_disponible">Ingrediente No Disponible</option>
                 <option value="ingrediente_inactivo">Ingrediente Inactivo</option>
+                <option value="backup_code">Código de Respaldo</option>
               </select>
             </div>
 
@@ -910,12 +833,6 @@ const Notificaciones = () => {
                searchTerm || typeFilter || readFilter ? 
                  'No se encontraron notificaciones con esos criterios' : 
                  'No hay notificaciones disponibles'}
-              {!loading && notificaciones.length === 0 && (
-                <p style={{ fontSize: '14px', color: darkMode ? '#94a3b8' : '#64748b', marginTop: '10px' }}>
-                  Las notificaciones aparecerán aquí cuando recibas nuevos pedidos, 
-                  haya cambios en tus pedidos o recibas mensajes.
-                </p>
-              )}
             </div>
           )}
         </div>
@@ -949,11 +866,37 @@ const Notificaciones = () => {
           </div>
         )}
 
-        {filteredNotificaciones.length <= notificacionesPerPage && filteredNotificaciones.length > 0 && (
-          <div className="notificaciones-count-info">
-            Mostrando {currentNotificaciones.length} de {filteredNotificaciones.length} notificaciones
-          </div>
-        )}
+        {/* Modal de detalles del pedido/mensaje - Componente separado que maneja ambos tipos */}
+        <PedidoModal 
+          show={showPedidoModal}
+          onClose={handleClosePedidoModal}
+          pedidoSeleccionado={pedidoSeleccionado}
+          modalLoading={modalLoading}
+          darkMode={darkMode}
+        />
+
+        {/* Modal de código de respaldo */}
+        <BackupCodeModal
+          show={showBackupCodeModal}
+          onClose={handleCloseBackupCodeModal}
+          notificacion={backupCodeNotif}
+          darkMode={darkMode}
+        />
+
+        {/* Modal para enviar mensaje */}
+        <SendMessageModal
+          show={showSendModal}
+          onClose={() => setShowSendModal(false)}
+          darkMode={darkMode}
+          onMessageSent={fetchNotificaciones}
+        />
+
+        {/* Modal de estadísticas */}
+        <AnalyticsModal
+          show={showAnalyticsModal}
+          onClose={() => setShowAnalyticsModal(false)}
+          darkMode={darkMode}
+        />
 
         {/* Modal de confirmación de eliminación */}
         {showDeleteConfirm && (
@@ -969,163 +912,6 @@ const Notificaciones = () => {
               <div className="confirm-actions">
                 <button className="confirm-btn cancel-btn" onClick={handleDeleteCancel}>Cancelar</button>
                 <button className="confirm-btn delete-confirm-btn" onClick={handleDeleteConfirm}>Sí, Eliminar</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Modal de detalles del pedido */}
-        <PedidoModal 
-          show={showPedidoModal}
-          onClose={handleClosePedidoModal}
-          pedidoSeleccionado={pedidoSeleccionado}
-          modalLoading={modalLoading}
-          darkMode={darkMode}
-        />
-
-        {/* Modal para enviar mensaje */}
-        {showSendModal && (
-          <div className="modal-overlay">
-            <div className="modal-content large-modal">
-              <div className="modal-header">
-                <h3>Enviar Mensaje a Usuarios</h3>
-                <button className="close-modal" onClick={() => setShowSendModal(false)} disabled={sendingMessage}>✕</button>
-              </div>
-              <div className="modal-body">
-                <form onSubmit={handleSendMessage}>
-                  <div className="form-group">
-                    <label>Tipo de Destinatario</label>
-                    <select
-                      value={messageForm.destinatario_tipo}
-                      onChange={(e) => setMessageForm({
-                        ...messageForm,
-                        destinatario_tipo: e.target.value,
-                        destinatario_id: e.target.value === 'todos' ? '' : messageForm.destinatario_id
-                      })}
-                      className="form-select" disabled={sendingMessage}
-                    >
-                      <option value="todos">Todos los Usuarios</option>
-                      <option value="cliente">Cliente Específico</option>
-                      <option value="admin">Administrador Específico</option>
-                      <option value="todos_admins">Todos los Administradores</option>
-                    </select>
-                  </div>
-
-                  {(messageForm.destinatario_tipo === 'cliente' || messageForm.destinatario_tipo === 'admin') && (
-                    <div className="form-group">
-                      <label>{messageForm.destinatario_tipo === 'cliente' ? 'Cliente' : 'Administrador'}</label>
-                      <select
-                        value={messageForm.destinatario_id}
-                        onChange={(e) => setMessageForm({...messageForm, destinatario_id: e.target.value})}
-                        className="form-select" required disabled={sendingMessage}
-                      >
-                        <option value="">Seleccionar...</option>
-                        {usuarios
-                          .filter(u => messageForm.destinatario_tipo === 'cliente' ? u.role === 2 : u.role === 1)
-                          .map(u => (
-                            <option key={u.id} value={u.id}>{u.nombre} ({u.email || u.telefono})</option>
-                          ))}
-                      </select>
-                    </div>
-                  )}
-
-                  <div className="form-group">
-                    <label>Título</label>
-                    <input type="text" value={messageForm.titulo} onChange={(e) => setMessageForm({...messageForm, titulo: e.target.value})}
-                      className="form-input" required disabled={sendingMessage} />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Mensaje</label>
-                    <textarea value={messageForm.mensaje} onChange={(e) => setMessageForm({...messageForm, mensaje: e.target.value})}
-                      className="form-textarea" rows="5" required disabled={sendingMessage}
-                      placeholder="Escribe tu mensaje aquí..." />
-                  </div>
-
-                  <div className="form-actions">
-                    <button type="button" className="btn btn-secondary" onClick={() => setShowSendModal(false)} disabled={sendingMessage}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="btn btn-primary" disabled={sendingMessage}>
-                      {sendingMessage ? 'Enviando...' : 'Enviar Mensaje'}
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Modal de estadísticas */}
-        {showAnalyticsModal && (
-          <div className="modal-overlay">
-            <div className="modal-content large-modal">
-              <div className="modal-header">
-                <h3>Estadísticas de Notificaciones</h3>
-                <button className="close-modal" onClick={() => setShowAnalyticsModal(false)}>✕</button>
-              </div>
-              <div className="modal-body">
-                {analyticsData ? (
-                  <div className="analytics-content">
-                    <div className="analytics-grid">
-                      <div className="analytics-card">
-                        <h4>Resumen General</h4>
-                        <div className="analytics-stats">
-                          <div className="stat-item">
-                            <span className="stat-value">{analyticsData.total_notificaciones}</span>
-                            <span className="stat-label">Total</span>
-                          </div>
-                          <div className="stat-item">
-                            <span className="stat-value">{analyticsData.no_leidas}</span>
-                            <span className="stat-label">No Leídas</span>
-                          </div>
-                          <div className="stat-item">
-                            <span className="stat-value">{analyticsData.tasa_lectura?.toFixed(1) || '0'}%</span>
-                            <span className="stat-label">Tasa Lectura</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {analyticsData.distribucion_tipos && (
-                        <div className="analytics-card">
-                          <h4>Por Tipo</h4>
-                          <div className="analytics-list">
-                            {Object.entries(analyticsData.distribucion_tipos).map(([tipo, count]) => (
-                              <div key={tipo} className="analytics-item">
-                                <span>{getNotificationTypeText(tipo)}</span>
-                                <span>{count} notif.</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {analyticsData.estadisticas_diarias && (
-                        <div className="analytics-card">
-                          <h4>Actividad Diaria</h4>
-                          <div className="analytics-list">
-                            {analyticsData.estadisticas_diarias.slice(0, 7).map((est, idx) => (
-                              <div key={idx} className="analytics-item">
-                                <span>{est.fecha}</span>
-                                <span>{est.count} notif.</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="loading-analytics">
-                    <div className="loading-spinner small"></div>
-                    <p>Cargando estadísticas...</p>
-                  </div>
-                )}
-
-                <div className="modal-actions">
-                  <button className="btn btn-secondary" onClick={() => setShowAnalyticsModal(false)}>Cerrar</button>
-                  <button className="btn btn-primary" onClick={fetchAnalytics}>Actualizar</button>
-                </div>
               </div>
             </div>
           </div>

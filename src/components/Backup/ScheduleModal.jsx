@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const ScheduleModal = ({ 
   show, onClose, onSchedule, scheduleData, setScheduleData, 
-  availableTables, horasDisponibles 
+  availableTables, horasDisponibles, dbType = 'mysql' 
 }) => {
+  const [showCodeModal, setShowCodeModal] = useState(false);
+  const [backupCode, setBackupCode] = useState('');
+  const [pendingSchedule, setPendingSchedule] = useState(false);
+
   if (!show) return null;
+
+  const isMongoDB = dbType === 'mongodb';
+  const itemsLabel = isMongoDB ? 'colecciones' : 'tablas';
+  const itemsLabelSingular = isMongoDB ? 'colección' : 'tabla';
 
   const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
@@ -47,169 +55,251 @@ const ScheduleModal = ({
       .length;
   };
 
+  const handleScheduleClick = () => {
+    if (getDiasSeleccionados() === 0) return;
+    // Mostrar modal de código antes de programar
+    setShowCodeModal(true);
+  };
+
+  const handleConfirmSchedule = () => {
+    if (!backupCode) {
+      alert('Por favor ingresa el código de respaldo');
+      return;
+    }
+    setPendingSchedule(true);
+    // Llamar a onSchedule con el código
+    onSchedule(backupCode);
+  };
+
   return (
-    <div className="backup-modal-overlay">
-      <div className="backup-modal-content backup-schedule-modal">
-        <div className="backup-modal-header">
-          <h3>Programar Respaldos Automáticos</h3>
-          <button onClick={onClose} className="backup-close-modal">✕</button>
-        </div>
-        
-        <div className="backup-modal-body">
-          
-          <p className="backup-schedule-description">
-            Configura respaldos automáticos para días específicos de la semana.
-          </p>
-          
-          <div className="backup-schedule-stats">
-            <div className="backup-stat-badge">
-              <span className="backup-stat-value">{getDiasSeleccionados()}</span>
-              <span className="backup-stat-label">días seleccionados</span>
-            </div>
+    <>
+      {/* Modal principal */}
+      <div className="backup-modal-overlay">
+        <div className="backup-modal-content backup-schedule-modal">
+          <div className="backup-modal-header">
+            <h3>Programar Respaldos Automáticos</h3>
+            <button onClick={onClose} className="backup-close-modal">✕</button>
           </div>
           
-          <div className="backup-dias-programacion">
-            {diasSemana.map((nombreDia, index) => {
-              const diaConfig = scheduleData.dias[index];
-              const esSeleccionado = diaConfig.seleccionado;
-              
-              return (
-                <div key={index} className={`backup-dia-item ${esSeleccionado ? 'seleccionado' : ''}`}>
-                  <div className="backup-dia-header">
-                    <label className="backup-dia-checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={esSeleccionado}
-                        onChange={() => toggleDia(index)}
-                      />
-                      <span className="backup-dia-nombre">{nombreDia}</span>
-                    </label>
-                    
-                    {esSeleccionado && (
-                      <span className="backup-dia-badge">
-                        {diaConfig.tipo === 'full' ? 'Completo' : 'Parcial'}
-                      </span>
-                    )}
-                  </div>
-                  
-                  {esSeleccionado && (
-                    <div className="backup-dia-config">
-                      <div className="backup-config-row">
-                        <div className="backup-config-group">
-                          <label>Hora</label>
-                          <select
-                            value={diaConfig.hora}
-                            onChange={(e) => handleDiaChange(index, 'hora', parseInt(e.target.value))}
-                            className="backup-hora-select"
-                          >
-                            {horasDisponibles.map(hora => (
-                              <option key={hora.valor} value={hora.valor}>
-                                {hora.label}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        
-                        <div className="backup-config-group">
-                          <label>Tipo</label>
-                          <select
-                            value={diaConfig.tipo}
-                            onChange={(e) => handleDiaChange(index, 'tipo', e.target.value)}
-                            className="backup-tipo-select"
-                          >
-                            <option value="full">Completo</option>
-                            <option value="partial">Parcial</option>
-                          </select>
-                        </div>
-                      </div>
-                      
-                      {diaConfig.tipo === 'partial' && (
-                        <div className="backup-config-tablas">
-                          <div className="backup-tablas-header">
-                            <label>Tablas a incluir</label>
-                            <button 
-                              type="button"
-                              className="backup-select-all-tablas-btn"
-                              onClick={() => handleSelectAllTablas(index)}
-                            >
-                              {diaConfig.tablas.length === availableTables.length 
-                                ? 'Deseleccionar todas' 
-                                : 'Seleccionar todas'}
-                            </button>
-                          </div>
-                          
-                          <div className="backup-tablas-grid-mini">
-                            {availableTables.map((tabla, idx) => (
-                              <label key={idx} className="backup-tabla-checkbox-mini">
-                                <input
-                                  type="checkbox"
-                                  checked={diaConfig.tablas.includes(tabla)}
-                                  onChange={() => handleTablaToggle(index, tabla)}
-                                />
-                                <span>{tabla}</span>
-                              </label>
-                            ))}
-                          </div>
-                          
-                          <div className="backup-tablas-count">
-                            {diaConfig.tablas.length} tabla{diaConfig.tablas.length !== 1 ? 's' : ''} seleccionada{diaConfig.tablas.length !== 1 ? 's' : ''}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          
-          {getDiasSeleccionados() > 0 && (
-            <div className="backup-schedule-summary">
-              <h4>Resumen de programación</h4>
-              <div className="backup-summary-content">
-                {Object.entries(scheduleData.dias)
-                  .filter(([_, config]) => config.seleccionado)
-                  .map(([diaIndex, config]) => {
-                    const diaNombre = diasSemana[diaIndex];
-                    return (
-                      <div key={diaIndex} className="backup-summary-item">
-                        <span className="backup-summary-day">{diaNombre}</span>
-                        <span className="backup-summary-time">
-                          {config.hora.toString().padStart(2, '0')}:00
-                        </span>
-                        <span className={`backup-summary-type ${config.tipo}`}>
-                          {config.tipo === 'full' ? 'Completo' : 'Parcial'}
-                        </span>
-                        {config.tipo === 'partial' && (
-                          <span className="backup-summary-tables">
-                            ({config.tablas.length} tablas)
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
+          <div className="backup-modal-body">
+            
+            <p className="backup-schedule-description">
+              Configura respaldos automáticos para días específicos de la semana.
+            </p>
+            
+            <div className="backup-schedule-stats">
+              <div className="backup-stat-badge">
+                <span className="backup-stat-value">{getDiasSeleccionados()}</span>
+                <span className="backup-stat-label">días seleccionados</span>
               </div>
             </div>
-          )}
-        </div>
-        
-        <div className="backup-modal-footer">
-          <button 
-            className="backup-modal-btn cancel"
-            onClick={onClose}
-          >
-            Cancelar
-          </button>
-          <button 
-            className="backup-modal-btn primary"
-            onClick={onSchedule}
-            disabled={getDiasSeleccionados() === 0}
-          >
-            Programar Respaldos
-          </button>
+            
+            <div className="backup-dias-programacion">
+              {diasSemana.map((nombreDia, index) => {
+                const diaConfig = scheduleData.dias[index];
+                const esSeleccionado = diaConfig.seleccionado;
+                
+                return (
+                  <div key={index} className={`backup-dia-item ${esSeleccionado ? 'seleccionado' : ''}`}>
+                    <div className="backup-dia-header">
+                      <label className="backup-dia-checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={esSeleccionado}
+                          onChange={() => toggleDia(index)}
+                        />
+                        <span className="backup-dia-nombre">{nombreDia}</span>
+                      </label>
+                      
+                      {esSeleccionado && (
+                        <span className="backup-dia-badge">
+                          {diaConfig.tipo === 'full' ? 'Completo' : 'Parcial'}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {esSeleccionado && (
+                      <div className="backup-dia-config">
+                        <div className="backup-config-row">
+                          <div className="backup-config-group">
+                            <label>Hora</label>
+                            <select
+                              value={diaConfig.hora}
+                              onChange={(e) => handleDiaChange(index, 'hora', parseInt(e.target.value))}
+                              className="backup-hora-select"
+                            >
+                              {horasDisponibles.map(hora => (
+                                <option key={hora.valor} value={hora.valor}>
+                                  {hora.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          
+                          <div className="backup-config-group">
+                            <label>Tipo</label>
+                            <select
+                              value={diaConfig.tipo}
+                              onChange={(e) => handleDiaChange(index, 'tipo', e.target.value)}
+                              className="backup-tipo-select"
+                            >
+                              <option value="full">Completo</option>
+                              <option value="partial">Parcial</option>
+                            </select>
+                          </div>
+                        </div>
+                        
+                        {diaConfig.tipo === 'partial' && (
+                          <div className="backup-config-tablas">
+                            <div className="backup-tablas-header">
+                              <label>{itemsLabel} a incluir</label>
+                              <button 
+                                type="button"
+                                className="backup-select-all-tablas-btn"
+                                onClick={() => handleSelectAllTablas(index)}
+                              >
+                                {diaConfig.tablas.length === availableTables.length 
+                                  ? `Deseleccionar todas las ${itemsLabel}` 
+                                  : `Seleccionar todas las ${itemsLabel}`}
+                              </button>
+                            </div>
+                            
+                            <div className="backup-tablas-grid-mini">
+                              {availableTables.map((tabla, idx) => (
+                                <label key={idx} className="backup-tabla-checkbox-mini">
+                                  <input
+                                    type="checkbox"
+                                    checked={diaConfig.tablas.includes(tabla)}
+                                    onChange={() => handleTablaToggle(index, tabla)}
+                                  />
+                                  <span>{tabla}</span>
+                                </label>
+                              ))}
+                            </div>
+                            
+                            <div className="backup-tablas-count">
+                              {diaConfig.tablas.length} {itemsLabelSingular}{diaConfig.tablas.length !== 1 ? 's' : ''} seleccionada{diaConfig.tablas.length !== 1 ? 's' : ''}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            
+            {getDiasSeleccionados() > 0 && (
+              <div className="backup-schedule-summary">
+                <h4>Resumen de programación</h4>
+                <div className="backup-summary-content">
+                  {Object.entries(scheduleData.dias)
+                    .filter(([_, config]) => config.seleccionado)
+                    .map(([diaIndex, config]) => {
+                      const diaNombre = diasSemana[diaIndex];
+                      return (
+                        <div key={diaIndex} className="backup-summary-item">
+                          <span className="backup-summary-day">{diaNombre}</span>
+                          <span className="backup-summary-time">
+                            {config.hora.toString().padStart(2, '0')}:00
+                          </span>
+                          <span className={`backup-summary-type ${config.tipo}`}>
+                            {config.tipo === 'full' ? 'Completo' : 'Parcial'}
+                          </span>
+                          {config.tipo === 'partial' && (
+                            <span className="backup-summary-tables">
+                              ({config.tablas.length} {itemsLabelSingular}{config.tablas.length !== 1 ? 's' : ''})
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className="backup-modal-footer">
+            <button 
+              className="backup-modal-btn cancel"
+              onClick={onClose}
+            >
+              Cancelar
+            </button>
+            <button 
+              className="backup-modal-btn primary"
+              onClick={handleScheduleClick}
+              disabled={getDiasSeleccionados() === 0}
+            >
+              Programar Respaldos
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Modal para ingresar código de respaldo */}
+      {showCodeModal && (
+        <div className="backup-modal-overlay">
+          <div className="backup-modal-content backup-code-modal" style={{ maxWidth: '450px' }}>
+            <div className="backup-modal-header">
+              <h3>🔐 Código de Respaldo</h3>
+              <button 
+                onClick={() => {
+                  setShowCodeModal(false);
+                  setBackupCode('');
+                }} 
+                className="backup-close-modal"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="backup-modal-body">
+              <p>Ingresar código de seguridad:</p>
+              <input
+                type="text"
+                className="backup-form-control"
+                placeholder="Código de 16 caracteres"
+                value={backupCode}
+                onChange={(e) => setBackupCode(e.target.value.toUpperCase())}
+                autoFocus
+                style={{ 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '1px',
+                  fontFamily: 'monospace',
+                  fontSize: '1rem',
+                  textAlign: 'center'
+                }}
+              />
+            </div>
+            <div className="backup-modal-footer">
+              <button 
+                className="backup-modal-btn cancel"
+                onClick={() => {
+                  setShowCodeModal(false);
+                  setBackupCode('');
+                }}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="backup-modal-btn primary"
+                onClick={handleConfirmSchedule}
+                disabled={!backupCode || pendingSchedule}
+              >
+                {pendingSchedule ? (
+                  <>
+                    <span className="backup-btn-spinner"></span>
+                    Verificando...
+                  </>
+                ) : (
+                  'Confirmar y Programar'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

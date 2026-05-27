@@ -2167,6 +2167,242 @@
   margin-right: 8px;
 }
 
+/* Confirm modal - Ya existe en tu CSS */
+.backup-confirm-modal {
+  max-width: 400px;
+  text-align: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.backup-confirm-header {
+  background: #f8f9fa;
+  padding: 20px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.backup-confirm-header h3 {
+  margin: 0;
+  color: #dc3545;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.backup-confirm-body {
+  padding: 30px 20px;
+}
+
+.backup-confirm-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.backup-confirm-message {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: #333;
+  line-height: 1.5;
+}
+
+.backup-confirm-message strong {
+  color: #dc3545;
+}
+
+.backup-confirm-warning {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin: 0;
+  font-style: italic;
+}
+
+.backup-confirm-actions {
+  display: flex;
+  gap: 12px;
+  padding: 20px;
+  border-top: 1px solid #dee2e6;
+  background: #f8f9fa;
+}
+
+.backup-confirm-btn {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+/* Estilos específicos para el modal de restauración */
+.backup-restore-modal .backup-confirm-header h3 {
+  color: #96bd44;
+}
+
+.backup-restore-modal .backup-confirm-message strong {
+  color: #96bd44;
+}
+
+.backup-restore-modal .backup-confirm-warning {
+  color: #f59e0b;
+  font-style: normal;
+  background-color: #fef3c7;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+.backup-restore-modal .backup-confirm-btn.confirm {
+  background-color: #96bd44;
+  color: #000000;
+}
+
+.backup-restore-modal .backup-confirm-btn.confirm:hover {
+  background-color: #3e4e1d;
+}
+
+/* Dark mode para restauración */
+.dark-mode .backup-restore-modal .backup-confirm-header {
+  background-color: #2d3748;
+  border-bottom-color: #4a5568;
+}
+
+.dark-mode .backup-restore-modal .backup-confirm-header h3 {
+  color: #D4AF37;
+}
+
+.dark-mode .backup-restore-modal .backup-confirm-message {
+  color: #e2e8f0;
+}
+
+.dark-mode .backup-restore-modal .backup-confirm-message strong {
+  color: #D4AF37;
+}
+
+.dark-mode .backup-restore-modal .backup-confirm-warning {
+  background-color: #2d3748;
+  color: #fbbf24;
+}
+
+.dark-mode .backup-restore-modal .backup-confirm-actions {
+  background-color: #1a1a1a;
+  border-top-color: #4a5568;
+}
+
+.dark-mode .backup-restore-modal .backup-confirm-btn.confirm {
+  background-color: #D4AF37;
+}
+
+.dark-mode .backup-restore-modal .backup-confirm-btn.confirm:hover {
+  background-color: #b8941f;
+}
+
+/* Estilos para el nombre del archivo en el modal de eliminación */
+.backup-filename-container {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 15px 0;
+  border-left: 3px solid #96bd44;
+  word-break: break-all;
+}
+
+.dark-mode .backup-filename-container {
+  background: #2a2a2a;
+  border-left-color: #D4AF37;
+}
+
+.backup-filename-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.dark-mode .backup-filename-label {
+  color: #a0aec0;
+}
+
+.backup-filename-code {
+  display: block;
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #333;
+  background: transparent;
+  word-break: break-all;
+  white-space: normal;
+  line-height: 1.4;
+}
+
+.dark-mode .backup-filename-code {
+  color: #e2e8f0;
+}
+
+.backup-delete-icon {
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #dc3545;
+}
+
+.backup-delete-message {
+  text-align: center;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  color: #333;
+}
+
+.dark-mode .backup-delete-message {
+  color: #e2e8f0;
+}
+
+.backup-delete-warning {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #dc3545;
+  margin: 1rem 0;
+  background: rgba(220, 53, 69, 0.1);
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.backup-code-input-container {
+  margin: 1rem 0;
+}
+
+.backup-code-input-container label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.dark-mode .backup-code-input-container label {
+  color: #e2e8f0;
+}
+
+.backup-modal-btn.danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.backup-modal-btn.danger:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+}
+
+.dark-mode .backup-modal-btn.danger {
+  background-color: #dc3545;
+}
+
+.dark-mode .backup-modal-btn.danger:hover {
+  background-color: #b91c1c;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .backup-info-box {

@@ -4,13 +4,30 @@ import '../../css/Ordenes/detalles-ordenes.css';
 const ModalDetallePedido = ({ orden, onClose }) => {
   if (!orden) return null;
 
-  let pedidoData = null;
   let items = [];
   
   try {
     if (orden.pedido_json) {
-      pedidoData = JSON.parse(orden.pedido_json);
-      items = pedidoData?.items || [];
+      let pedidoData = orden.pedido_json;
+      
+      // Si es string, parsearlo
+      if (typeof pedidoData === 'string') {
+        pedidoData = JSON.parse(pedidoData);
+      }
+      
+      // Verificar la estructura
+      if (Array.isArray(pedidoData)) {
+        // Estructura directa: [item1, item2, ...]
+        items = pedidoData;
+      } else if (pedidoData.items && Array.isArray(pedidoData.items)) {
+        // Estructura con items: { items: [...] }
+        items = pedidoData.items;
+      } else if (pedidoData.item && Array.isArray(pedidoData.item)) {
+        // Estructura con item
+        items = pedidoData.item;
+      } else {
+        console.log('Estructura de pedido_json:', pedidoData);
+      }
     }
   } catch (error) {
     console.error('Error al parsear pedido_json:', error);
@@ -21,6 +38,12 @@ const ModalDetallePedido = ({ orden, onClose }) => {
       style: 'currency',
       currency: 'MXN'
     }).format(price || 0);
+  };
+
+  // Calcular subtotal de cada item si no viene
+  const calcularSubtotal = (item) => {
+    if (item.subtotal) return item.subtotal;
+    return (item.precio_unitario || item.precio || 0) * (item.cantidad || 1);
   };
 
   return (
@@ -41,22 +64,27 @@ const ModalDetallePedido = ({ orden, onClose }) => {
                 items.map((item, index) => (
                   <div key={index} className="producto-detalle-item">
                     <div className="producto-detalle-header">
-                      <span className="producto-detalle-nombre">{item.nombre}</span>
-                      <span className="producto-detalle-cantidad">x{item.cantidad}</span>
+                      <span className="producto-detalle-nombre">{item.nombre || item.nombre_producto || 'Producto'}</span>
+                      <span className="producto-detalle-cantidad">x{item.cantidad || 1}</span>
                     </div>
                     <div className="producto-detalle-precios">
                       <span className="producto-detalle-precio-unitario">
-                        {formatPrice(item.precio_unitario)} c/u
+                        {formatPrice(item.precio_unitario || item.precio || 0)} c/u
                       </span>
                       <span className="producto-detalle-subtotal">
-                        {formatPrice(item.subtotal)}
+                        {formatPrice(calcularSubtotal(item))}
                       </span>
                     </div>
                   </div>
                 ))
               ) : (
                 <div className="no-productos">
-                  No hay productos en este pedido
+                  <p>No hay productos en este pedido</p>
+                  <p className="detalle-info">ID de pedido: {orden.id}</p>
+                  <p className="detalle-info">Tipo: {orden.tipo_pedido}</p>
+                  {orden.suplemento_id && (
+                    <p className="detalle-info">Suplemento ID: {orden.suplemento_id}</p>
+                  )}
                 </div>
               )}
             </div>

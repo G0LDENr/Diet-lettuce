@@ -102,7 +102,7 @@ const Main = () => {
         <div className="sidebar-header">
           <div className="user-info">
             <h1>
-              <span className="crazy-cursive">Diet</span> Lettuces
+              <span className="crazy-cursive"></span> balancea
             </h1>
             <h2 className="user-name">{userData?.nombre || userData?.name || t('user')}</h2>
             <p className="user-email">{userData?.correo || userData?.email || ''}</p>

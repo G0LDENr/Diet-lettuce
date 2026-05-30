@@ -37,7 +37,7 @@ export const ConfigProvider = ({ children }) => {
 
             // --- Hero Section ---
             heroTitle: "Crazy Lettuces",
-            heroDescription: "El cambio enpieza cuando tu decides transformar tu vida; porque tu decicion es la que crea el equilibrio.",
+            heroDescription: "El cambio empieza cuando tu decides tranfromar tu vida; porque tu decision es la que crea el equilibrio.",
 
             // --- Productos ---
             productosTitle: "Nuestros Productos Locos",
@@ -50,10 +50,13 @@ export const ConfigProvider = ({ children }) => {
 
             // --- Encuéntranos ---
             encuentranosTitle: "Encuéntranos",
-            encuentranosDescription: "Síguenos en nuestras redes sociales para conocer promociones y nuevos productos",
+            encuentranosDescription: "Síguenos en nuestras redes sociales para conocer",
+            encuentranosDescription2: "promociones y nuevos productos",
+            footerSubDescription3: "suplementos de calidad para una vida mas saludable y balanceada",
 
             // --- Footer ---
             footerDescription: "Tu decision crear el equilibrio.",
+            heroSubDescription: "Cada pequeño paso que das con convicción fortalece ese equilibrio. Alarga ese momento presente, respira profundo y actúa desde tu poder interior, tejiendo una nueva realidad, más auténtica y profundamente tuya.",
             productosFooter: "Productos",
             lechugasChile: "Lechugas con Chile",
             lechugasGomitas: "Lechugas con Gomitas", 
@@ -65,7 +68,9 @@ export const ConfigProvider = ({ children }) => {
             telefono3: "Arzte Neri Axel +52 7226780112",
             telefono4: "Lopez Villar Miguel Angel +52 7226165733",
             email: "dietlettuce1@gmail.com",
-            derechos: "© 2024 Diet Lettuce. Todos los derechos reservados.",
+            derechos: "© 2024 balancea. Todos los derechos reservados.",
+            telefono_menu: "+52 7294030702",
+            horario: "Horario: Lun-Vie 9am-6pm",
 
             // --- Configuración ---
             configuracion: 'Configuración',

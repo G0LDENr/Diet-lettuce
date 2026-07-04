@@ -1,10 +1,8 @@
-/* notificaciones.css - Versión actualizada con diseño de NotificacionesUser */
-
 /* Estilos generales */
 .notificaciones-container {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   min-height: calc(100vh - 60px);
-  background-color: #f8f9fa;
+  background-image: url('../../img/Fondo-Notifications.png');
 }
 
 .notificaciones-content {

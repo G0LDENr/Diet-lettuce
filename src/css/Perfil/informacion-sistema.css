@@ -1,0 +1,462 @@
+/* ========== MODAL PARA INFORMACIÓN DEL SISTEMA ========== */
+
+.sistema-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+}
+
+.sistema-modal-content {
+  background-color: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
+  animation: sistemaModalFadeIn 0.3s ease;
+}
+
+@keyframes sistemaModalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sistema-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #fafbf8;
+  background-color: #fafbf8;
+  border-radius: 20px 20px 0 0;
+}
+
+.sistema-modal-logo {
+  width: 50px;
+  height: 50px;
+  background: #e4ebdb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sistema-modal-logo svg {
+  font-size: 1.5rem;
+  color: #477224;
+}
+
+.sistema-modal-header-info {
+  flex: 1;
+}
+
+.sistema-modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.sistema-modal-header-subtitle {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.sistema-modal-close {
+  background: #ffffff;
+  border: 1px solid #999;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #000000;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sistema-modal-close:hover {
+  background-color: #ffffff;
+  color: #000000;
+  transform: scale(1.05);
+}
+
+.sistema-modal-body {
+  padding: 1.5rem;
+}
+
+/* Secciones */
+.sistema-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.sistema-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.sistema-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.sistema-section-title .section-icon {
+  font-size: 1rem;
+  color: #50831d;
+}
+
+.sistema-section-title h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Acerca de Balancea */
+.sistema-about-content {
+  padding-left: 1.8rem;
+}
+
+.sistema-description {
+  font-size: 0.8rem;
+  color: #666;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Lista de información del sistema */
+.sistema-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sistema-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.6rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.sistema-info-item:hover {
+  background: #eef3e8;
+}
+
+.sistema-info-icon {
+  width: 32px;
+  height: 32px;
+  background: #eef3e8;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sistema-info-icon svg {
+  font-size: 0.9rem;
+  color: #50831d;
+}
+
+.sistema-info-details {
+  flex: 1;
+}
+
+.sistema-info-label {
+  display: block;
+  font-size: 0.65rem;
+  color: #999;
+  margin-bottom: 0.2rem;
+}
+
+.sistema-info-values {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.sistema-info-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #50831d;
+}
+
+.sistema-info-desc {
+  font-size: 0.65rem;
+  color: #999;
+}
+
+/* Misión y Visión */
+.sistema-mission-vision {
+  padding-left: 1.8rem;
+}
+
+.sistema-mission,
+.sistema-vision {
+  font-size: 0.75rem;
+  color: #555;
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+.sistema-mission strong,
+.sistema-vision strong {
+  color: #50831d;
+}
+
+/* Soporte */
+.sistema-support-content {
+  padding-left: 1.8rem;
+}
+
+.sistema-support-text {
+  font-size: 0.75rem;
+  color: #666;
+  margin: 0 0 0.5rem 0;
+}
+
+.sistema-support-email,
+.sistema-support-phone {
+  font-size: 0.75rem;
+  color: #50831d;
+  font-weight: 500;
+  margin: 0.25rem 0;
+}
+
+/* Copyright */
+.sistema-copyright {
+  text-align: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.sistema-copyright p {
+  font-size: 0.65rem;
+  color: #999;
+  margin: 0;
+}
+
+/* Mensaje de éxito */
+.sistema-modal-success-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0 1.5rem 0.75rem 1.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 6px;
+  color: #155724;
+  font-size: 0.7rem;
+  font-weight: 500;
+  animation: fadeInDown 0.3s ease, fadeOutUp 0.3s ease 2.7s forwards;
+}
+
+.sistema-modal-success-message .success-icon {
+  font-size: 0.75rem;
+  color: #28a745;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOutUp {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); display: none; }
+}
+
+/* ========== MODO OSCURO ========== */
+.dark-mode .sistema-modal-content {
+  background-color: #1f2937;
+}
+
+.dark-mode .sistema-modal-header {
+  background-color: #111827;
+  border-bottom-color: #374151;
+}
+
+.dark-mode .sistema-modal-header h3 {
+  color: #f3f4f6;
+}
+
+.dark-mode .sistema-modal-header-subtitle {
+  color: #9ca3af;
+}
+
+.dark-mode .sistema-modal-close {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #9ca3af;
+}
+
+.dark-mode .sistema-modal-close:hover {
+  background-color: #4b5563;
+  color: #f3f4f6;
+}
+
+.dark-mode .sistema-modal-logo {
+  background: linear-gradient(135deg, #D4AF37, #b8941f);
+}
+
+.dark-mode .sistema-modal-logo svg {
+  color: #000;
+}
+
+.dark-mode .sistema-section {
+  border-bottom-color: #374151;
+}
+
+.dark-mode .sistema-section-title .section-icon {
+  color: #D4AF37;
+}
+
+.dark-mode .sistema-section-title h4 {
+  color: #e2e8f0;
+}
+
+.dark-mode .sistema-description {
+  color: #9ca3af;
+}
+
+.dark-mode .sistema-info-item {
+  background-color: #1a1a1a;
+}
+
+.dark-mode .sistema-info-item:hover {
+  background-color: #2a2a2a;
+}
+
+.dark-mode .sistema-info-icon {
+  background-color: #2a2a2a;
+}
+
+.dark-mode .sistema-info-icon svg {
+  color: #D4AF37;
+}
+
+.dark-mode .sistema-info-value {
+  color: #D4AF37;
+}
+
+.dark-mode .sistema-info-label {
+  color: #9ca3af;
+}
+
+.dark-mode .sistema-mission,
+.dark-mode .sistema-vision {
+  color: #9ca3af;
+}
+
+.dark-mode .sistema-mission strong,
+.dark-mode .sistema-vision strong {
+  color: #D4AF37;
+}
+
+.dark-mode .sistema-support-text {
+  color: #9ca3af;
+}
+
+.dark-mode .sistema-support-email,
+.dark-mode .sistema-support-phone {
+  color: #D4AF37;
+}
+
+.dark-mode .sistema-copyright {
+  border-top-color: #374151;
+}
+
+.dark-mode .sistema-copyright p {
+  color: #9ca3af;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 640px) {
+  .sistema-modal-overlay {
+    padding: 0.5rem;
+  }
+  
+  .sistema-modal-content {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    border-radius: 16px;
+    max-height: 95vh;
+  }
+  
+  .sistema-modal-header {
+    padding: 1rem;
+  }
+  
+  .sistema-modal-logo {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .sistema-modal-logo svg {
+    font-size: 1.2rem;
+  }
+  
+  .sistema-modal-header h3 {
+    font-size: 1rem;
+  }
+  
+  .sistema-modal-header-subtitle {
+    font-size: 0.65rem;
+  }
+  
+  .sistema-modal-close {
+    width: 28px;
+    height: 28px;
+    font-size: 0.875rem;
+  }
+  
+  .sistema-modal-body {
+    padding: 1rem;
+  }
+  
+  .sistema-about-content {
+    padding-left: 0;
+  }
+  
+  .sistema-mission-vision {
+    padding-left: 0;
+  }
+  
+  .sistema-support-content {
+    padding-left: 0;
+  }
+}

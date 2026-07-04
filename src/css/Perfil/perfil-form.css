@@ -1,0 +1,544 @@
+/* ========== MODAL PARA EDITAR PERFIL ========== */
+
+/* Overlay del modal (fondo oscuro) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+}
+
+/* Contenido del modal */
+.modal-content {
+  background-color: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
+  animation: modalFadeIn 0.3s ease;
+}
+
+/* Animación de entrada */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header del modal - CON LOGO Y TÍTULO */
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #fafbf8;
+  background-color: #fafbf8;
+  border-radius: 20px 20px 0 0;
+}
+
+/* Logo circular */
+.modal-logo {
+  width: 50px;
+  height: 50px;
+  background: #e4ebdb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-logo svg {
+  font-size: 1.8rem;
+  color: #477224;
+}
+
+.modal-header-info {
+  flex: 1;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.modal-header-subtitle {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* Botón cerrar - CON CÍRCULO */
+.modal-close {
+  background: #ffffff;
+  border: 1px solid #999;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #000000;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.modal-close:hover {
+  background-color: #ffffff;
+  color: #000000;
+  transform: scale(1.05);
+}
+
+/* Body del modal */
+.modal-body {
+  padding: 1.5rem;
+}
+
+/* Grupos de formulario */
+.modal-form-group {
+  margin-bottom: 1.25rem;
+  position: relative;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.modal-form-group:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.modal-form-group label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.75rem;
+  text-align: left;
+}
+
+/* Contenedor del input con icono DENTRO (estilo prefijo) */
+.modal-input-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Icono DENTRO del input a la izquierda CON FONDO PROPIO Y DIVISIÓN */
+.modal-input-icon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 44px;
+  background: #eef3e8;
+  border-radius: 8px 0 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #50831d;
+  font-size: 1rem;
+  z-index: 1;
+  border-right: 1px solid #ddd;
+}
+
+/* Input con padding para el icono */
+.modal-form-group input {
+  width: 100%;
+  padding: 0.7rem 0.8rem 0.7rem 3.2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  transition: border-color 0.3s;
+  background-color: white;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.modal-form-group input:focus {
+  outline: none;
+  border-color: #50831d;
+}
+
+.modal-form-group input:focus + .modal-input-icon {
+  border-color: #50831d;
+}
+
+.modal-form-group input.input-error {
+  border-color: #dc3545;
+}
+
+/* ========== SELECT - CON ICONO DENTRO CON FONDO ========== */
+.modal-form-group select {
+  width: 100%;
+  padding: 0.7rem 0.8rem 0.7rem 3.2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background-color: white;
+  color: #333;
+  cursor: pointer;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.8rem center;
+  background-size: 0.9rem;
+}
+
+.modal-form-group select:focus {
+  outline: none;
+  border-color: #50831d;
+}
+
+.modal-form-group select option {
+  padding: 0.5rem;
+  background-color: white;
+  color: #333;
+  word-break: break-word;
+}
+
+/* Mensajes de error */
+.modal-error-message {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: #dc3545;
+  text-align: left;
+}
+
+/* Footer del modal */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* ========== ICONO EN BOTÓN GUARDAR ========== */
+.btn-save-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* Botón cancelar */
+.modal-btn-cancel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background-color: #ffffff;
+  color: black;
+  border: 1px solid #999;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.modal-btn-cancel:hover {
+  background-color: #e5e7eb;
+  border-color: #666;
+}
+
+.modal-btn-cancel:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Botón guardar CON IMAGEN */
+.modal-btn-save {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background-color: #466f25;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.modal-btn-save:hover {
+  background-color: #3a6614;
+}
+
+.modal-btn-save:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ========== MENSAJE DE ÉXITO - MÁS PEQUEÑO ========== */
+.modal-success-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0 1.5rem 0.75rem 1.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 6px;
+  color: #155724;
+  font-size: 0.7rem;
+  font-weight: 500;
+  animation: fadeInDown 0.3s ease, fadeOutUp 0.3s ease 2.7s forwards;
+}
+
+.modal-success-message .success-icon {
+  font-size: 0.75rem;
+  color: #28a745;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOutUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+    display: none;
+  }
+}
+
+/* ========== MODO OSCURO ========== */
+.dark-mode .modal-content {
+  background-color: #1f2937;
+}
+
+.dark-mode .modal-header {
+  background-color: #111827;
+  border-bottom-color: #374151;
+}
+
+.dark-mode .modal-header h3 {
+  color: #f3f4f6;
+}
+
+.dark-mode .modal-header-subtitle {
+  color: #9ca3af;
+}
+
+.dark-mode .modal-close {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #9ca3af;
+}
+
+.dark-mode .modal-close:hover {
+  background-color: #4b5563;
+  color: #f3f4f6;
+}
+
+.dark-mode .modal-logo {
+  background: linear-gradient(135deg, #D4AF37, #b8941f);
+}
+
+.dark-mode .modal-logo svg {
+  color: #000;
+}
+
+.dark-mode .modal-form-group {
+  border-bottom-color: #374151;
+}
+
+.dark-mode .modal-form-group label {
+  color: #e5e7eb;
+}
+
+.dark-mode .modal-form-group input {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .modal-form-group input:focus {
+  border-color: #D4AF37;
+}
+
+.dark-mode .modal-input-icon {
+  background-color: #2a2a2a;
+  color: #D4AF37;
+  border-right-color: #444;
+}
+
+.dark-mode .modal-form-group select {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #e2e8f0;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+.dark-mode .modal-form-group select:focus {
+  border-color: #D4AF37;
+}
+
+.dark-mode .modal-form-group select option {
+  background-color: #1a1a1a;
+  color: #e2e8f0;
+}
+
+.dark-mode .modal-footer {
+  border-top-color: #374151;
+}
+
+.dark-mode .modal-btn-cancel {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #e5e7eb;
+}
+
+.dark-mode .modal-btn-cancel:hover {
+  background-color: #4b5563;
+  color: #ffffff;
+}
+
+.dark-mode .modal-btn-save {
+  background-color: #D4AF37;
+  color: #000;
+}
+
+.dark-mode .modal-btn-save:hover {
+  background-color: #b8941f;
+}
+
+/* En modo oscuro, la imagen se vuelve blanca */
+.dark-mode .btn-save-icon {
+  filter: brightness(0) invert(1);
+}
+
+.dark-mode .modal-success-message {
+  background-color: #1e3a2c;
+  border-color: #2d5a3d;
+  color: #4ade80;
+}
+
+.dark-mode .modal-success-message .success-icon {
+  color: #4ade80;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 0.5rem;
+  }
+  
+  .modal-content {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    border-radius: 16px;
+    max-height: 95vh;
+  }
+  
+  .modal-header {
+    padding: 1rem;
+  }
+  
+  .modal-logo {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .modal-logo svg {
+    font-size: 1.4rem;
+  }
+  
+  .modal-header h3 {
+    font-size: 1rem;
+  }
+  
+  .modal-header-subtitle {
+    font-size: 0.65rem;
+  }
+  
+  .modal-close {
+    width: 28px;
+    height: 28px;
+    font-size: 0.875rem;
+  }
+  
+  .modal-body {
+    padding: 1rem;
+  }
+  
+  .modal-form-group label {
+    font-size: 0.7rem;
+  }
+  
+  .modal-input-icon {
+    width: 38px;
+    font-size: 0.85rem;
+  }
+  
+  .modal-form-group input,
+  .modal-form-group select {
+    padding: 0.6rem 0.7rem 0.6rem 2.8rem;
+    font-size: 0.8rem;
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .modal-btn-cancel,
+  .modal-btn-save {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+  
+  .modal-success-message {
+    margin: 0 1rem 0.5rem 1rem;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.65rem;
+  }
+  
+  .modal-success-message .success-icon {
+    font-size: 0.7rem;
+  }
+}

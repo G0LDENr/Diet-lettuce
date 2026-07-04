@@ -4,9 +4,20 @@ import { useConfig } from '../../context/config';
 import PedidoModal from './Modal-Notificaciones';
 import '../../css/Notificaciones/notificaciones-user.css';
 
-import deleteIcon from '../../img/delete.png';
-import refreshIcon from '../../img/actualizar.png';
-import readIcon from '../../img/leido.png';
+// Importa los iconos de react-icons
+import { FiSearch } from 'react-icons/fi';
+import { FiSliders } from 'react-icons/fi';
+import { FiCalendar } from 'react-icons/fi';
+import { IoNotificationsOutline } from "react-icons/io5";
+import { TfiEmail } from "react-icons/tfi";
+import { FiTrash2 } from 'react-icons/fi';
+
+// Importa las imágenes de iconos
+import packageIcon from '../../img/ShopTrue.png';
+import refreshIcon from '../../img/ShopTrue.png';
+import messageIcon from '../../img/ShopTrue.png';
+import defaultIcon from '../../img/ShopTrue.png';
+import refreshBtnIcon from '../../img/actualizar.png';
 import logoutIcon from '../../img/salida.png';
 import backIcon from '../../img/atras.png';
 
@@ -27,7 +38,7 @@ const NotificacionesUser = () => {
   const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
   const [modalLoading, setModalLoading] = useState(false);
   
-  const notificacionesPerPage = 10;
+  const notificacionesPerPage = 5;
   const API_BASE_URL = 'http://127.0.0.1:5000';
 
   // Verificar autenticación
@@ -89,14 +100,12 @@ const NotificacionesUser = () => {
       const token = localStorage.getItem('token');
       if (!token) return;
       
-      // PRIMERO: Actualizar frontend
       const updatedNotificaciones = notificaciones.map(notif => 
         notif.id === notifId ? { ...notif, leida: true } : notif
       );
       setNotificaciones(updatedNotificaciones);
       setFilteredNotificaciones(updatedNotificaciones);
       
-      // SEGUNDO: Intentar sincronizar con backend
       try {
         const response = await fetch(`${API_BASE_URL}/notificaciones/${notifId}/leer`, {
           method: 'PUT',
@@ -158,23 +167,20 @@ const NotificacionesUser = () => {
     setFilteredNotificaciones(updatedNotificaciones);
   };
 
-  // ===== FUNCIÓN PARA ABRIR MODAL CON DETALLES (CORREGIDA PARA DIFERENCIAR MENSAJES) =====
+  // Función para abrir modal con detalles
   const handleOpenPedidoModal = async (notif) => {
     try {
       setModalLoading(true);
       
-      // Marcar como leída si no lo está
       if (!notif.leida) {
         await handleMarkAsRead(notif.id);
       }
       
-      // Verificar si es una notificación de pedido o un mensaje simple
       const esMensajeSimple = notif.tipo === 'mensaje_admin' || 
                               (!notif.metadata?.codigo_pedido && 
                                !extractCodigoFromTitulo(notif.titulo));
       
       if (esMensajeSimple) {
-        // Es un mensaje simple, mostrar solo el mensaje
         const datosModal = {
           tipo: 'mensaje',
           titulo: notif.titulo,
@@ -188,16 +194,13 @@ const NotificacionesUser = () => {
         return;
       }
       
-      // Es una notificación de pedido, obtener detalles del pedido
       const codigoPedido = notif.metadata?.codigo_pedido || 
                           extractCodigoFromTitulo(notif.titulo) || 
                           '';
       const codigoLimpio = codigoPedido.replace(/^#/, '');
       
-      // Obtener detalles de la orden
       let ordenData = await fetchOrdenDetails(codigoLimpio);
       
-      // Construir el objeto para el modal según lo que espera PedidoModal
       const datosModal = {
         tipo: 'pedido',
         codigoPedido: codigoLimpio,
@@ -317,7 +320,7 @@ const NotificacionesUser = () => {
     navigate('/login');
   };
 
-  // Cálculos para paginación
+  // Cálculos para paginación - 5 por página
   const indexOfLastNotif = currentPage * notificacionesPerPage;
   const indexOfFirstNotif = indexOfLastNotif - notificacionesPerPage;
   const currentNotificaciones = filteredNotificaciones.slice(indexOfFirstNotif, indexOfLastNotif);
@@ -325,7 +328,44 @@ const NotificacionesUser = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Función para eliminar notificación
+  // Función para generar números de página con ellipsis
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      pageNumbers.push(1);
+      
+      if (currentPage > 3) {
+        pageNumbers.push('...');
+      }
+      
+      const startPage = Math.max(2, currentPage - 1);
+      const endPage = Math.min(totalPages - 1, currentPage + 1);
+      
+      for (let i = startPage; i <= endPage; i++) {
+        if (i > 1 && i < totalPages) {
+          pageNumbers.push(i);
+        }
+      }
+      
+      if (currentPage < totalPages - 2) {
+        pageNumbers.push('...');
+      }
+      
+      if (totalPages > 1) {
+        pageNumbers.push(totalPages);
+      }
+    }
+    
+    return pageNumbers;
+  };
+
+  // Función para eliminar notificación individual
   const handleDeleteClick = (notifId, notifTitulo) => {
     setNotificationToDelete({ id: notifId, titulo: notifTitulo });
     setShowDeleteConfirm(true);
@@ -423,57 +463,146 @@ const NotificacionesUser = () => {
     return "En proceso";
   };
 
+  // Función para limpiar el título - eliminar SOLO el código
+  const limpiarTitulo = (titulo) => {
+    if (!titulo) return '';
+    
+    let tituloLimpio = titulo;
+    
+    // Elimina el código entre paréntesis al final: "Pedido recibido (ABC123)" -> "Pedido recibido"
+    tituloLimpio = tituloLimpio.replace(/\s*\([A-Z0-9]+\)\s*$/i, '').trim();
+    
+    // Si no encontró el código entre paréntesis, intenta con # al final
+    if (tituloLimpio === titulo) {
+      tituloLimpio = tituloLimpio.replace(/\s*#\s*[A-Z0-9]+\s*$/i, '').trim();
+    }
+    
+    // Si aún no se limpió, intenta con código sin # ni paréntesis (solo al final)
+    if (tituloLimpio === titulo) {
+      tituloLimpio = tituloLimpio.replace(/\s+[A-Z0-9]{4,}\s*$/i, '').trim();
+    }
+    
+    return tituloLimpio;
+  };
+
+  // Función para limpiar el mensaje - eliminar el código del pedido
+  const limpiarMensaje = (mensaje) => {
+    if (!mensaje) return '';
+    
+    let mensajeLimpio = mensaje;
+    
+    // Elimina "Tu pedido #ABC123 ha sido recibido." -> "Tu pedido ha sido recibido."
+    mensajeLimpio = mensajeLimpio.replace(/Tu pedido\s*#?[A-Z0-9]+\s*/i, 'Tu pedido ');
+    
+    // Elimina cualquier mención del código con # en el mensaje
+    mensajeLimpio = mensajeLimpio.replace(/#[A-Z0-9]+\s*/g, '');
+    
+    // Elimina cualquier mención del código entre paréntesis
+    mensajeLimpio = mensajeLimpio.replace(/\s*\([A-Z0-9]+\)\s*/g, ' ');
+    
+    // Limpia espacios múltiples
+    mensajeLimpio = mensajeLimpio.replace(/\s+/g, ' ').trim();
+    
+    return mensajeLimpio;
+  };
+
   // Renderizar notificación
   const renderNotificacion = (notif) => {
-    const codigoPedido = extractCodigoFromTitulo(notif.titulo);
     const estadoPedido = getEstadoPedido(notif);
+    const tituloLimpio = limpiarTitulo(notif.titulo);
+    const mensajeLimpio = limpiarMensaje(notif.mensaje);
+    
+    // Determinar el icono según el tipo usando imágenes
+    const getIconForType = () => {
+      switch(notif.tipo) {
+        case 'nuevo_pedido':
+          return packageIcon;
+        case 'cambio_estado':
+          return refreshIcon;
+        case 'mensaje_admin':
+          return messageIcon;
+        default:
+          return defaultIcon;
+      }
+    };
+    
+    const getCircleClass = () => {
+      switch(notif.tipo) {
+        case 'nuevo_pedido':
+          return 'Notif-User-tipo-nuevo_pedido';
+        case 'cambio_estado':
+          return 'Notif-User-tipo-cambio_estado';
+        case 'mensaje_admin':
+          return 'Notif-User-tipo-mensaje_admin';
+        default:
+          return 'Notif-User-tipo-default';
+      }
+    };
+    
+    const getEstadoClass = (estado) => {
+      const estadoLower = estado.toLowerCase();
+      if (estadoLower.includes('recibido')) return 'Notif-User-estado-recibido';
+      if (estadoLower.includes('preparando') || estadoLower.includes('preparación')) return 'Notif-User-estado-preparando';
+      if (estadoLower.includes('camino')) return 'Notif-User-estado-en-camino';
+      if (estadoLower.includes('entregado')) return 'Notif-User-estado-entregado';
+      if (estadoLower.includes('cancelado')) return 'Notif-User-estado-cancelado';
+      return 'Notif-User-estado-en-proceso';
+    };
     
     return (
       <div 
-        className={`notificacionesUser-item ${notif.leida ? 'leida' : 'no-leida'}`}
+        className={`Notif-User-item ${notif.leida ? 'Notif-User-leida' : 'Notif-User-no-leida'}`}
         onClick={() => handleOpenPedidoModal(notif)}
         style={{ cursor: 'pointer' }}
       >
-        <div className="notificacionesUser-header">
-          <div className="notificacionesUser-info">
-            <h4 className="notificacionesUser-titulo">{notif.titulo}</h4>
-            <div className="notificacionesUser-meta">
-              <span className="notificacionesUser-fecha">{formatDate(notif.fecha_creacion)}</span>
+        {/* Círculo con icono en la parte izquierda */}
+        <div className={`Notif-User-item-circle ${getCircleClass()}`}>
+          <img 
+            src={getIconForType()} 
+            alt="icono" 
+            className="Notif-User-item-icon-img"
+          />
+        </div>
+        
+        <div className="Notif-User-header">
+          <div className="Notif-User-info">
+            <h4 className="Notif-User-titulo">{tituloLimpio}</h4>
+            <div className="Notif-User-meta">
+              <span className="Notif-User-fecha">{formatDate(notif.fecha_creacion)}</span>
             </div>
           </div>
-          <div className="notificacionesUser-actions">
-            {!notif.leida && <span className="notificacionesUser-badge-no-leida">Nuevo</span>}
+          <div className="Notif-User-actions">
+            {!notif.leida && <span className="Notif-User-badge-no-leida">Nuevo</span>}
             
+            {/* Botón Leer - Fondo blanco, icono verde */}
             <button 
               onClick={(e) => handleToggleReadStatus(notif, e)}
-              className="notificacionesUser-action-btn"
+              className="Notif-User-action-btn-read"
               title={notif.leida ? "Marcar como no leída" : "Marcar como leída"}
             >
-              <img src={readIcon} alt="Marcar leída" className="notificacionesUser-action-icon" />
+              <TfiEmail className="Notif-User-action-icon-read" />
             </button>
             
+            {/* Botón Eliminar - Fondo blanco, icono rojo */}
             <button 
               onClick={(e) => { e.stopPropagation(); handleDeleteClick(notif.id, notif.titulo); }}
-              className="notificacionesUser-action-btn"
-              title="Eliminar"
+              className="Notif-User-action-btn-delete"
+              title="Eliminar notificación"
             >
-              <img src={deleteIcon} alt="Eliminar" className="notificacionesUser-action-icon" />
+              <FiTrash2 className="Notif-User-action-icon-delete" />
             </button>
           </div>
         </div>
         
-        <div className="notificacionesUser-mensaje">{notif.mensaje}</div>
+        {/* Mensaje limpio SIN código */}
+        <div className="Notif-User-mensaje">{mensajeLimpio}</div>
         
-        <div className="notificacionesUser-metadata">
-          {codigoPedido && (
-            <div className="notificacionesUser-metadata-item">
-              <span className="notificacionesUser-metadata-label">Código:</span>
-              <span className="notificacionesUser-metadata-value">#{codigoPedido}</span>
-            </div>
-          )}
-          <div className="notificacionesUser-metadata-item">
-            <span className="notificacionesUser-metadata-label">Estado:</span>
-            <span className="notificacionesUser-metadata-value estado-pedido">{estadoPedido}</span>
+        <div className="Notif-User-metadata">
+          <div className="Notif-User-metadata-item">
+            <span className="Notif-User-metadata-label">Estado:</span>
+            <span className={`Notif-User-metadata-value Notif-User-estado-pedido ${getEstadoClass(estadoPedido)}`}>
+              {estadoPedido}
+            </span>
           </div>
         </div>
       </div>
@@ -483,95 +612,149 @@ const NotificacionesUser = () => {
   // Renderizar estado de carga
   if (loading && notificaciones.length === 0) {
     return (
-      <div className={`notificacionesUser-container ${darkMode ? 'dark-mode' : ''}`}>
-        <div className="notificacionesUser-loading-spinner"></div>
-        <p style={{textAlign: 'center'}}>Cargando notificaciones...</p>
+      <div className={`Notif-User-container ${darkMode ? 'Notif-User-dark-mode' : ''}`}>
+        <div className="Notif-User-loading-spinner"></div>
+        <p style={{textAlign: 'center', color: '#fff'}}>Cargando notificaciones...</p>
       </div>
     );
   }
 
   return (
-    <div className={`notificacionesUser-container ${darkMode ? 'dark-mode' : ''}`}>
-      <div className="notificacionesUser-content">
+    <div className={`Notif-User-container ${darkMode ? 'Notif-User-dark-mode' : ''}`}>
+      <div className="Notif-User-content">
         
-        {/* Header */}
-        <div className="notificacionesUser-section-header">
-          <div className="notificacionesUser-header-left">
-            <button onClick={handleGoBack} className="notificacionesUser-back-button">
-              <img src={backIcon} alt="Regresar" className="notificacionesUser-back-icon" />
+        {/* Header con título, descripción y botón de Cerrar Sesión en esquina superior derecha */}
+        <div className="Notif-User-section-header">
+          <div className="Notif-User-header-left">
+            <button onClick={handleGoBack} className="Notif-User-back-button">
+              <img src={backIcon} alt="Regresar" className="Notif-User-back-icon" />
             </button>
-            <h3>Mis Notificaciones</h3>
+            <div className="Notif-User-header-text">
+              <h3>Mis Notificaciones</h3>
+              <p className="Notif-User-header-description">
+                Aquí puedes ver todas las notificaciones relacionadas con tus pedidos y cuenta.
+              </p>
+            </div>
           </div>
-          <div className="notificacionesUser-header-buttons">
-            <button className="notificacionesUser-refresh-btn" onClick={handleRefresh} disabled={loading}>
-              <img src={refreshIcon} alt="Actualizar" className={`notificacionesUser-btn-icon-img ${loading ? 'spinning' : ''}`} />
-              {loading ? 'Actualizando...' : 'Actualizar'}
+          
+          {/* Botón de Cerrar Sesión en la esquina superior derecha */}
+          {isAuthenticated ? (
+            <button onClick={handleLogout} className="Notif-User-logout-btn-header">
+              <img src={logoutIcon} alt="Salir" className="Notif-User-btn-icon-img Notif-User-logout-icon" />
+              Cerrar Sesión
             </button>
-            
-            <button className="notificacionesUser-mark-read-btn" onClick={handleMarkAllAsRead} 
-              disabled={notificaciones.every(n => n.leida) || loading}>
-              <img src={readIcon} alt="Marcar leídas" className="notificacionesUser-btn-icon-img" />
-              Marcar Todas Leídas
+          ) : (
+            <button onClick={handleLoginRedirect} className="Notif-User-login-btn-header">
+              Iniciar Sesión
             </button>
-            
-            <button className="notificacionesUser-delete-read-btn" onClick={handleDeleteAllRead} 
-              disabled={notificaciones.every(n => !n.leida) || loading}>
-              <img src={deleteIcon} alt="Eliminar leídas" className="notificacionesUser-btn-icon-img" />
-              Eliminar Leídas
-            </button>
-            
-            {isAuthenticated ? (
-              <button onClick={handleLogout} className="notificacionesUser-logout-btn">
-                <img src={logoutIcon} alt="Salir" className="notificacionesUser-btn-icon-img" />
-                Cerrar Sesión
-              </button>
-            ) : (
-              <button onClick={handleLoginRedirect} className="notificacionesUser-login-btn">
-                Iniciar Sesión
-              </button>
-            )}
-          </div>
+          )}
         </div>
 
-        {/* Filtros */}
-        <div className="notificacionesUser-search-section">
-          <div className="notificacionesUser-filters-row">
-            <div className="notificacionesUser-search-container">
+        {/* Filtros y botones en una sola línea */}
+        <div className="Notif-User-controls-section">
+          <div className="Notif-User-controls-row">
+            {/* Buscador con icono de lupa - SIN BORDE */}
+            <div className="Notif-User-search-container">
+              <FiSearch className="Notif-User-input-icon" />
               <input
                 type="text"
                 placeholder="Buscar..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="notificacionesUser-search-input"
+                className="Notif-User-search-input"
               />
               {searchTerm && (
-                <button className="notificacionesUser-clear-search" onClick={() => setSearchTerm('')}>✕</button>
+                <button className="Notif-User-clear-search" onClick={() => setSearchTerm('')}>✕</button>
               )}
             </div>
 
-            <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="notificacionesUser-filter-select">
-              <option value="">Todos los tipos</option>
-              <option value="nuevo_pedido">Nuevos Pedidos</option>
-              <option value="cambio_estado">Cambios de Estado</option>
-              <option value="mensaje_admin">Mensajes</option>
-            </select>
+            {/* Filtro de tipo con icono de configuración - SIN BORDE */}
+            <div className="Notif-User-select-wrapper">
+              <FiSliders className="Notif-User-input-icon" />
+              <select 
+                value={typeFilter} 
+                onChange={(e) => setTypeFilter(e.target.value)} 
+                className="Notif-User-filter-select"
+              >
+                <option value="">Todos los tipos</option>
+                <option value="nuevo_pedido">Nuevos Pedidos</option>
+                <option value="cambio_estado">Cambios de Estado</option>
+                <option value="mensaje_admin">Mensajes</option>
+              </select>
+            </div>
 
-            <select value={readFilter} onChange={(e) => setReadFilter(e.target.value)} className="notificacionesUser-filter-select">
-              <option value="">Todas</option>
-              <option value="no-leidas">No leídas</option>
-              <option value="leidas">Leídas</option>
-            </select>
+            {/* Filtro de leído/no leído con icono de calendario - SIN BORDE */}
+            <div className="Notif-User-select-wrapper">
+              <FiCalendar className="Notif-User-input-icon" />
+              <select 
+                value={readFilter} 
+                onChange={(e) => setReadFilter(e.target.value)} 
+                className="Notif-User-filter-select"
+              >
+                <option value="">Todas</option>
+                <option value="no-leidas">No leídas</option>
+                <option value="leidas">Leídas</option>
+              </select>
+            </div>
+
+            {/* Botón Actualizar */}
+            <button 
+              className="Notif-User-refresh-btn" 
+              onClick={handleRefresh} 
+              disabled={loading}
+            >
+              <img 
+                src={refreshBtnIcon} 
+                alt="Actualizar" 
+                className={`Notif-User-btn-icon-img ${loading ? 'Notif-User-spinning' : ''}`} 
+              />
+              {loading ? '...' : 'Actualizar'}
+            </button>
+            
+            {/* Botón Marcar Todas - Color más claro */}
+            <button 
+              className="Notif-User-mark-read-btn" 
+              onClick={handleMarkAllAsRead} 
+              disabled={notificaciones.every(n => n.leida) || loading}
+            >
+              <TfiEmail className="Notif-User-btn-icon" />
+              Marcar Todas
+            </button>
+            
+            {/* Botón Eliminar Todas (Leídas) */}
+            <button 
+              className="Notif-User-delete-read-btn" 
+              onClick={handleDeleteAllRead} 
+              disabled={notificaciones.every(n => !n.leida) || loading}
+            >
+              <FiTrash2 className="Notif-User-btn-icon" />
+              Eliminar Todas
+            </button>
           </div>
         </div>
 
-        {/* Contador */}
-        <div className="notificacionesUser-notifications-counter">
-          <span className="notificacionesUser-counter-total">Total: <strong>{notificaciones.length}</strong></span>
-          <span className="notificacionesUser-counter-unread">No leídas: <strong>{notificaciones.filter(n => !n.leida).length}</strong></span>
+        {/* Contador de notificaciones */}
+        <div className="Notif-User-notifications-counter">
+          <div className="Notif-User-counter-item">
+            <div className="Notif-User-counter-icon-circle">
+              <IoNotificationsOutline className="Notif-User-counter-icon" />
+            </div>
+            <div className="Notif-User-counter-info">
+              <span className="Notif-User-counter-label">Total de Notificaciones</span>
+              <span className="Notif-User-counter-number">{notificaciones.length}</span>
+            </div>
+          </div>
+          <div className="Notif-User-counter-divider"></div>
+          <div className="Notif-User-counter-item Notif-User-no-icon">
+            <div className="Notif-User-counter-info">
+              <span className="Notif-User-counter-label">No leídas</span>
+              <span className="Notif-User-counter-number Notif-User-highlight">{notificaciones.filter(n => !n.leida).length}</span>
+            </div>
+          </div>
         </div>
 
         {/* Lista de notificaciones */}
-        <div className="notificacionesUser-list-container">
+        <div className="Notif-User-list-container">
           {currentNotificaciones.length > 0 ? (
             currentNotificaciones.map(notif => (
               <React.Fragment key={notif.id}>
@@ -579,7 +762,7 @@ const NotificacionesUser = () => {
               </React.Fragment>
             ))
           ) : (
-            <div className="notificacionesUser-no-notificaciones">
+            <div className="Notif-User-no-notificaciones">
               {loading ? 'Cargando...' : 
                searchTerm || typeFilter || readFilter ? 'No se encontraron notificaciones' : 
                'No hay notificaciones disponibles'}
@@ -587,34 +770,81 @@ const NotificacionesUser = () => {
           )}
         </div>
 
-        {/* Paginación */}
+        {/* Paginación - 5 por página con números de página */}
         {filteredNotificaciones.length > notificacionesPerPage && (
-          <div className="notificacionesUser-pagination-container">
-            <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-              Anterior
-            </button>
-            <span>Página {currentPage} de {totalPages}</span>
-            <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-              Siguiente
-            </button>
+          <div className="Notif-User-pagination-container">
+            <div className="Notif-User-pagination-controls">
+              <button 
+                className="Notif-User-pagination-btn" 
+                onClick={() => paginate(currentPage - 1)} 
+                disabled={currentPage === 1}
+              >
+                ◀ Anterior
+              </button>
+              
+              <div className="Notif-User-pagination-numbers">
+                {getPageNumbers().map((page, index) => (
+                  page === '...' ? (
+                    <span key={`ellipsis-${index}`} className="Notif-User-pagination-ellipsis">...</span>
+                  ) : (
+                    <button
+                      key={page}
+                      className={`Notif-User-pagination-btn ${currentPage === page ? 'Notif-User-active' : ''}`}
+                      onClick={() => paginate(page)}
+                    >
+                      {page}
+                    </button>
+                  )
+                ))}
+              </div>
+              
+              <button 
+                className="Notif-User-pagination-btn" 
+                onClick={() => paginate(currentPage + 1)} 
+                disabled={currentPage === totalPages}
+              >
+                Siguiente ▶
+              </button>
+            </div>
+            
+            <span className="Notif-User-count-info">
+              Mostrando {indexOfFirstNotif + 1} - {Math.min(indexOfLastNotif, filteredNotificaciones.length)} de {filteredNotificaciones.length} notificaciones
+            </span>
           </div>
         )}
 
         {/* Modal de confirmación de eliminación */}
         {showDeleteConfirm && (
-          <div className="notificacionesUser-modal-overlay-delete">
-            <div className="notificacionesUser-modal-content">
-              <h3>¿Eliminar Notificación?</h3>
-              <p>¿Estás seguro de eliminar: <strong>"{notificationToDelete?.titulo}"</strong>?</p>
-              <div className="notificacionesUser-confirm-actions">
-                <button onClick={handleDeleteCancel}>Cancelar</button>
-                <button onClick={handleDeleteConfirm}>Eliminar</button>
+          <div className="Notif-User-modal-overlay-delete">
+            <div className="Notif-User-modal-content Notif-User-confirm-modal">
+              <div className="Notif-User-confirm-header">
+                <h3>⚠️ Eliminar Notificación</h3>
+              </div>
+              <div className="Notif-User-confirm-body">
+                <p className="Notif-User-confirm-message">
+                  ¿Estás seguro de eliminar: <strong>"{notificationToDelete?.titulo}"</strong>?
+                </p>
+                <p className="Notif-User-confirm-warning">Esta acción no se puede deshacer</p>
+              </div>
+              <div className="Notif-User-confirm-actions">
+                <button 
+                  className="Notif-User-confirm-btn Notif-User-cancel-btn" 
+                  onClick={handleDeleteCancel}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  className="Notif-User-confirm-btn Notif-User-delete-confirm-btn" 
+                  onClick={handleDeleteConfirm}
+                >
+                  Eliminar
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Modal de detalles del pedido - Usando el componente PedidoModal */}
+        {/* Modal de detalles del pedido */}
         <PedidoModal
           show={showPedidoModal}
           onClose={handleClosePedidoModal}

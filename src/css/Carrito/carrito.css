@@ -1,0 +1,422 @@
+/* Carrito.css - Classname: carrito-shop */
+
+/* ===== VARIABLES Y CONFIGURACIÓN GENERAL ===== */
+:root {
+  --primary-green: #38a169;
+  --primary-green-hover: #2f855a;
+  --error-red: #e53e3e;
+  --error-red-hover: #c53030;
+  --text-dark: #2d3748;
+  --text-light: #718096;
+  --text-white: #ffffff;
+  --bg-light: #f8fafc;
+  --bg-white: #ffffff;
+  --border-light: #e2e8f0;
+  --success-green: #c6f6d5;
+  --success-text: #22543d;
+  --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
+  --shadow-dark: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode {
+  --primary-green: #48bb78;
+  --primary-green-hover: #38a169;
+  --error-red: #fc8181;
+  --error-red-hover: #f56565;
+  --text-dark: #e2e8f0;
+  --text-light: #a0aec0;
+  --text-white: #ffffff;
+  --bg-light: #1a202c;
+  --bg-white: #2d3748;
+  --border-light: #4a5568;
+  --success-green: #22543d;
+  --success-text: #c6f6d5;
+  --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.2);
+  --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.3);
+  --shadow-dark: 0 12px 35px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== CARRITO SHOP - COMPONENTE PRINCIPAL ===== */
+.carrito-shop-page-container {
+  min-height: 100vh;
+  background-color: var(--bg-light);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+/* ===== HEADER ===== */
+.carrito-shop-header {
+  background: var(--bg-white);
+  border-bottom: 1px solid var(--border-light);
+  padding: 16px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-light);
+  width: 100%;
+  max-width: 100%;
+}
+
+.carrito-shop-header-content {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.carrito-shop-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.carrito-shop-back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-light);
+}
+
+.carrito-shop-back-btn:hover {
+  background-color: var(--primary-green);
+  border-color: var(--primary-green);
+  transform: translateX(-2px);
+}
+
+.carrito-shop-back-btn:hover .carrito-shop-icon-img {
+  filter: brightness(0) invert(1);
+}
+
+.carrito-shop-icon-img {
+  width: 20px;
+  height: 20px;
+  display: block;
+  transition: filter 0.2s;
+}
+
+.carrito-shop-header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.carrito-shop-header-title h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.carrito-shop-count-badge {
+  background: var(--primary-green);
+  color: var(--text-white);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  animation: carrito-shop-pulse 2s infinite;
+  white-space: nowrap;
+}
+
+@keyframes carrito-shop-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.carrito-shop-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.carrito-shop-secondary-btn {
+  padding: 10px 20px;
+  background: var(--bg-white);
+  border: 2px solid var(--primary-green);
+  color: var(--primary-green);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.carrito-shop-secondary-btn:hover {
+  background: var(--primary-green);
+  color: var(--text-white);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(56, 161, 105, 0.2);
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+.carrito-shop-main-content {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 24px 0;
+  box-sizing: border-box;
+}
+
+/* ===== LAYOUT DE 2 COLUMNAS ===== */
+/* |← 5cm →| [SUPLEMENTOS - 65%] |← 2cm →| [RESUMEN - 35%] |← 5cm →| */
+.carrito-shop-two-columns {
+  display: grid;
+  grid-template-columns: 65% 35%;
+  gap: 1cm; /* 2cm de separación ENTRE columnas */
+  align-items: start;
+  width: 100%;
+  padding-left: 2cm; /* 5cm de margen IZQUIERDO antes de Suplementos */
+  padding-right: 2cm; /* 5cm de margen DERECHO después de Resumen */
+  box-sizing: border-box;
+}
+
+/* ===== MENSAJES ===== */
+.carrito-shop-message {
+  grid-column: 1 / -1;
+  margin-bottom: 20px;
+  padding: 15px 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: carrito-shop-slideDown 0.3s ease;
+  box-shadow: var(--shadow-light);
+  border-left: 5px solid;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@keyframes carrito-shop-slideDown {
+  from {
+    transform: translateY(-15px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.carrito-shop-message.success {
+  background: var(--success-green);
+  color: var(--success-text);
+  border-left-color: var(--primary-green);
+}
+
+.carrito-shop-message.error {
+  background: #fed7d7;
+  color: #742a2a;
+  border-left-color: var(--error-red);
+}
+
+.dark-mode .carrito-shop-message.error {
+  background: #742a2a;
+  color: #fed7d7;
+  border-left-color: var(--error-red);
+}
+
+.carrito-shop-message-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+/* ===== CARRITO VACÍO ===== */
+.carrito-shop-vacio-container {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  animation: carrito-shop-fadeIn 0.5s ease;
+  width: 100%;
+}
+
+@keyframes carrito-shop-fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.carrito-shop-vacio-content {
+  text-align: center;
+  max-width: 400px;
+  padding: 40px;
+}
+
+.carrito-shop-vacio-img {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 24px;
+  opacity: 0.5;
+  animation: carrito-shop-float 3s ease-in-out infinite;
+}
+
+@keyframes carrito-shop-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+.carrito-shop-vacio-content h3 {
+  font-size: 1.5rem;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+}
+
+.carrito-shop-vacio-content p {
+  color: var(--text-light);
+  margin-bottom: 30px;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.carrito-shop-primary-btn {
+  padding: 14px 36px;
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-hover) 100%);
+  color: var(--text-white);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(56, 161, 105, 0.3);
+  letter-spacing: 0.5px;
+}
+
+.carrito-shop-primary-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(56, 161, 105, 0.4);
+}
+
+.carrito-shop-primary-btn:active {
+  transform: translateY(-1px);
+}
+
+/* ===== LOADING STATES ===== */
+.carrito-shop-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 25px;
+}
+
+.carrito-shop-spinner {
+  width: 60px;
+  height: 60px;
+  border: 5px solid var(--border-light);
+  border-top: 5px solid var(--primary-green);
+  border-radius: 50%;
+  animation: carrito-shop-spin 1.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+}
+
+@keyframes carrito-shop-spin {
+  to { transform: rotate(360deg); }
+}
+
+.carrito-shop-loading p {
+  color: var(--text-light);
+  font-size: 1.1rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .carrito-shop-two-columns {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding-left: 2cm;
+    padding-right: 2cm;
+  }
+}
+
+@media (max-width: 768px) {
+  .carrito-shop-two-columns {
+    padding-left: 1cm;
+    padding-right: 1cm;
+    gap: 20px;
+  }
+  
+  .carrito-shop-header-content {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 0 15px;
+  }
+  
+  .carrito-shop-header-left {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .carrito-shop-header-right {
+    margin-left: auto;
+  }
+  
+  .carrito-shop-secondary-btn {
+    font-size: 0.85rem;
+    padding: 8px 16px;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .carrito-shop-two-columns {
+    padding-left: 0.5cm;
+    padding-right: 0.5cm;
+    gap: 15px;
+  }
+  
+  .carrito-shop-header {
+    padding: 10px 0;
+  }
+  
+  .carrito-shop-header-content {
+    padding: 0 12px;
+  }
+  
+  .carrito-shop-header-title h2 {
+    font-size: 1.1rem;
+  }
+  
+  .carrito-shop-count-badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+  }
+  
+  .carrito-shop-secondary-btn {
+    font-size: 0.7rem;
+    padding: 5px 10px;
+  }
+  
+  .carrito-shop-back-btn {
+    padding: 6px;
+  }
+  
+  .carrito-shop-icon-img {
+    width: 16px;
+    height: 16px;
+  }
+}

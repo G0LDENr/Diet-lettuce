@@ -34,10 +34,12 @@ export const ConfigProvider = ({ children }) => {
             inicio: "Inicio",
             productos: "Productos", 
             nosotros: "Nosotros",
+            dietas: "Dietas",
+            configuracion: "Configuración",
 
             // --- Hero Section ---
             heroTitle: "Crazy Lettuces",
-            heroDescription: "El cambio empieza cuando tu decides tranfromar tu vida; porque tu decision es la que crea el equilibrio.",
+            heroDescription: "El cambio empieza cuando tu decides tranformar tu vida; porque tu decision es la que crea el equilibrio.",
 
             // --- Productos ---
             productosTitle: "Nuestros Productos Locos",
@@ -55,7 +57,8 @@ export const ConfigProvider = ({ children }) => {
             footerSubDescription3: "suplementos de calidad para una vida mas saludable y balanceada",
 
             // --- Footer ---
-            footerDescription: "Tu decision crear el equilibrio.",
+            footerDescription: "EQUILIBRA TU VIDA",
+            footerSubDescription: "Tu decisión crea el equilibrio.",
             heroSubDescription: "Cada pequeño paso que das con convicción fortalece ese equilibrio. Alarga ese momento presente, respira profundo y actúa desde tu poder interior, tejiendo una nueva realidad, más auténtica y profundamente tuya.",
             productosFooter: "Productos",
             lechugasChile: "Lechugas con Chile",
@@ -73,7 +76,6 @@ export const ConfigProvider = ({ children }) => {
             horario: "Horario: Lun-Vie 9am-6pm",
 
             // --- Configuración ---
-            configuracion: 'Configuración',
             idioma: 'Idioma',
             tema: 'Tema',
             modoOscuro: 'Modo Oscuro',
@@ -88,26 +90,25 @@ export const ConfigProvider = ({ children }) => {
             yNuestraPasion: "Nuestra pasión por transformar la alimentación en una experiencia accesible y saludable, explorando nuevas formas de facilitar el bienestar sin perder de vista la frescura, el respaldo profesional y el compromiso con la salud de quienes confían en nosotros.",
             
             mision: "Misión",
-            misionTexto: "Facilitar el acceso a una alimentación saludable a personas con obesidad o que desean mejorar sus hábitos, a través de una plataforma digital que integra la asesoría de nutriólogos con el suministro práctico de ingredientes frescos y adecuados a cada plan nutricional, promoviendo un estilo de vida saludable de manera sencilla y accesible.",
+            misionTexto: "Mejorar la calidad de vida de las personas ofreciendo suplementos naturales, seguros y efectivos que promuevan la salud y el bienestar integral.",
             vision: "Visión",
-            visionTexto: "Ser la plataforma líder en Latinoamérica en el acompañamiento nutricional para personas con obesidad, reconocida por innovar en la integración entre profesionales de la salud y la practicidad en la entrega de ingredientes saludables, transformando la experiencia de seguir un tratamiento nutricional en un proceso fácil, efectivo y libre de frustraciones.",
+            visionTexto: "Ser la marca líder en suplementos naturales en Latinoamérica, reconocida por nuestra calidad, innovación y compromiso con la salud de nuestros clientes.",
             
             valores: "Valores",
-            calidad: "Salud Integral",
-            responsabilidadAmbiental: "Respaldo Profesional",
-            honestidad: "Compromiso",
-            compromisoSalud: "Accesibilidad",
-            responsabilidadSocial: "Inovación",
-            cuidadoCliente: "Empatia",
-            atencionCliente: "Respeto",
-            didiplina: "Disciplina",
+            calidad: "Calidad",
+            integridad: "Integridad",
+            compromiso: "Compromiso",
+            innovacion: "Innovación",
+            respeto: "Respeto",
 
             objetivo: "Objetivo",
-            objetivoTexto: "A tres años, Diet Lettuce se propone consolidarse como la plataforma digital de referencia en México para el apoyo nutricional de personas con obesidad, alcanzando los 5 mil usuarios activos y una red de 150 nutriólogos aliados. Se buscará realizar mil entregas semanales de ingredientes saludables, implementar talleres virtuales mensuales de educación nutricional y desarrollar contenido educativo propio. Asimismo, se establecerán alianzas con instituciones de salud y gimnasios para la derivación de pacientes, se expandirán operaciones a tres ciudades principales del país y se mantendrá un índice de satisfacción superior al 85 por ciento entre usuarios y especialistas, todo ello acompañado de un programa de becas para personas de bajos recursos que requieran tratamiento nutricional.",
+            objetivoTexto: "Brindar suplementos de la más alta calidad que apoyen el desarrollo de hábitos saludables y ayuden a nuestros clientes a alcanzar su mejor versión.",
             
-            metas: "Meta",
+            metas: "Metas",
+            meta1: "Ampliar nuestra linea de productos naturales.",
+            meta2: "Alcanzar a más personas con informacion y educacion.",
+            meta3: "Ser una empresa sostenible y responsable.",
             metasTexto: "Durante el primer año, Diet Lettuce tiene como meta lanzar oficialmente su plataforma digital y alcanzar 500 usuarios activos, con la participación de al menos 30 nutriólogos aliados y la realización de 100 entregas semanales de ingredientes saludables. Además, se buscará mantener un 80 por ciento de satisfacción entre los usuarios y establecer alianzas estratégicas con al menos tres proveedores locales de productos frescos, asegurando así una operación eficiente y de calidad desde el inicio.",
-
 
             // --- Panel de Administración ---
             settings: "Configuración",
@@ -139,6 +140,8 @@ export const ConfigProvider = ({ children }) => {
             inicio: "Home",
             productos: "Products",
             nosotros: "About Us",
+            dietas: "Diets",
+            configuracion: "Settings",
 
             // --- Hero Section ---
             heroTitle: "Crazy Lettuces", 
@@ -158,19 +161,24 @@ export const ConfigProvider = ({ children }) => {
             encuentranosDescription: "Follow us on our social media to learn about promotions and new products",
 
             // --- Footer ---
-            footerDescription: "The craziest and most delicious lettuces in the city.",
+            footerDescription: "BALANCE YOUR LIFE",
+            footerSubDescription: "Your decision creates balance.",
             productosFooter: "Products",
             lechugasChile: "Lettuce with Chili",
             lechugasGomitas: "Lettuce with Gummies", 
             combosLocos: "Crazy Combos",
             contacto: "Contact",
             direccion: "Mexico, Mexico City",
-            telefono: "+52 5538986602", 
-            email: "crazylettuces1@gmail.com",
-            derechos: "© 2024 Crazy Lettuces. All rights reserved.",
+            telefono1: "Villavicencio Gonzalez Juan Carlos +52 7294030702",
+            telefono2: "Jiménez Ocampo Amanda Carolina +52 7292948980",
+            telefono3: "Arzte Neri Axel +52 7226780112",
+            telefono4: "Lopez Villar Miguel Angel +52 7226165733",
+            email: "dietlettuce1@gmail.com",
+            derechos: "© 2024 Balancea. All rights reserved.",
+            telefono_menu: "+52 7294030702",
+            horario: "Hours: Mon-Fri 9am-6pm",
 
             // --- Configuration ---
-            configuracion: 'Settings',
             idioma: 'Language',
             tema: 'Theme',
             modoOscuro: 'Dark Mode',
@@ -179,25 +187,30 @@ export const ConfigProvider = ({ children }) => {
             ingles: 'English',
             minutos: 'Minutes',
 
-            // --- Nosotros ---
+            // --- About Us ---
             sobreNosotros: "About",
             conoceMas: "Learn more about",
             yNuestraPasion: "and our passion for creating unique experiences",
             mision: "Mission",
-            misionTexto: "We are a company dedicated to the production of Crazy Lettuces, lettuce planted, treated and harvested by UTVT students, being a natural, healthy and ecological product without chemicals or preservatives, ensuring healthy consumption for our customers.",
+            misionTexto: "Improve people's quality of life by offering natural, safe and effective supplements that promote health and comprehensive well-being.",
             vision: "Vision",
-            visionTexto: "We hope to be a prepared lettuce company for our student community, hoping to offer flavor and freshness, managing to satisfy our customers and increase our sales.",
+            visionTexto: "To be the leading natural supplement brand in Latin America, recognized for our quality, innovation and commitment to our customers' health.",
+            
             valores: "Values",
             calidad: "Quality",
-            responsabilidadAmbiental: "Environment Responsibility",
-            honestidad: "Honesty",
-            compromisoSalud: "Commitment to Health",
-            responsabilidadSocial: "Social Responsibility",
-            cuidadoCliente: "Customer Care",
-            atencionCliente: "Customer Service",
-            nuestraHistoria: "Our History",
-            historiaTexto1: "was born from the idea of revolutionizing the concept of healthy snacks. We started with a simple question: why not combine the freshness of lettuce with the fun of toppings?",
-            historiaTexto2: "Today, we are much more than a lettuce brand. We are creators of experiences, flavor artists and passionate about making every meal a memorable adventure.",
+            integridad: "Integrity",
+            compromiso: "Commitment",
+            innovacion: "Innovation",
+            respeto: "Respect",
+
+            objetivo: "Objective",
+            objetivoTexto: "Provide the highest quality supplements that support the development of healthy habits and help our customers reach their best version.",
+            
+            metas: "Goals",
+            meta1: "Reach 5000 satisfied customers in the first year",
+            meta2: "Expand presence to 3 more cities in the next year",
+            meta3: "Develop 5 new natural products by 2025",
+            metasTexto: "During the first year, Diet Lettuce aims to officially launch its digital platform and reach 500 active users, with the participation of at least 30 allied nutritionists and 100 weekly deliveries of healthy ingredients. Additionally, it will seek to maintain 80 percent user satisfaction and establish strategic alliances with at least three local fresh produce suppliers, thus ensuring efficient and quality operations from the start.",
 
             // --- Admin Panel ---
             settings: "Settings", 
@@ -217,10 +230,10 @@ export const ConfigProvider = ({ children }) => {
             security: "Security",
             Users: "Users",
 
-            // -- Usuarios --
-            users: "Usuarios",
+            // -- Users --
+            users: "Users",
 
-            // -- Especiales --
+            // -- Specials --
             specials: "Specials",
         }
     };

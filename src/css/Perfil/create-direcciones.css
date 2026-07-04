@@ -1,0 +1,563 @@
+/* Overlay del modal */
+.add-dir-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+}
+
+/* Contenido del modal */
+.add-dir-modal-content {
+  background-color: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
+  animation: addDirModalFadeIn 0.3s ease;
+}
+
+@keyframes addDirModalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header del modal */
+.add-dir-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #fafbf8;
+  background-color: #fafbf8;
+  border-radius: 20px 20px 0 0;
+}
+
+.add-dir-modal-logo {
+  width: 50px;
+  height: 50px;
+  background: #e4ebdb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.add-dir-modal-logo svg {
+  font-size: 1.5rem;
+  color: #477224;
+}
+
+.add-dir-modal-header-info {
+  flex: 1;
+}
+
+.add-dir-modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.add-dir-modal-header-subtitle {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* Botón cerrar */
+.add-dir-modal-close {
+  background: #ffffff;
+  border: 1px solid #999;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #000000;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.add-dir-modal-close:hover {
+  background-color: #ffffff;
+  color: #000000;
+  transform: scale(1.05);
+}
+
+/* Body del modal */
+.add-dir-modal-body {
+  padding: 1.5rem;
+}
+
+/* ========== FORMULARIO ========== */
+.add-dir-form-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.add-dir-form-group {
+  flex: 1;
+}
+
+.add-dir-form-group.add-dir-flex-2 {
+  flex: 2;
+}
+
+.add-dir-form-group label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.75rem;
+  text-align: left;
+}
+
+.add-dir-form-group input,
+.add-dir-form-group select,
+.add-dir-form-group textarea {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  transition: border-color 0.3s;
+  background-color: white;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.add-dir-form-group input:focus,
+.add-dir-form-group select:focus,
+.add-dir-form-group textarea:focus {
+  outline: none;
+  border-color: #50831d;
+}
+
+.add-dir-form-group input.input-error,
+.add-dir-form-group select.input-error {
+  border-color: #dc3545;
+}
+
+.add-dir-form-group textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+/* Mensajes de error */
+.add-dir-error-message {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  color: #dc3545;
+  text-align: left;
+}
+
+/* Footer del modal */
+.add-dir-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Botón cancelar */
+.add-dir-btn-cancel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background-color: #ffffff;
+  color: black;
+  border: 1px solid #999;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.add-dir-btn-cancel:hover {
+  background-color: #e5e7eb;
+  border-color: #666;
+}
+
+/* Botón guardar */
+.add-dir-btn-save {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  background-color: #466f25;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.add-dir-btn-save:hover {
+  background-color: #3a6614;
+}
+
+.add-dir-btn-save:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ========== MENSAJE DE ÉXITO ========== */
+.add-dir-modal-success-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0 1.5rem 0.75rem 1.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 6px;
+  color: #155724;
+  font-size: 0.7rem;
+  font-weight: 500;
+  animation: fadeInDown 0.3s ease, fadeOutUp 0.3s ease 2.7s forwards;
+}
+
+.add-dir-modal-success-message .success-icon {
+  font-size: 0.75rem;
+  color: #28a745;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOutUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+    display: none;
+  }
+}
+
+/* ========== CARGANDO ========== */
+.add-dir-cargando {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.add-dir-cargando .spinner-icon {
+  animation: spin 1s linear infinite;
+  font-size: 0.9rem;
+  color: #50831d;
+}
+
+.add-dir-cargando span {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========== SUGERENCIAS DE COLONIA ========== */
+.add-dir-colonia-group {
+  position: relative;
+}
+
+.add-dir-colonia-container {
+  position: relative;
+  width: 100%;
+}
+
+.add-dir-sugerencias {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: 4px;
+}
+
+.add-dir-sugerencia-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.add-dir-sugerencia-item:last-child {
+  border-bottom: none;
+}
+
+.add-dir-sugerencia-item:hover {
+  background-color: #eef3e8;
+}
+
+.add-dir-sugerencia-item .sugerencia-icon {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.add-dir-sugerencia-item span {
+  font-size: 0.85rem;
+  color: #374151;
+}
+
+/* ========== MODO OSCURO ========== */
+.dark-mode .add-dir-modal-content {
+  background-color: #1f2937;
+}
+
+.dark-mode .add-dir-modal-header {
+  background-color: #111827;
+  border-bottom-color: #374151;
+}
+
+.dark-mode .add-dir-modal-header h3 {
+  color: #f3f4f6;
+}
+
+.dark-mode .add-dir-modal-header-subtitle {
+  color: #9ca3af;
+}
+
+.dark-mode .add-dir-modal-close {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #9ca3af;
+}
+
+.dark-mode .add-dir-modal-close:hover {
+  background-color: #4b5563;
+  color: #f3f4f6;
+}
+
+.dark-mode .add-dir-modal-logo {
+  background: linear-gradient(135deg, #D4AF37, #b8941f);
+}
+
+.dark-mode .add-dir-modal-logo svg {
+  color: #000;
+}
+
+.dark-mode .add-dir-form-group label {
+  color: #e5e7eb;
+}
+
+.dark-mode .add-dir-form-group input,
+.dark-mode .add-dir-form-group select,
+.dark-mode .add-dir-form-group textarea {
+  background-color: #1a1a1a;
+  border-color: #333;
+  color: #e2e8f0;
+}
+
+.dark-mode .add-dir-form-group input:focus,
+.dark-mode .add-dir-form-group select:focus,
+.dark-mode .add-dir-form-group textarea:focus {
+  border-color: #D4AF37;
+}
+
+.dark-mode .add-dir-btn-cancel {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #e5e7eb;
+}
+
+.dark-mode .add-dir-btn-cancel:hover {
+  background-color: #4b5563;
+  color: #ffffff;
+}
+
+.dark-mode .add-dir-btn-save {
+  background-color: #D4AF37;
+  color: #000;
+}
+
+.dark-mode .add-dir-btn-save:hover {
+  background-color: #b8941f;
+}
+
+.dark-mode .add-dir-modal-success-message {
+  background-color: #1e3a2c;
+  border-color: #2d5a3d;
+  color: #4ade80;
+}
+
+.dark-mode .add-dir-cargando {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+.dark-mode .add-dir-cargando span {
+  color: #9ca3af;
+}
+
+.dark-mode .add-dir-sugerencias {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+.dark-mode .add-dir-sugerencia-item {
+  border-bottom-color: #374151;
+}
+
+.dark-mode .add-dir-sugerencia-item:hover {
+  background-color: #2a2a2a;
+}
+
+.dark-mode .add-dir-sugerencia-item span {
+  color: #e2e8f0;
+}
+
+.dark-mode .add-dir-sugerencia-item .sugerencia-icon {
+  color: #9ca3af;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .add-dir-modal-overlay {
+    padding: 0.5rem;
+  }
+  
+  .add-dir-modal-content {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    border-radius: 16px;
+    max-height: 95vh;
+  }
+  
+  .add-dir-modal-header {
+    padding: 1rem;
+  }
+  
+  .add-dir-modal-logo {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .add-dir-modal-logo svg {
+    font-size: 1.2rem;
+  }
+  
+  .add-dir-modal-header h3 {
+    font-size: 1rem;
+  }
+  
+  .add-dir-modal-header-subtitle {
+    font-size: 0.65rem;
+  }
+  
+  .add-dir-modal-close {
+    width: 28px;
+    height: 28px;
+    font-size: 0.875rem;
+  }
+  
+  .add-dir-modal-body {
+    padding: 1rem;
+  }
+  
+  .add-dir-form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .add-dir-form-group.add-dir-flex-2 {
+    flex: 1;
+  }
+  
+  .add-dir-form-group input,
+  .add-dir-form-group select,
+  .add-dir-form-group textarea {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.7rem;
+  }
+  
+  .add-dir-modal-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .add-dir-btn-cancel,
+  .add-dir-btn-save {
+    width: 100%;
+  }
+  
+  .add-dir-sugerencias {
+    max-height: 150px;
+  }
+  
+  .add-dir-sugerencia-item {
+    padding: 0.5rem 0.7rem;
+  }
+  
+  .add-dir-sugerencia-item span {
+    font-size: 0.8rem;
+  }
+}

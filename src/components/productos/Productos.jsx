@@ -1,4 +1,3 @@
-// pages/Productos.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useConfig } from '../../context/config';
@@ -6,9 +5,11 @@ import { HiMiniUserCircle } from "react-icons/hi2";
 import { IoNotificationsCircle } from "react-icons/io5";
 import { FaShoppingCart } from "react-icons/fa";
 import '../../css/Productos/productos.css';
-import '../../css/Productos/carrito.css';
+import '../../css/Carrito/carrito.css';
 
-import logo from '../../img/DietLettuce.png';
+import logo from '../../img/Logo_balancea_titulo.png';
+import logo_blanco_texto from '../../img/Logo_balancea_blanco_titulo.png';
+import logo_hoja from '../../img/hoja.png';
 import quemadorIcon from '../../img/quemador.png';
 import proteinaIcon from '../../img/suplemento.png';
 import fibraIcon from '../../img/fibra.png';
@@ -20,14 +21,30 @@ import vitaminasIcon from '../../img/multivitamina.png';
 import suplementoGenericoIcon from '../../img/suplemento.png';
 import searchIcon from '../../img/search.png';
 
+import calidadIcon from '../../img/calidad.png';
+import envioIcon from '../../img/envio.png';
+import pagosIcon from '../../img/pago-seguro.png';
+import atencionIcon from '../../img/atencion.png';
+import ubicacionIcon from '../../img/ubicacion-menu.png';
+import telefonoIcon from '../../img/telefono-menu.png';
+import emailIcon from '../../img/email-menu.png';
+import dateIcon from '../../img/reloj.png';
+
+import categoriaIconoUnico from '../../img/hoja.png';
+
+import heroCalidadIcon from '../../img/calidad.png';
+import heroEnvioIcon from '../../img/envio.png';
+import heroPagosIcon from '../../img/pago-seguro.png';
+import heroSaludIcon from '../../img/salud.png'
+
 import ComprarProductoModal from './comprar-producto';
 import ModalDetalleProducto from './Detalle-Producto';
+import VoiceAssistant from '../../components/Voz/VoiceAssistant';
 
 const Productos = () => {
   const navigate = useNavigate();
   const { t, darkMode } = useConfig();
   
-  // ========== ESTADOS PARA PRODUCTOS ==========
   const [productos, setProductos] = useState([]);
   const [productosPopulares, setProductosPopulares] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,13 +59,15 @@ const Productos = () => {
   const [productoParaComprar, setProductoParaComprar] = useState(null);
   const [categorias, setCategorias] = useState([]);
   const [presentaciones, setPresentaciones] = useState([]);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [carritoCount, setCarritoCount] = useState(0);
+  const [animarCarrito, setAnimarCarrito] = useState(false);
+  
   const productosPerPage = 9;
+  const carritoKey = 'carrito_suplementos';
 
-  // Función para obtener icono según categoría de suplemento
   const obtenerIconoPorCategoria = (categoria) => {
-    // Normalizar: convertir a minúsculas y quitar espacios extras
     const cat = (categoria || '').toLowerCase().trim();
-    
     switch(cat) {
       case 'quemadores':
       case 'quemadores de grasa':
@@ -79,9 +98,7 @@ const Productos = () => {
     }
   };
 
-  // Función para obtener nombre legible de categoría
   const obtenerNombreCategoria = (categoriaId) => {
-    // Mapeo directo de IDs a nombres
     const categoriaMap = {
       'quemadores': 'Quemadores de Grasa',
       'proteinas': 'Proteínas',
@@ -95,9 +112,7 @@ const Productos = () => {
     return categoriaMap[categoriaId] || categoriaId;
   };
 
-  // Función para obtener nombre legible de presentación
   const obtenerNombrePresentacion = (presentacionId) => {
-    // Mapeo directo de IDs a nombres
     const presentacionMap = {
       'polvo': 'Polvo',
       'capsulas': 'Cápsulas',
@@ -109,19 +124,11 @@ const Productos = () => {
     return presentacionMap[presentacionId] || presentacionId;
   };
 
-  // ========== ESTADOS PARA CARRITO ==========
-  const [carritoCount, setCarritoCount] = useState(0);
-  const [animarCarrito, setAnimarCarrito] = useState(false);
-
-  // ========== FUNCIONES DEL CARRITO ==========
-  const carritoKey = 'carrito_suplementos';
-
   const getCarritoFromStorage = () => {
     try {
       const carritoStr = localStorage.getItem(carritoKey);
       return carritoStr ? JSON.parse(carritoStr) : [];
     } catch (error) {
-      console.error('Error al cargar carrito:', error);
       return [];
     }
   };
@@ -167,7 +174,6 @@ const Productos = () => {
     updateCarritoCount();
     setAnimarCarrito(true);
     setTimeout(() => setAnimarCarrito(false), 500);
-    
     return carrito;
   };
 
@@ -175,7 +181,6 @@ const Productos = () => {
     navigate('/carrito');
   };
 
-  // ========== FUNCIONES DE AUTENTICACIÓN ==========
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -184,7 +189,6 @@ const Productos = () => {
     window.location.reload();
   };
 
-  // ========== FUNCIONES PARA OBTENER SUPLEMENTOS ==========
   const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -198,13 +202,11 @@ const Productos = () => {
     };
   };
 
-  // Obtener categorías del backend
   const fetchCategorias = async () => {
     try {
       const response = await fetch('http://127.0.0.1:5000/suplementos/categorias', {
         headers: getAuthHeaders()
       });
-      
       if (response.ok) {
         const data = await response.json();
         setCategorias([
@@ -213,7 +215,6 @@ const Productos = () => {
         ]);
       }
     } catch (error) {
-      console.error('Error al obtener categorías:', error);
       setCategorias([
         { id: 'todos', nombre: 'Todas las categorías' },
         { id: 'quemadores', nombre: 'Quemadores de Grasa' },
@@ -228,13 +229,11 @@ const Productos = () => {
     }
   };
 
-  // Obtener presentaciones del backend
   const fetchPresentaciones = async () => {
     try {
       const response = await fetch('http://127.0.0.1:5000/suplementos/presentaciones', {
         headers: getAuthHeaders()
       });
-      
       if (response.ok) {
         const data = await response.json();
         setPresentaciones([
@@ -243,7 +242,6 @@ const Productos = () => {
         ]);
       }
     } catch (error) {
-      console.error('Error al obtener presentaciones:', error);
       setPresentaciones([
         { id: 'todas', nombre: 'Todas las presentaciones' },
         { id: 'polvo', nombre: 'Polvo' },
@@ -259,56 +257,39 @@ const Productos = () => {
   const fetchProductosYPopulares = async () => {
     try {
       setLoading(true);
-      
-      const productosResponse = await fetch('http://127.0.0.1:5000/suplementos/', {
+      const response = await fetch('http://127.0.0.1:5000/suplementos/', {
         headers: getAuthHeaders()
       });
       
-      let productosData = [];
-      
-      if (productosResponse.ok) {
-        productosData = await productosResponse.json();
-        const productosActivos = productosData.filter(producto => producto.activo);
-        
+      if (response.ok) {
+        const data = await response.json();
+        const productosActivos = data.filter(producto => producto.activo);
         const productosConIcono = productosActivos.map(producto => ({
           ...producto,
           icono: obtenerIconoPorCategoria(producto.categoria || 'quemadores')
         }));
-        
         setProductos(productosConIcono);
-        productosData = productosConIcono;
+        const populares = [...productosConIcono]
+          .sort((a, b) => (b.stock || 0) - (a.stock || 0))
+          .slice(0, 3);
+        setProductosPopulares(populares);
       }
-
-      const productosPopularesOrdenados = [...productosData]
-        .sort((a, b) => (b.stock || 0) - (a.stock || 0))
-        .slice(0, 3);
-      
-      setProductosPopulares(productosPopularesOrdenados);
-      
     } catch (error) {
       console.error('Error de conexión:', error);
-      if (productos.length > 0) {
-        setProductosPopulares(productos.slice(0, 3));
-      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Filtrar productos por búsqueda, categoría y presentación
   const filteredProductos = productos.filter(producto => {
     const matchesSearch = 
       (producto.nombre && producto.nombre.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (producto.descripcion && producto.descripcion.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (producto.beneficios && producto.beneficios.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+      (producto.descripcion && producto.descripcion.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCategoria = categoriaSeleccionada === 'todos' || producto.categoria === categoriaSeleccionada;
     const matchesPresentacion = presentacionSeleccionada === 'todas' || producto.presentacion === presentacionSeleccionada;
-    
     return matchesSearch && matchesCategoria && matchesPresentacion;
   });
 
-  // Paginación
   const indexOfLastProduct = currentPage * productosPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productosPerPage;
   const currentProductos = filteredProductos.slice(indexOfFirstProduct, indexOfLastProduct);
@@ -316,21 +297,67 @@ const Productos = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Resetear página cuando cambian los filtros
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, categoriaSeleccionada, presentacionSeleccionada]);
 
-  // ========== FUNCIONES DE INTERACCIÓN ==========
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 500);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const userIsAuthenticated = !!token;
-    setIsAuthenticated(userIsAuthenticated);
-    
+    setIsAuthenticated(!!token);
     fetchCategorias();
     fetchPresentaciones();
     fetchProductosYPopulares();
     updateCarritoCount();
+  }, []);
+
+  useEffect(() => {
+    const handleVoiceSearch = (event) => {
+      setSearchTerm(event.detail.term);
+    };
+    
+    const handleVoiceClear = () => {
+      setSearchTerm('');
+      setCategoriaSeleccionada('todos');
+      setPresentacionSeleccionada('todas');
+      setCurrentPage(1);
+    };
+    
+    const handleVoiceFilter = (event) => {
+      setCategoriaSeleccionada(event.detail.categoria);
+      setCurrentPage(1);
+    };
+    
+    const handleVoiceScroll = (event) => {
+      if (event.detail.section === 'populares') {
+        document.querySelector('.productos-populares-section')?.scrollIntoView({ behavior: 'smooth' });
+      } else if (event.detail.section === 'todos') {
+        document.querySelector('.todos-productos-section')?.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+    
+    window.addEventListener('voiceSearch', handleVoiceSearch);
+    window.addEventListener('voiceClear', handleVoiceClear);
+    window.addEventListener('voiceFilter', handleVoiceFilter);
+    window.addEventListener('voiceScroll', handleVoiceScroll);
+    
+    return () => {
+      window.removeEventListener('voiceSearch', handleVoiceSearch);
+      window.removeEventListener('voiceClear', handleVoiceClear);
+      window.removeEventListener('voiceFilter', handleVoiceFilter);
+      window.removeEventListener('voiceScroll', handleVoiceScroll);
+    };
   }, []);
 
   const handleProductClick = (producto) => {
@@ -362,7 +389,6 @@ const Productos = () => {
     }).format(price || 0);
   };
 
-  // Si está cargando
   if (loading) {
     return (
       <div className={`productos-container ${darkMode ? 'dark-mode' : ''}`}>
@@ -376,92 +402,83 @@ const Productos = () => {
 
   return (
     <div className={`productos-container ${darkMode ? 'dark-mode' : ''}`}>
-      {/* Header */}
-      <header className="productos-header">
-        <nav className="productos-nav">
-          <div className="productos-nav-brand">
-            <div className="productos-logo-container">
-              <img src={logo} alt="Diet Lettuce" className="productos-logo" />
-              <h2>
-                <span className="productos-crazy-swash">Diet</span> Lettuce
-              </h2>
+      <header className="home-header">
+        <nav className="home-nav">
+          <div className="home-nav-brand">
+            <div className="home-logo-container">
+              <img src={logo} alt="Balancea" className="home-logo" />
             </div>
           </div>
-          <ul className="productos-nav-menu">
-            <li><a href="/">{t('inicio')}</a></li>
-            <li><a href="#productos" className="active">{t('productos')}</a></li>
-            <li><a href="/nosotros">{t('nosotros')}</a></li>
-            <li><a href="/configuracion">{t('configuracion')}</a></li>
-            <li><a href="/login">{t('login')}</a></li>
-            
-            <li className="nav-carrito-icon">
-              <a 
-                href="/carrito" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleGoToCarrito();
-                }}
-                title="Carrito de Compras"
-                className="carrito-link"
-              >
-                <FaShoppingCart className={`carrito-icon ${animarCarrito ? 'animar-carrito' : ''}`} />
-                {carritoCount > 0 && (
-                  <span className="carrito-badge">
-                    {carritoCount > 99 ? '99+' : carritoCount}
-                  </span>
-                )}
-              </a>
-            </li>
-            
-            <li className="nav-profile-icon">
-              <a href="/perfil" title="Mi Perfil">
-                <HiMiniUserCircle className="profile-icon" />
-              </a>
-            </li>
-            <li className="nav-profile-icon">
-              <a href="/notificacionesUser" title="Notificaciones">
-                <IoNotificationsCircle className="profile-icon" />
-              </a>
-            </li>
-            {isAuthenticated && (
-              <li>
-                <button 
-                  onClick={handleLogout} 
-                  className="productos-logout-btn"
-                  title="Cerrar Sesión"
-                >
-                  Cerrar Sesión
-                </button>
-              </li>
-            )}
+          <ul className="home-nav-menu">
+            <li><a href="/">{t('inicio') || 'Inicio'}</a></li>
+            <li><a href="/productos" className="active">{t('productos') || 'Productos'}</a></li>
+            <li><a href="/nosotros">{t('nosotros') || 'Nosotros'}</a></li>
+            <li><a href="/dietas">{t('dietas') || 'Dietas'}</a></li>
+            <li><a href="/configuracion">{t('configuracion') || 'Configuración'}</a></li>
           </ul>
+          <div className="header-right">
+            <li className="nav-carrito-icon" style={{ listStyle: 'none' }}>
+              <a href="/carrito" onClick={(e) => { e.preventDefault(); handleGoToCarrito(); }} title="Carrito de Compras" className="carrito-link">
+                <FaShoppingCart className={`carrito-icon ${animarCarrito ? 'animar-carrito' : ''}`} />
+                {carritoCount > 0 && <span className="carrito-badge">{carritoCount > 99 ? '99+' : carritoCount}</span>}
+              </a>
+            </li>
+            <li className="nav-profile-icon" style={{ listStyle: 'none' }}>
+              <a href="/perfil" title="Mi Perfil"><HiMiniUserCircle className="profile-icon" /></a>
+            </li>
+            <li className="nav-profile-icon" style={{ listStyle: 'none' }}>
+              <a href="/notificacionesUser" title="Notificaciones"><IoNotificationsCircle className="profile-icon" /></a>
+            </li>
+            {!isAuthenticated && <a href="/login" className="home-login-btn">Login</a>}
+            {isAuthenticated && <button onClick={handleLogout} className="home-logout-btn" title="Cerrar Sesión">Cerrar Sesión</button>}
+          </div>
         </nav>
       </header>
 
-      {/* Hero Section */}
       <section className="productos-hero">
-        <div className="productos-container-main">
-          <h1 className="productos-title">
-            Suplementos para tu <span className="productos-crazy-swash-hero">Salud y Bienestar</span>
-          </h1>
-          <p className="productos-subtitle">
-            Descubre nuestra selección de suplementos naturales para apoyar tu pérdida de peso y mejorar tu salud
-          </p>
+        <div className="hero-container">
+          <div className="hero-left">
+            <h1 className="productos-title">
+              Suplementos para tu <br />
+              <span className="productos-crazy-swash-hero">Salud y Bienestar</span>
+            </h1>
+            <p className="productos-subtitle">
+              Descubre nuestra selección de suplementos naturales para apoyar tu pérdida de peso y mejorar tu salud
+            </p>
+          </div>
+          <div className="hero-right">
+            <div className="logos-container">
+              <div className="logo-item">
+                <div className="logo-circle"><img src={logo_hoja} alt="Naturales" className="hero-logo-img" /></div>
+                <p className="logo-text">Ingredientes Naturales</p>
+              </div>
+              <div className="logo-item">
+                <div className="logo-circle"><img src={heroCalidadIcon} alt="Calidad" className="hero-logo-img" /></div>
+                <p className="logo-text">Calidad Garantizada</p>
+              </div>
+              <div className="logo-item">
+                <div className="logo-circle"><img src={heroSaludIcon} alt="Bienestar" className="hero-logo-img" /></div>
+                <p className="logo-text">Bienestar Integral</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Productos Populares */}
       {productosPopulares.length > 0 && (
         <section className="productos-populares-section">
           <div className="productos-container-main">
-            <h2 className="section-title">Los Más Populares</h2>
+            <div className="popular-section-header">
+              <img src={logo_hoja} alt="Popular" className="popular-logo" />
+            </div>
+            <div className="popular-title-container">
+              <h2 className="section-title">Los Más Populares</h2>
+            </div>
+            <p className="popular-description">Nuestros suplementos más vendidos y los más valorados</p>
+            
             <div className="productos-populares-grid">
               {productosPopulares.map((producto) => (
-                <div 
-                  key={producto.id} 
-                  className="producto-popular-card"
-                  onClick={() => handleProductClick(producto)}
-                >
+                <div key={producto.id} className="producto-popular-card" onClick={() => handleProductClick(producto)}>
                   <div className="producto-popular-image">
                     <img src={producto.icono || suplementoGenericoIcon} alt={producto.nombre} />
                   </div>
@@ -469,15 +486,15 @@ const Productos = () => {
                     <h3>{producto.nombre}</h3>
                     {producto.descripcion && producto.descripcion.trim() !== '' && (
                       <p className="producto-popular-desc">
-                        {producto.descripcion.length > 80 
-                          ? `${producto.descripcion.substring(0, 80)}...` 
-                          : producto.descripcion
-                        }
+                        {producto.descripcion.length > 80 ? `${producto.descripcion.substring(0, 80)}...` : producto.descripcion}
                       </p>
                     )}
-                    <button className="ver-producto-btn">
-                      Ver Detalles
-                    </button>
+                    <div className="producto-popular-precio">{formatPrice(producto.precio)}</div>
+                    <div className="producto-popular-categoria">
+                      <img src={categoriaIconoUnico} alt="categoría" className="categoria-icon" />
+                      {obtenerNombreCategoria(producto.categoria)}
+                    </div>
+                    <button className="ver-producto-btn">Ver Detalles</button>
                   </div>
                 </div>
               ))}
@@ -486,234 +503,160 @@ const Productos = () => {
         </section>
       )}
 
-      {/* Buscador y Filtros */}
       <section className="todos-productos-section">
         <div className="productos-container-main">
           <div className="productos-header-actions">
-            <h2 className="section-title">Todos los Suplementos</h2>
+            <div className="todos-title-container">
+              <h2 className="section-title">Todos los Suplementos</h2>
+            </div>
             
             <div className="filtros-container">
-              {/* Buscador */}
               <div className="productos-search-container">
                 <div className="search-input-wrapper">
                   <img src={searchIcon} alt="Buscar" className="search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Buscar suplementos..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="productos-search-input"
+                  <input 
+                    type="text" 
+                    placeholder="Buscar suplementos..." 
+                    value={searchTerm} 
+                    onChange={(e) => setSearchTerm(e.target.value)} 
+                    className="productos-search-input" 
                   />
-                  {searchTerm && (
-                    <button 
-                      className="clear-search"
-                      onClick={() => setSearchTerm('')}
-                    >
-                      ×
-                    </button>
-                  )}
+                  {searchTerm && <button className="clear-search" onClick={() => setSearchTerm('')}>×</button>}
                 </div>
               </div>
-
-              {/* Select de Categorías */}
               <div className="categoria-select-container">
-                <select
-                  value={categoriaSeleccionada}
-                  onChange={(e) => setCategoriaSeleccionada(e.target.value)}
-                  className="categoria-select"
-                >
-                  {categorias.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.nombre}
-                    </option>
-                  ))}
+                <select value={categoriaSeleccionada} onChange={(e) => setCategoriaSeleccionada(e.target.value)} className="categoria-select">
+                  {categorias.map((cat) => <option key={cat.id} value={cat.id}>{cat.nombre}</option>)}
                 </select>
               </div>
-
-              {/* Select de Presentaciones */}
               <div className="presentacion-select-container">
-                <select
-                  value={presentacionSeleccionada}
-                  onChange={(e) => setPresentacionSeleccionada(e.target.value)}
-                  className="presentacion-select"
-                >
-                  {presentaciones.map((pre) => (
-                    <option key={pre.id} value={pre.id}>
-                      {pre.nombre}
-                    </option>
-                  ))}
+                <select value={presentacionSeleccionada} onChange={(e) => setPresentacionSeleccionada(e.target.value)} className="presentacion-select">
+                  {presentaciones.map((pre) => <option key={pre.id} value={pre.id}>{pre.nombre}</option>)}
                 </select>
               </div>
             </div>
           </div>
 
-          {/* Grid de Productos */}
           {currentProductos.length > 0 ? (
             <>
               <div className="productos-grid">
                 {currentProductos.map((producto) => (
-                  <div 
-                    key={producto.id} 
-                    className="producto-card"
-                    onClick={() => handleProductClick(producto)}
-                  >
-                    <div className="producto-image">
-                      <img src={producto.icono || suplementoGenericoIcon} alt={producto.nombre} />
-                    </div>
+                  <div key={producto.id} className="producto-card" onClick={() => handleProductClick(producto)}>
+                    <div className="producto-image"><img src={producto.icono || suplementoGenericoIcon} alt={producto.nombre} /></div>
                     <div className="producto-content">
                       <h3>{producto.nombre}</h3>
-                      {producto.descripcion && (
-                        <p className="producto-desc">
-                          {producto.descripcion.length > 80 
-                            ? `${producto.descripcion.substring(0, 80)}...` 
-                            : producto.descripcion
-                          }
-                        </p>
-                      )}
+                      {producto.descripcion && <p className="producto-desc">{producto.descripcion.length > 80 ? `${producto.descripcion.substring(0, 80)}...` : producto.descripcion}</p>}
                       <div className="producto-metadata">
-                        <span className="producto-categoria">
-                          {obtenerNombreCategoria(producto.categoria)}
-                        </span>
-                        <span className="producto-presentacion">
-                          {obtenerNombrePresentacion(producto.presentacion)}
-                        </span>
+                        <span className="producto-categoria">{obtenerNombreCategoria(producto.categoria)}</span>
+                        <span className="producto-presentacion">{obtenerNombrePresentacion(producto.presentacion)}</span>
                       </div>
-                      {producto.beneficios && (
-                        <div className="producto-beneficios">
-                          <strong>Beneficios:</strong> {producto.beneficios.substring(0, 60)}...
-                        </div>
-                      )}
+                      {producto.beneficios && <div className="producto-beneficios"><strong>Beneficios:</strong> {producto.beneficios.substring(0, 60)}...</div>}
                       <div className="producto-footer">
-                        <div className="producto-price">
-                          {formatPrice(producto.precio)}
-                        </div>
-                        <button className="producto-btn">
-                          Ver Detalles
-                        </button>
+                        <div className="producto-price">{formatPrice(producto.precio)}</div>
+                        <button className="producto-btn">Ver Detalles</button>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Paginación */}
               {filteredProductos.length > productosPerPage && (
                 <div className="pagination-container">
                   <div className="pagination-controls">
-                    <button 
-                      onClick={() => paginate(currentPage - 1)} 
-                      disabled={currentPage === 1}
-                      className="pagination-btn prev-btn"
-                    >
-                      Anterior
-                    </button>
+                    <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} className="pagination-btn pagination-prev">◀ Anterior</button>
                     
                     <div className="pagination-numbers">
-                      {Array.from({ length: totalPages }, (_, i) => i + 1)
-                        .filter(number => 
-                          number === 1 || 
-                          number === totalPages || 
-                          (number >= currentPage - 1 && number <= currentPage + 1)
-                        )
-                        .map((number, index, array) => {
-                          const showEllipsis = index > 0 && number - array[index - 1] > 1;
-                          return (
-                            <React.Fragment key={number}>
-                              {showEllipsis && <span className="pagination-ellipsis">...</span>}
-                              <button
-                                onClick={() => paginate(number)}
-                                className={`pagination-btn ${currentPage === number ? 'active' : ''}`}
-                              >
-                                {number}
-                              </button>
-                            </React.Fragment>
-                          );
-                        })}
+                      {(() => {
+                        const pages = [];
+                        const maxVisible = 5;
+                        const halfVisible = Math.floor(maxVisible / 2);
+                        let startPage = Math.max(1, currentPage - halfVisible);
+                        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+                        
+                        if (endPage - startPage + 1 < maxVisible) {
+                          startPage = Math.max(1, endPage - maxVisible + 1);
+                        }
+                        
+                        if (startPage > 1) {
+                          pages.push(<button key={1} onClick={() => paginate(1)} className="pagination-btn">1</button>);
+                          if (startPage > 2) pages.push(<span key="start-ellipsis" className="pagination-ellipsis">...</span>);
+                        }
+                        
+                        for (let i = startPage; i <= endPage; i++) {
+                          pages.push(<button key={i} onClick={() => paginate(i)} className={`pagination-btn ${currentPage === i ? 'active' : ''}`}>{i}</button>);
+                        }
+                        
+                        if (endPage < totalPages) {
+                          if (endPage < totalPages - 1) pages.push(<span key="end-ellipsis" className="pagination-ellipsis">...</span>);
+                          pages.push(<button key={totalPages} onClick={() => paginate(totalPages)} className="pagination-btn">{totalPages}</button>);
+                        }
+                        
+                        return pages;
+                      })()}
                     </div>
                     
-                    <button 
-                      onClick={() => paginate(currentPage + 1)} 
-                      disabled={currentPage === totalPages}
-                      className="pagination-btn next-btn"
-                    >
-                      Siguiente
-                    </button>
+                    <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} className="pagination-btn pagination-next">Siguiente ▶</button>
                   </div>
-
-                  <div className="productos-count-info">
-                    Mostrando {currentProductos.length} de {filteredProductos.length} suplementos
-                  </div>
+                  <div className="productos-count-info">Mostrando {currentProductos.length} de {filteredProductos.length} suplementos</div>
                 </div>
               )}
             </>
           ) : (
-            <div className="no-products">
-              <p>No se encontraron suplementos con esos criterios de búsqueda.</p>
-            </div>
+            <div className="no-products"><p>No se encontraron suplementos con esos criterios de búsqueda.</p></div>
           )}
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="productos-footer">
-        <div className="productos-container-main">
-          <div className="productos-footer-content">
-            <div className="productos-footer-section">
-              <div className="productos-footer-logo-container">
-                <img src={logo} alt="Diet Lettuce" className="productos-footer-logo" />
-                <h3>
-                  <span className="productos-crazy-swash">Diet</span> Lettuce
-                </h3>
-              </div>
-              <p>Suplementos naturales para tu salud y bienestar</p>
+      <footer className="home-footer">
+        <div className="home-container">
+          <div className="home-footer-content">
+            <div className="home-footer-section footer-section-left">
+              <div className="home-footer-logo-container"><img src={logo_blanco_texto} alt="Balancea" className="home-footer-logo" /></div>
+              <p className="footer-description">EQUILIBRA TU VIDA</p>
+              <p className="footer-subdescription">Tu decisión crea el equilibrio.</p>
             </div>
-            <div className="productos-footer-section">
-              <h4>Categorías</h4>
-              <ul>
-                <li><a href="#quemadores">Quemadores de Grasa</a></li>
-                <li><a href="#proteinas">Proteínas</a></li>
-                <li><a href="#fibras">Fibras y Digestivos</a></li>
-                <li><a href="#detox">Detox y Limpieza</a></li>
-                <li><a href="#termogenicos">Termogénicos</a></li>
-                <li><a href="#vitaminas">Vitaminas</a></li>
+            <div className="home-footer-section footer-section-center">
+              <h4>Productos</h4>
+              <ul className="footer-list">
+                <li><img src={logo_hoja} alt="Icono" className="footer-list-icon" /><a href="/productos">Proteínas</a></li>
+                <li><img src={logo_hoja} alt="Icono" className="footer-list-icon" /><a href="/productos">Quemadores de Grasa</a></li>
+                <li><img src={logo_hoja} alt="Icono" className="footer-list-icon" /><a href="/productos">Vitaminas</a></li>
+                <li><img src={logo_hoja} alt="Icono" className="footer-list-icon" /><a href="/productos">Control de Apetito</a></li>
+                <li><img src={logo_hoja} alt="Icono" className="footer-list-icon" /><a href="/productos">Energéticos Naturales</a></li>
               </ul>
+              <button className="footer-shop-btn" onClick={() => window.location.href = '/productos'}>Ver todos los productos</button>
             </div>
-            <div className="productos-footer-section">
+            <div className="home-footer-section footer-section-right">
               <h4>Contacto</h4>
-              <ul>
-                <li>México, CDMX</li>
-                <li>+52 55 1234 5678</li>
-                <li>info@dietlettuce.com</li>
+              <ul className="footer-list">
+                <li><img src={ubicacionIcon} alt="Ubicación" className="footer-list-icon" /><span>Dirección</span></li>
+                <li><img src={telefonoIcon} alt="Teléfono" className="footer-list-icon" /><span>Teléfono</span></li>
+                <li><img src={emailIcon} alt="Email" className="footer-list-icon" /><span>Email</span></li>
+                <li><img src={dateIcon} alt="Horario" className="footer-list-icon" /><span>Horario: Lun-Vie 9am-6pm</span></li>
               </ul>
             </div>
           </div>
-          <div className="productos-footer-bottom">
-            <p>&copy; 2024 Diet Lettuce. Todos los derechos reservados.</p>
+          <div className="footer-divider"></div>
+          <div className="footer-guarantees">
+            <div className="guarantee-item"><img src={calidadIcon} alt="Calidad Garantizada" className="guarantee-icon" /><span>Calidad Garantizada</span></div>
+            <div className="guarantee-item"><img src={envioIcon} alt="Envío Rápido" className="guarantee-icon" /><span>Envío Rápido</span></div>
+            <div className="guarantee-item"><img src={pagosIcon} alt="Pagos Seguros" className="guarantee-icon" /><span>Pagos Seguros</span></div>
+            <div className="guarantee-item"><img src={atencionIcon} alt="Atención al Cliente" className="guarantee-icon" /><span>Atención al Cliente</span></div>
+            <div className="guarantee-last-divider"></div>
+            <div className="home-footer-bottom"><p>© 2024 Balancea - Todos los derechos reservados</p></div>
           </div>
         </div>
       </footer>
 
-      {/* Modal de Detalle de Producto - Componente Separado */}
-      <ModalDetalleProducto
-        show={showProductModal}
-        onClose={closeProductModal}
-        producto={selectedProduct}
-        onAddToCart={handleAddToCart}
-        onBuyNow={handleBuyNow}
-        darkMode={darkMode}
-      />
+      <VoiceAssistant page="productos" />
 
-      {/* Modal para Comprar Producto */}
+      <ModalDetalleProducto show={showProductModal} onClose={closeProductModal} producto={selectedProduct} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} darkMode={darkMode} />
+      
       {showComprarModal && productoParaComprar && (
-        <ComprarProductoModal 
-          producto={productoParaComprar}
-          onClose={() => setShowComprarModal(false)}
-          onOrderCreated={(orden) => {
-            console.log('Pedido creado:', orden);
-            fetchProductosYPopulares();
-          }}
-        />
+        <ComprarProductoModal producto={productoParaComprar} onClose={() => setShowComprarModal(false)} onOrderCreated={() => fetchProductosYPopulares()} />
       )}
+
+      {showScrollTop && <button className="scroll-top-btn" onClick={scrollToTop} aria-label="Volver arriba">↑</button>}
     </div>
   );
 };

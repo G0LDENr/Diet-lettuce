@@ -1,232 +1,225 @@
-import React from 'react';
-import defaultCardIcon from '../../img/tarjeta.png';
-import addCardIcon from '../../img/mas.png';
-import deleteCardIcon from '../../img/delete.png';
-import defaultIcon from '../../img/estrella.png';
+import React, { useState, useEffect } from 'react';
+import { FaCreditCard, FaSearch, FaEdit, FaTrash, FaPlus, FaCheckCircle, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { VscStarFull } from "react-icons/vsc";
+import '../../css/Perfil/gestionar-tarjetas.css';
 
-// Componente de tarjeta individual mejorado
-const TarjetaItem = ({ tarjeta, onDelete, onSetPredeterminada, tarjetasCount }) => {
-  
-  // Determinar el tipo de tarjeta por el número
+const ModalGestionarTarjetas = ({ isOpen, onClose, tarjetas, onDelete, onSetPredeterminada, onAdd, onEdit, userData }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(3);
+  const [filteredTarjetas, setFilteredTarjetas] = useState([]);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [showCardNumber, setShowCardNumber] = useState({});
+
+  useEffect(() => {
+    if (tarjetas) {
+      const filtered = tarjetas.filter(tarjeta => 
+        tarjeta.nombre_titular?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        tarjeta.numero_enmascarado?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredTarjetas(filtered);
+      setCurrentPage(1);
+    }
+  }, [tarjetas, searchTerm]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentTarjetas = filteredTarjetas.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredTarjetas.length / itemsPerPage);
+  const startItem = filteredTarjetas.length === 0 ? 0 : indexOfFirstItem + 1;
+  const endItem = Math.min(indexOfLastItem, filteredTarjetas.length);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const handleDelete = (id, nombre) => {
+    if (window.confirm(`¿Estás seguro de que deseas eliminar la tarjeta "${nombre || 'seleccionada'}"?`)) {
+      onDelete(id);
+      setSuccessMessage('Tarjeta eliminada correctamente');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    }
+  };
+
+  const handleSetPredeterminada = (id) => {
+    onSetPredeterminada(id);
+    setSuccessMessage('Tarjeta predeterminada actualizada');
+    setTimeout(() => setSuccessMessage(''), 3000);
+  };
+
+  const toggleShowNumber = (id) => {
+    setShowCardNumber(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   const detectarTipoTarjeta = (numeroEnmascarado) => {
-    // El número enmascarado viene como "**** **** **** 1234"
-    const ultimosDigitos = numeroEnmascarado.split(' ').pop() || '';
-    
-    // Detectar por los primeros dígitos (simulado)
+    const ultimosDigitos = numeroEnmascarado?.split(' ').pop() || '';
     if (ultimosDigitos.startsWith('4')) return 'Visa';
     if (ultimosDigitos.startsWith('5')) return 'Mastercard';
     if (ultimosDigitos.startsWith('3')) return 'American Express';
     return 'Tarjeta';
   };
 
-  // Obtener color de fondo según el tipo
-  const getTipoColor = (tipo) => {
-    switch(tipo) {
-      case 'Visa': return '#e8f5e9'; // Verde muy claro
-      case 'Mastercard': return '#c8e6c9'; // Verde claro
-      case 'American Express': return '#a5d6a7'; // Verde medio claro
-      default: return '#f5f5f5'; // Gris muy claro
-    }
-  };
+  if (!isOpen) return null;
 
-  // Obtener texto de tipo
-  const tipo = tarjeta.tipo_tarjeta === 'visa' ? 'Visa' :
-               tarjeta.tipo_tarjeta === 'mastercard' ? 'Mastercard' :
-               tarjeta.tipo_tarjeta === 'amex' ? 'American Express' : 
-               detectarTipoTarjeta(tarjeta.numero_enmascarado);
-
-  // Formatear número para mostrar
-  const formatoNumero = tarjeta.numero_enmascarado || "**** **** **** 1234";
-  
   return (
-    <div 
-      className="tarjeta-item" 
-      style={{ 
-        backgroundColor: getTipoColor(tipo),
-        borderLeft: tarjeta.predeterminada ? '4px solid #2d6a4f' : '1px solid #96bd44'
-      }}
-    >
-      <div className="tarjeta-item-header">
-        <div className="tarjeta-tipo-container">
-          <span className="tarjeta-tipo-badge" style={{
-            backgroundColor: '#2d6a4f',
-            color: 'white',
-            padding: '4px 12px',
-            borderRadius: '20px',
-            fontSize: '0.8rem',
-            fontWeight: 'bold'
-          }}>
-            {tipo}
-          </span>
-          {tarjeta.predeterminada && (
-            <span className="tarjeta-predeterminada-badge" style={{
-              backgroundColor: '#96bd44',
-              color: 'white',
-              padding: '4px 12px',
-              borderRadius: '20px',
-              fontSize: '0.75rem',
-              marginLeft: '10px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}>
-              <img src={defaultIcon} alt="Predeterminada" style={{ width: '12px', height: '12px', filter: 'brightness(0) invert(1)' }} />
-              Principal
-            </span>
-          )}
-        </div>
-        
-        <div className="tarjeta-actions">
-          {!tarjeta.predeterminada && (
-            <button 
-              className="tarjeta-default-btn"
-              onClick={() => onSetPredeterminada(tarjeta.id)}
-              title="Establecer como principal"
-              style={{
-                backgroundColor: 'white',
-                border: '1px solid #96bd44',
-                color: '#2d6a4f',
-                width: '36px',
-                height: '36px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <img src={defaultIcon} alt="Predeterminar" style={{ width: '18px', height: '18px' }} />
-            </button>
-          )}
-          <button 
-            className="tarjeta-delete-btn"
-            onClick={() => onDelete(tarjeta.id)}
-            title="Eliminar tarjeta"
-            disabled={tarjeta.predeterminada && tarjetasCount > 1}
-            style={{
-              backgroundColor: 'white',
-              border: '1px solid #e53e3e',
-              color: '#e53e3e',
-              width: '36px',
-              height: '36px',
-              borderRadius: '8px',
-              cursor: tarjeta.predeterminada && tarjetasCount > 1 ? 'not-allowed' : 'pointer',
-              opacity: tarjeta.predeterminada && tarjetasCount > 1 ? 0.5 : 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <img src={deleteCardIcon} alt="Eliminar" style={{ width: '18px', height: '18px' }} />
-          </button>
-        </div>
-      </div>
-
-      <div className="tarjeta-info" style={{ marginTop: '15px' }}>
-        <p style={{ 
-          fontFamily: 'Courier New, monospace', 
-          fontSize: '1.3rem', 
-          fontWeight: 'bold',
-          color: '#2d6a4f',
-          letterSpacing: '2px',
-          margin: '5px 0'
-        }}>
-          {formatoNumero}
-        </p>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <p style={{ fontWeight: '600', color: '#1f2937', margin: '5px 0' }}>
-            {tarjeta.nombre_titular}
-          </p>
-          <p style={{ color: '#6b7280', fontSize: '0.9rem', margin: '5px 0' }}>
-            Exp: {tarjeta.mes_expiracion}/{tarjeta.anio_expiracion}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Componente principal de lista de tarjetas
-const TarjetasList = ({ tarjetas, loading, isAuthenticated, onDelete, onSetPredeterminada, onAgregar, userData }) => {
-  return (
-    <div className="perfil-security-section" style={{ backgroundColor: 'white', border: '1px solid #e0e0e0' }}>
-      <div className="perfil-section-header">
-        <h3 style={{ color: '#2d6a4f' }}>Mis Tarjetas</h3>
-        <div className="perfil-header-buttons">
-          {isAuthenticated && (
-            <button 
-              className="perfil-add-orden-btn"
-              onClick={onAgregar}
-              style={{
-                backgroundColor: '#96bd44',
-                color: 'white',
-                border: 'none',
-                padding: '10px 20px',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                fontWeight: '500'
-              }}
-            >
-              <img src={addCardIcon} alt="Agregar" style={{ width: '16px', height: '16px', filter: 'brightness(0) invert(1)' }} />
-              Agregar Tarjeta
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="perfil-security-content">
-        {loading ? (
-          <div className="perfil-loading-spinner" style={{ borderTopColor: '#96bd44' }}></div>
-        ) : tarjetas.length === 0 ? (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '40px 20px',
-            backgroundColor: '#f9f9f9',
-            borderRadius: '8px',
-            border: '1px dashed #96bd44'
-          }}>
-            <img src={defaultCardIcon} alt="No hay tarjetas" style={{ width: '60px', height: '60px', opacity: 0.5, marginBottom: '15px' }} />
-            <p style={{ color: '#6b7280', marginBottom: '10px' }}>
-              {isAuthenticated 
-                ? "No tienes tarjetas registradas aún."
-                : "Inicia sesión para ver tus tarjetas."}
-            </p>
-            {isAuthenticated && (
-              <button 
-                onClick={onAgregar}
-                style={{
-                  backgroundColor: '#96bd44',
-                  color: 'white',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  marginTop: '10px'
-                }}
-              >
-                + Agregar primera tarjeta
-              </button>
-            )}
+    <div className="tarjeta-modal-overlay" onClick={onClose}>
+      <div className="tarjeta-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="tarjeta-modal-header">
+          <div className="tarjeta-modal-logo">
+            <FaCreditCard />
           </div>
-        ) : (
-          <div className="tarjetas-list" style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            {tarjetas.map((tarjeta) => (
-              <TarjetaItem 
-                key={tarjeta.id} 
-                tarjeta={tarjeta} 
-                onDelete={onDelete}
-                onSetPredeterminada={onSetPredeterminada}
-                tarjetasCount={tarjetas.length}
-              />
-            ))}
+          <div className="tarjeta-modal-header-info">
+            <h3>Gestionar Tarjetas</h3>
+            <div className="tarjeta-modal-header-subtitle">Administra tus métodos de pago</div>
+          </div>
+          <button className="tarjeta-modal-close" onClick={onClose}>✕</button>
+        </div>
+
+        {successMessage && (
+          <div className="tarjeta-modal-success-message">
+            <FaCheckCircle className="success-icon" />
+            <span>{successMessage}</span>
           </div>
         )}
+
+        <div className="tarjeta-modal-body">
+          <div className="tarjeta-search-container">
+            <div className="tarjeta-search-wrapper">
+              <FaSearch className="tarjeta-search-icon" />
+              <input
+                type="text"
+                className="tarjeta-search-input"
+                placeholder="Buscar por titular o número de tarjeta..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="tarjeta-lista-container">
+            {currentTarjetas.length === 0 ? (
+              <div className="tarjeta-empty-state">
+                <p>No hay tarjetas registradas</p>
+                <button className="tarjeta-add-btn" onClick={onAdd}>
+                  <FaPlus /> Agregar tarjeta
+                </button>
+              </div>
+            ) : (
+              <>
+                {currentTarjetas.map((tarjeta) => {
+                  const tipo = tarjeta.tipo_tarjeta === 'visa' ? 'Visa' :
+                              tarjeta.tipo_tarjeta === 'mastercard' ? 'Mastercard' :
+                              tarjeta.tipo_tarjeta === 'amex' ? 'American Express' : 
+                              detectarTipoTarjeta(tarjeta.numero_enmascarado);
+                  
+                  return (
+                    <div key={tarjeta.id} className={`tarjeta-card ${tarjeta.predeterminada ? 'predeterminada' : ''}`}>
+                      <div className="tarjeta-card-header">
+                        <div className="tarjeta-card-tipo">
+                          <FaCreditCard />
+                          <span>{tipo}</span>
+                          {tarjeta.predeterminada && (
+                            <span className="tarjeta-badge">Predeterminada</span>
+                          )}
+                        </div>
+                        <div className="tarjeta-card-actions">
+                          <button 
+                            className="tarjeta-edit-btn"
+                            onClick={() => onEdit(tarjeta)}
+                            title="Editar tarjeta"
+                          >
+                            <FaEdit />
+                          </button>
+                          <button 
+                            className="tarjeta-delete-btn"
+                            onClick={() => handleDelete(tarjeta.id, tarjeta.nombre_titular)}
+                            title="Eliminar tarjeta"
+                            disabled={tarjeta.predeterminada && filteredTarjetas.length > 1}
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="tarjeta-card-body">
+                        <div className="tarjeta-numero">
+                          {showCardNumber[tarjeta.id] ? (
+                            <span>{tarjeta.numero_enmascarado || "**** **** **** ****"}</span>
+                          ) : (
+                            <span>•••• •••• •••• {tarjeta.ultimos_digitos || "****"}</span>
+                          )}
+                          <button 
+                            className="tarjeta-eye-btn"
+                            onClick={() => toggleShowNumber(tarjeta.id)}
+                          >
+                            {showCardNumber[tarjeta.id] ? <FaEyeSlash /> : <FaEye />}
+                          </button>
+                        </div>
+                        <div className="tarjeta-info-row">
+                          <span className="tarjeta-titular">{tarjeta.nombre_titular}</span>
+                          <span className="tarjeta-fecha">Exp: {tarjeta.mes_expiracion}/{tarjeta.anio_expiracion}</span>
+                        </div>
+                      </div>
+                      {!tarjeta.predeterminada && (
+                        <div className="tarjeta-card-footer">
+                          <button 
+                            className="tarjeta-set-default-btn"
+                            onClick={() => handleSetPredeterminada(tarjeta.id)}
+                          >
+                            <VscStarFull /> Establecer como predeterminada
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            )}
+          </div>
+
+          {filteredTarjetas.length > 0 && (
+            <div className="tarjeta-pagination-container">
+              <div className="tarjeta-results-count">
+                Mostrando {startItem} - {endItem} de {filteredTarjetas.length} tarjetas
+              </div>
+              {totalPages > 1 && (
+                <div className="tarjeta-pagination">
+                  <button
+                    className="tarjeta-page-btn"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    &laquo;
+                  </button>
+                  {[...Array(totalPages)].map((_, index) => (
+                    <button
+                      key={index}
+                      className={`tarjeta-page-btn ${currentPage === index + 1 ? 'active' : ''}`}
+                      onClick={() => handlePageChange(index + 1)}
+                    >
+                      {index + 1}
+                    </button>
+                  ))}
+                  <button
+                    className="tarjeta-page-btn"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    &raquo;
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="tarjeta-add-footer">
+            <button className="tarjeta-add-new-btn" onClick={onAdd}>
+              <FaPlus /> Agregar nueva tarjeta
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default TarjetasList;
+export default ModalGestionarTarjetas;

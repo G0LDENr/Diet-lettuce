@@ -1485,6 +1485,239 @@
   white-space: nowrap;
 }
 
+/* Boton de exportar */
+.ordenes-export-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1rem;
+  background-color: #96bd44;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.ordenes-export-btn:hover {
+  background-color: #193d1b;
+}
+
+/* Modal de exportacion */
+.ordenes-export-modal {
+  width: 90%;
+  max-width: 900px;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.ordenes-export-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+}
+
+.dark-mode .ordenes-export-filtros {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.ordenes-export-filtro-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ordenes-export-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #666;
+}
+
+.dark-mode .ordenes-export-label {
+  color: #aaa;
+}
+
+.ordenes-export-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: white;
+}
+
+.dark-mode .ordenes-export-input {
+  background: #2a2a2a;
+  border-color: #444;
+  color: white;
+}
+
+.ordenes-export-buttons-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.ordenes-export-preview-btn,
+.ordenes-export-limpiar-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.ordenes-export-preview-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.ordenes-export-preview-btn:hover {
+  background-color: #45a049;
+}
+
+.ordenes-export-preview-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.ordenes-export-limpiar-btn {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.dark-mode .ordenes-export-limpiar-btn {
+  background-color: #3a3a3a;
+  color: white;
+}
+
+.ordenes-export-limpiar-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.dark-mode .ordenes-export-limpiar-btn:hover {
+  background-color: #4a4a4a;
+}
+
+/* Vista previa de exportacion */
+.ordenes-export-preview {
+  margin-top: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dark-mode .ordenes-export-preview {
+  border-color: #444;
+}
+
+.ordenes-export-preview-header {
+  padding: 0.75rem 1rem;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+
+.dark-mode .ordenes-export-preview-header {
+  background-color: #2a2a2a;
+  border-bottom-color: #444;
+}
+
+.ordenes-export-preview-titulo {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.ordenes-export-preview-table-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.ordenes-export-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.ordenes-export-preview-table th,
+.ordenes-export-preview-table td {
+  padding: 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.dark-mode .ordenes-export-preview-table th,
+.dark-mode .ordenes-export-preview-table td {
+  border-bottom-color: #333;
+}
+
+.ordenes-export-preview-table th {
+  background-color: #f9f9f9;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
+.dark-mode .ordenes-export-preview-table th {
+  background-color: #1e1e1e;
+}
+
+.ordenes-export-preview-more {
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #666;
+  background-color: #f9f9f9;
+}
+
+.dark-mode .ordenes-export-preview-more {
+  background-color: #1e1e1e;
+  color: #aaa;
+}
+
+.ordenes-export-sin-datos {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.dark-mode .ordenes-export-sin-datos {
+  background-color: #1e1e1e;
+  color: #aaa;
+}
+
+.ordenes-export-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1rem;
+}
+
+.ordenes-export-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .ordenes-content {

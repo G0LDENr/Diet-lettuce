@@ -312,7 +312,6 @@ const Header = ({ isAuthenticated, onLogout, t }) => (
         <li><a href="/nosotros">{t('nosotros') || 'Nosotros'}</a></li>
         <li><a href="/dietas">{t('dietas') || 'Dietas'}</a></li>
         <li><a href="/configuracion">{t('configuracion') || 'Configuración'}</a></li>
-        <li><a href="/login">{t('login') || 'Login'}</a></li>
       </ul>
       <div className="header-right">
         <li className="nav-profile-icon" style={{ listStyle: 'none' }}>

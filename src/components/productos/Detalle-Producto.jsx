@@ -1,5 +1,12 @@
 import React from 'react';
 import '../../css/Productos/detalle-producto.css';
+import { FiShoppingCart } from 'react-icons/fi';
+import { FiShoppingBag } from 'react-icons/fi';
+import { GrDocumentText } from 'react-icons/gr';
+import { FaRegStar } from 'react-icons/fa';
+import { RiCapsuleLine } from 'react-icons/ri';
+import { FiFileText } from 'react-icons/fi';
+import { FiAlertTriangle } from 'react-icons/fi';
 
 const ModalDetalleProducto = ({ 
   show, 
@@ -47,101 +54,139 @@ const ModalDetalleProducto = ({
     return presentacionMap[presentacionId] || presentacionId;
   };
 
+  // Función para formatear beneficios como lista - eliminando viñetas existentes
+  const formatearBeneficios = (beneficios) => {
+    if (!beneficios) return null;
+    // Dividir por saltos de línea, comas, puntos y viñetas comunes
+    const items = beneficios.split(/\n|,|•|●|○|▪|▫|➢|➤|·|\*|-/).filter(item => item.trim());
+    return items;
+  };
+
   return (
-    <div className={`modal-overlay-producto ${darkMode ? 'dark-mode' : ''}`} onClick={onClose}>
-      <div className="modal-content product-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="modal-close-btn" onClick={onClose}>×</button>
+    <div className={`detalle-prod-overlay ${darkMode ? 'dark-mode' : ''}`} onClick={onClose}>
+      <div className="detalle-prod-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="detalle-prod-close-btn" onClick={onClose}>×</button>
         
-        <div className="product-modal-grid">
-          {/* Lado Izquierdo - Imagen con cuadro */}
-          <div className="product-modal-left">
-            <div className="product-modal-image-container">
+        <div className="detalle-prod-grid">
+          {/* Lado Izquierdo - Imagen con cuadro y precio dentro */}
+          <div className="detalle-prod-left">
+            <div className="detalle-prod-image-container">
               <img 
                 src={producto.icono} 
                 alt={producto.nombre} 
-                className="product-modal-image"
+                className="detalle-prod-image"
               />
-            </div>
-            <div className="product-modal-price">
-              {formatPrice(producto.precio)}
+              {/* Precio dentro del cuadro de la imagen - con etiqueta "Precio:" */}
+              <div className="detalle-prod-price-overlay">
+                <span className="detalle-prod-price-label">Precio:</span>
+                <span className="detalle-prod-price-value">{formatPrice(producto.precio)}</span>
+              </div>
             </div>
           </div>
 
-          {/* Lado Derecho - Información */}
-          <div className="product-modal-right">
-            <h2 className="product-modal-title">{producto.nombre}</h2>
-            
-            {/* Categoría y Presentación */}
-            <div className="product-modal-info">
-              <span className="product-modal-categoria">
-                {obtenerNombreCategoria(producto.categoria)}
-              </span>
-              <span className="product-modal-presentacion">
-                {obtenerNombrePresentacion(producto.presentacion)}
-              </span>
+          {/* Lado Derecho - Información con botones abajo */}
+          <div className="detalle-prod-right">
+            <div className="detalle-prod-right-content">
+              <h2 className="detalle-prod-title">{producto.nombre}</h2>
+              
+              {/* Categoría y Presentación */}
+              <div className="detalle-prod-info">
+                <span className="detalle-prod-categoria">
+                  {obtenerNombreCategoria(producto.categoria)}
+                </span>
+                <span className="detalle-prod-presentacion">
+                  {obtenerNombrePresentacion(producto.presentacion)}
+                </span>
+              </div>
+
+              {/* Stock */}
+              <div className="detalle-prod-stock">
+                <span className={`detalle-prod-stock-badge ${producto.stock > 0 ? 'in-stock' : 'out-stock'}`}>
+                  {producto.stock > 0 ? `Disponible: ${producto.stock} und` : 'Agotado'}
+                </span>
+              </div>
+
+              {/* Descripción */}
+              {producto.descripcion && (
+                <div className="detalle-prod-section detalle-prod-descripcion">
+                  <div className="detalle-prod-section-divider"></div>
+                  <div className="detalle-prod-section-header">
+                    <GrDocumentText className="detalle-prod-section-icon" />
+                    <h3>Descripción</h3>
+                  </div>
+                  <p>{producto.descripcion}</p>
+                </div>
+              )}
+
+              {/* Beneficios - como lista de dos filas sin viñetas duplicadas */}
+              {producto.beneficios && (
+                <div className="detalle-prod-section detalle-prod-beneficios">
+                  <div className="detalle-prod-section-divider"></div>
+                  <div className="detalle-prod-section-header">
+                    <FaRegStar className="detalle-prod-section-icon" />
+                    <h3>Beneficios</h3>
+                  </div>
+                  <ul className="detalle-prod-beneficios-list">
+                    {formatearBeneficios(producto.beneficios).map((beneficio, index) => (
+                      <li key={index}>{beneficio.trim()}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Modo de Uso */}
+              {producto.modo_uso && (
+                <div className="detalle-prod-section detalle-prod-modo-uso">
+                  <div className="detalle-prod-section-divider"></div>
+                  <div className="detalle-prod-section-header">
+                    <RiCapsuleLine className="detalle-prod-section-icon" />
+                    <h3>Modo de Uso</h3>
+                  </div>
+                  <p>{producto.modo_uso}</p>
+                </div>
+              )}
+
+              {/* Ingredientes */}
+              {producto.ingredientes && (
+                <div className="detalle-prod-section detalle-prod-ingredientes">
+                  <div className="detalle-prod-section-divider"></div>
+                  <div className="detalle-prod-section-header">
+                    <FiFileText className="detalle-prod-section-icon" />
+                    <h3>Ingredientes</h3>
+                  </div>
+                  <p>{producto.ingredientes}</p>
+                </div>
+              )}
+
+              {/* Advertencias */}
+              {producto.advertencias && (
+                <div className="detalle-prod-section detalle-prod-advertencias">
+                  <div className="detalle-prod-section-divider"></div>
+                  <div className="detalle-prod-section-header">
+                    <FiAlertTriangle className="detalle-prod-section-icon" />
+                    <h3>Advertencias</h3>
+                  </div>
+                  <p>{producto.advertencias}</p>
+                </div>
+              )}
             </div>
 
-            {/* Stock */}
-            <div className="product-modal-stock">
-              <span className={`stock-badge ${producto.stock > 0 ? 'in-stock' : 'out-stock'}`}>
-                {producto.stock > 0 ? `Stock disponible: ${producto.stock} unidades` : 'Agotado'}
-              </span>
-            </div>
-
-            {/* Descripción */}
-            {producto.descripcion && (
-              <div className="product-modal-descripcion">
-                <h3>Descripción</h3>
-                <p>{producto.descripcion}</p>
-              </div>
-            )}
-
-            {/* Beneficios */}
-            {producto.beneficios && (
-              <div className="product-modal-beneficios">
-                <h3>Beneficios</h3>
-                <p>{producto.beneficios}</p>
-              </div>
-            )}
-
-            {/* Modo de Uso */}
-            {producto.modo_uso && (
-              <div className="product-modal-modo-uso">
-                <h3>Modo de Uso</h3>
-                <p>{producto.modo_uso}</p>
-              </div>
-            )}
-
-            {/* Ingredientes */}
-            {producto.ingredientes && (
-              <div className="product-modal-ingredientes">
-                <h3>Ingredientes</h3>
-                <p>{producto.ingredientes}</p>
-              </div>
-            )}
-
-            {/* Advertencias */}
-            {producto.advertencias && (
-              <div className="product-modal-advertencias">
-                <h3>Advertencias</h3>
-                <p>{producto.advertencias}</p>
-              </div>
-            )}
-
-            {/* Botones de acción */}
-            <div className="product-modal-actions">
+            {/* Botones de acción - Abajo de la información del lado derecho */}
+            <div className="detalle-prod-actions">
               <button 
-                className="product-modal-btn add-to-cart"
+                className="detalle-prod-btn add-to-cart"
                 onClick={() => onAddToCart(producto)}
                 disabled={producto.stock === 0}
               >
+                <FiShoppingCart className="detalle-prod-btn-icon" />
                 Agregar al Carrito
               </button>
               <button 
-                className="product-modal-btn buy-now"
+                className="detalle-prod-btn buy-now"
                 onClick={() => onBuyNow(producto)}
                 disabled={producto.stock === 0}
               >
+                <FiShoppingBag className="detalle-prod-btn-icon" />
                 Comprar Ahora
               </button>
             </div>

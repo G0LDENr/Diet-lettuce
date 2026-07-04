@@ -11,6 +11,7 @@ import deleteIcon from '../../img/delete.png';
 import verifyIcon from '../../img/verify.png';
 import refreshIcon from '../../img/actualizar.png';
 import locationIcon from '../../img/ubicacion.png';
+import exportIcon from '../../img/subir.png';
 
 const Ordenes = () => {
   const { darkMode } = useConfig();
@@ -20,6 +21,7 @@ const Ordenes = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
@@ -34,6 +36,14 @@ const Ordenes = () => {
   const [selectedAddress, setSelectedAddress] = useState('');
   const [showDetalleModal, setShowDetalleModal] = useState(false);
   const [selectedOrdenDetalle, setSelectedOrdenDetalle] = useState(null);
+  
+  // Estados para el modal de exportación
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportFechaInicio, setExportFechaInicio] = useState('');
+  const [exportFechaFin, setExportFechaFin] = useState('');
+  const [exportPreviewData, setExportPreviewData] = useState([]);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [exportTotalRegistros, setExportTotalRegistros] = useState(0);
   
   const ordenesPerPage = 7;
 
@@ -57,10 +67,6 @@ const Ordenes = () => {
       if (response.ok) {
         const data = await response.json();
         
-        if (data.length > 0) {
-          console.log('📦 Datos de la primera orden:', data[0]);
-        }
-        
         const ordenesWithSimpleIds = data.map((orden, index) => ({
           ...orden,
           simpleId: index + 1
@@ -82,11 +88,12 @@ const Ordenes = () => {
     fetchOrdenes();
   };
 
-  useEffect(() => {
-    let filtered = ordenes;
-
+  // Filtrar órdenes para la vista principal
+  const aplicarFiltros = () => {
+    let filtradas = [...ordenes];
+    
     if (searchTerm.trim() !== '') {
-      filtered = filtered.filter(orden => 
+      filtradas = filtradas.filter(orden => 
         orden.simpleId.toString().includes(searchTerm) || 
         orden.id.toString().includes(searchTerm) ||
         orden.codigo_unico?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -96,14 +103,183 @@ const Ordenes = () => {
         orden.metodo_pago?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
+    
     if (statusFilter !== '') {
-      filtered = filtered.filter(orden => orden.estado === statusFilter);
+      filtradas = filtradas.filter(orden => orden.estado === statusFilter);
     }
     
-    setFilteredOrdenes(filtered);
+    setFilteredOrdenes(filtradas);
     setCurrentPage(1);
+  };
+
+  useEffect(() => {
+    aplicarFiltros();
   }, [searchTerm, statusFilter, ordenes]);
+
+  // Función para obtener vista previa de exportación
+  const obtenerVistaPreviaExportacion = () => {
+    if (!exportFechaInicio && !exportFechaFin) {
+      alert('Selecciona al menos una fecha (desde o hasta)');
+      return;
+    }
+    
+    setExportLoading(true);
+    
+    // Simular un pequeño retraso para mostrar loading
+    setTimeout(() => {
+      let filtradas = [...ordenes];
+      
+      if (exportFechaInicio || exportFechaFin) {
+        filtradas = filtradas.filter(orden => {
+          if (!orden.fecha_creacion) return false;
+          
+          let fechaOrden;
+          try {
+            fechaOrden = new Date(orden.fecha_creacion);
+            if (isNaN(fechaOrden.getTime())) return false;
+          } catch (e) {
+            return false;
+          }
+          
+          if (exportFechaInicio) {
+            const fechaInicioDate = new Date(exportFechaInicio);
+            fechaInicioDate.setHours(0, 0, 0, 0);
+            if (fechaOrden < fechaInicioDate) return false;
+          }
+          
+          if (exportFechaFin) {
+            const fechaFinDate = new Date(exportFechaFin);
+            fechaFinDate.setHours(23, 59, 59, 999);
+            if (fechaOrden > fechaFinDate) return false;
+          }
+          
+          return true;
+        });
+      }
+      
+      // Ordenar por fecha descendente (más recientes primero)
+      filtradas.sort((a, b) => {
+        const fechaA = new Date(a.fecha_creacion);
+        const fechaB = new Date(b.fecha_creacion);
+        return fechaB - fechaA;
+      });
+      
+      setExportPreviewData(filtradas);
+      setExportTotalRegistros(filtradas.length);
+      setExportLoading(false);
+    }, 300);
+  };
+  
+  // Función para limpiar filtro de exportación
+  const limpiarFiltroExportacion = () => {
+    setExportFechaInicio('');
+    setExportFechaFin('');
+    setExportPreviewData([]);
+    setExportTotalRegistros(0);
+  };
+  
+  // Función para exportar a CSV
+  const exportarACSV = () => {
+    if (exportPreviewData.length === 0) {
+      alert('No hay datos para exportar. Aplica un filtro de fechas primero.');
+      return;
+    }
+    
+    // Definir las columnas del CSV
+    const columnas = [
+      'ID',
+      'Codigo Unico',
+      'Cliente',
+      'Telefono',
+      'Direccion',
+      'Fecha Creacion',
+      'Tipo Pedido',
+      'Metodo Pago',
+      'Precio Total',
+      'Estado'
+    ];
+    
+    // Crear filas de datos
+    const filas = exportPreviewData.map(orden => [
+      orden.simpleId || orden.id,
+      orden.codigo_unico || '',
+      orden.nombre_usuario || '',
+      orden.telefono_usuario || '',
+      orden.direccion_texto || '',
+      formatFechaCSV(orden.fecha_creacion),
+      orden.tipo_pedido === 'carrito' ? 'Carrito' : (orden.tipo_pedido === 'suplemento' ? 'Suplemento' : orden.tipo_pedido || ''),
+      orden.metodo_pago === 'efectivo' ? 'Efectivo' : (orden.metodo_pago === 'tarjeta' ? 'Tarjeta' : orden.metodo_pago || ''),
+      getPrecio(orden),
+      obtenerNombreEstado(orden.estado)
+    ]);
+    
+    // Construir contenido CSV
+    const contenidoCSV = [
+      columnas.join(','),
+      ...filas.map(fila => 
+        fila.map(celda => {
+          // Escapar comillas y comas
+          if (typeof celda === 'string' && (celda.includes(',') || celda.includes('"'))) {
+            return `"${celda.replace(/"/g, '""')}"`;
+          }
+          return celda;
+        }).join(',')
+      )
+    ].join('\n');
+    
+    // Agregar BOM para soportar caracteres especiales en español
+    const blob = new Blob(['\uFEFF' + contenidoCSV], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    // Crear nombre de archivo con fechas
+    let nombreArchivo = 'exportacion_ordenes';
+    if (exportFechaInicio) nombreArchivo += `_desde_${exportFechaInicio}`;
+    if (exportFechaFin) nombreArchivo += `_hasta_${exportFechaFin}`;
+    nombreArchivo += `_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`;
+    
+    link.href = url;
+    link.download = nombreArchivo;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    alert(`Exportación completada. Se exportaron ${exportPreviewData.length} registros.`);
+  };
+  
+  // Formatear fecha para CSV
+  const formatFechaCSV = (fecha) => {
+    if (!fecha) return '';
+    try {
+      const fechaObj = new Date(fecha);
+      if (isNaN(fechaObj.getTime())) return '';
+      return fechaObj.toLocaleDateString('es-MX', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (e) {
+      return '';
+    }
+  };
+  
+  // Obtener nombre del estado
+  const obtenerNombreEstado = (estado) => {
+    const estados = {
+      pendiente: 'Pendiente',
+      confirmada: 'Confirmada',
+      pagada: 'Pagada',
+      en_preparacion: 'En Preparación',
+      enviada: 'Enviada',
+      entregada: 'Entregada',
+      cancelada: 'Cancelada',
+      reembolsada: 'Reembolsada'
+    };
+    return estados[estado] || estado || '';
+  };
 
   const indexOfLastOrden = currentPage * ordenesPerPage;
   const indexOfFirstOrden = indexOfLastOrden - ordenesPerPage;
@@ -170,8 +346,6 @@ const Ordenes = () => {
     try {
       const token = localStorage.getItem('token');
       
-      console.log('🗑️ Eliminando orden ID:', ordenToDelete.id, 'Estado:', ordenToDelete.estado);
-      
       const response = await fetch(`http://127.0.0.1:5000/ordenes/${ordenToDelete.id}`, {
         method: 'DELETE',
         headers: {
@@ -192,8 +366,6 @@ const Ordenes = () => {
         };
       }
       
-      console.log('Respuesta del servidor:', responseData);
-      
       if (response.ok) {
         if (responseData.tipo === 'eliminacion_exitosa') {
           const updatedOrdenes = ordenes.filter(orden => orden.id !== ordenToDelete.id);
@@ -206,7 +378,7 @@ const Ordenes = () => {
           setOrdenes(ordenesWithSimpleIds);
           setFilteredOrdenes(ordenesWithSimpleIds);
           
-          setDeleteMessage('✅ Orden eliminada permanentemente');
+          setDeleteMessage('Orden eliminada permanentemente');
           setDeleteDetail(responseData.detalle || '');
           setDeleteType('success');
         } 
@@ -231,12 +403,12 @@ const Ordenes = () => {
           setOrdenes(ordenesWithSimpleIds);
           setFilteredOrdenes(ordenesWithSimpleIds);
           
-          setDeleteMessage('⚠️ Orden marcada como eliminada (no se pudo borrar físicamente)');
+          setDeleteMessage('Orden marcada como eliminada (no se pudo borrar físicamente)');
           setDeleteDetail(responseData.detalle || '');
           setDeleteType('warning');
         }
         else {
-          setDeleteMessage('✅ Orden eliminada');
+          setDeleteMessage('Orden eliminada');
           setDeleteDetail('');
           setDeleteType('success');
           fetchOrdenes();
@@ -287,6 +459,15 @@ const Ordenes = () => {
 
   const handleVerifyCode = () => {
     setShowVerifyModal(true);
+  };
+  
+  const handleExport = () => {
+    setShowExportModal(true);
+  };
+  
+  const closeExportModal = () => {
+    setShowExportModal(false);
+    limpiarFiltroExportacion();
   };
 
   const closeCreateModal = () => {
@@ -340,6 +521,23 @@ const Ordenes = () => {
       }
     }
     return 0;
+  };
+
+  const formatFecha = (fecha) => {
+    if (!fecha) return 'N/A';
+    try {
+      const fechaObj = new Date(fecha);
+      if (isNaN(fechaObj.getTime())) return 'Fecha inválida';
+      return fechaObj.toLocaleDateString('es-MX', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (e) {
+      return 'N/A';
+    }
   };
 
   const getStatusBadge = (estado) => {
@@ -415,7 +613,7 @@ const Ordenes = () => {
       <div className="ordenes-content">
         
         <div className="ordenes-section-header">
-          <h3 className="ordenes-section-title">Gestión de Órdenes</h3>
+          <h3 className="ordenes-section-title">Gestion de Ordenes</h3>
           <div className="ordenes-header-buttons">
             <button 
               className="ordenes-refresh-btn"
@@ -428,10 +626,18 @@ const Ordenes = () => {
             <button 
               className="ordenes-verify-btn"
               onClick={handleVerifyCode}
-              title="Verificar código de orden"
+              title="Verificar codigo de orden"
             >
               <img src={verifyIcon} alt="Verificar" className="ordenes-btn-icon-img" />
-              Verificar Código
+              Verificar Codigo
+            </button>
+            <button 
+              className="ordenes-export-btn"
+              onClick={handleExport}
+              title="Exportar a CSV"
+            >
+              <img src={exportIcon} alt="Exportar" className="ordenes-btn-icon-img" />
+              Exportar CSV
             </button>
             <button 
               className="ordenes-add-btn"
@@ -449,7 +655,7 @@ const Ordenes = () => {
             <div className="ordenes-search-container ordenes-main-search">
               <input
                 type="text"
-                placeholder="Buscar por código, nombre, teléfono, dirección o método de pago..."
+                placeholder="Buscar por codigo, nombre, telefono, direccion o metodo de pago..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="ordenes-search-input"
@@ -458,7 +664,7 @@ const Ordenes = () => {
                 <button 
                   className="ordenes-clear-search"
                   onClick={() => setSearchTerm('')}
-                  title="Limpiar búsqueda"
+                  title="Limpiar busqueda"
                 >
                   ✕
                 </button>
@@ -475,7 +681,7 @@ const Ordenes = () => {
                 <option value="pendiente">Pendiente</option>
                 <option value="confirmada">Confirmada</option>
                 <option value="pagada">Pagada</option>
-                <option value="en_preparacion">En Preparación</option>
+                <option value="en_preparacion">En Preparacion</option>
                 <option value="enviada">Enviada</option>
                 <option value="entregada">Entregada</option>
                 <option value="cancelada">Cancelada</option>
@@ -490,17 +696,18 @@ const Ordenes = () => {
             <thead>
               <tr>
                 <th className="ordenes-th">ID</th>
-                <th className="ordenes-th">Código</th>
+                <th className="ordenes-th">Codigo</th>
                 <th className="ordenes-th">Cliente</th>
-                <th className="ordenes-th">Teléfono</th>
-                <th className="ordenes-th">Dirección</th>
+                <th className="ordenes-th">Telefono</th>
+                <th className="ordenes-th">Direccion</th>
+                <th className="ordenes-th">Fecha</th>
                 <th className="ordenes-th">Tipo</th>
                 <th className="ordenes-th">Pedido</th>
                 <th className="ordenes-th">Pago</th>
                 <th className="ordenes-th">Precio</th>
                 <th className="ordenes-th">Estado</th>
                 <th className="ordenes-th ordenes-actions-header">Acciones</th>
-               </tr>
+              </tr>
             </thead>
             <tbody>
               {currentOrdenes.length > 0 ? (
@@ -514,6 +721,9 @@ const Ordenes = () => {
                     <td className="ordenes-td ordenes-telefono">{orden.telefono_usuario || 'N/A'}</td>
                     <td className="ordenes-td ordenes-direccion">
                       {getAddressDisplay(orden.direccion_texto)}
+                    </td>
+                    <td className="ordenes-td ordenes-fecha">
+                      {formatFecha(orden.fecha_creacion)}
                     </td>
                     <td className="ordenes-td ordenes-tipo">
                       <span className={`ordenes-tipo-badge ${orden.tipo_pedido}`}>
@@ -579,8 +789,10 @@ const Ordenes = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="11" className="ordenes-no-results">
-                    {searchTerm || statusFilter ? 'No se encontraron órdenes con esos criterios' : 'No hay órdenes registradas'}
+                  <td colSpan="12" className="ordenes-no-results">
+                    {searchTerm || statusFilter ? 
+                      'No se encontraron ordenes con esos criterios' : 
+                      'No hay ordenes registradas'}
                   </td>
                 </tr>
               )}
@@ -631,29 +843,29 @@ const Ordenes = () => {
               </div>
 
               <div className="ordenes-count-info">
-                Mostrando {currentOrdenes.length} de {filteredOrdenes.length} órdenes
+                Mostrando {currentOrdenes.length} de {filteredOrdenes.length} ordenes
               </div>
             </div>
           )}
 
           {filteredOrdenes.length <= ordenesPerPage && filteredOrdenes.length > 0 && (
             <div className="ordenes-count-info">
-              Mostrando {currentOrdenes.length} de {filteredOrdenes.length} órdenes
+              Mostrando {currentOrdenes.length} de {filteredOrdenes.length} ordenes
             </div>
           )}
         </div>
 
-        {/* Modal de dirección */}
+        {/* Modal de direccion */}
         {showAddressModal && (
           <div className="ordenes-modal-overlay">
             <div className="ordenes-modal-content ordenes-address-modal">
               <div className="ordenes-modal-header">
-                <h3 className="ordenes-modal-title">Dirección del Cliente</h3>
+                <h3 className="ordenes-modal-title">Direccion del Cliente</h3>
                 <button className="ordenes-close-modal" onClick={handleCloseAddressModal}>✕</button>
               </div>
               <div className="ordenes-modal-body">
                 <div className="ordenes-address-content">
-                  <p className="ordenes-address-title">Dirección completa:</p>
+                  <p className="ordenes-address-title">Direccion completa:</p>
                   <div className="ordenes-address-display">
                     {selectedAddress}
                   </div>
@@ -663,7 +875,7 @@ const Ordenes = () => {
                         className="ordenes-btn ordenes-btn-secondary"
                         onClick={handleCopyAddress}
                       >
-                        Copiar Dirección
+                        Copiar Direccion
                       </button>
                       <button 
                         className="ordenes-btn ordenes-btn-primary"
@@ -687,7 +899,7 @@ const Ordenes = () => {
           </div>
         )}
 
-        {/* Modal de confirmación de eliminación con animación de carga */}
+        {/* Modal de confirmacion de eliminacion */}
         {showDeleteConfirm && (
           <div className="ordenes-modal-overlay-delete">
             <div className="ordenes-modal-content ordenes-confirm-modal ordenes-direct-modal">
@@ -717,7 +929,7 @@ const Ordenes = () => {
                       <div className="ordenes-warning-icon">⚠️</div>
                       <div className="ordenes-warning-content">
                         <p><strong>¿Eliminar esta orden PERMANENTEMENTE?</strong></p>
-                        <p>Esta acción <strong>NO</strong> se puede deshacer.</p>
+                        <p>Esta accion <strong>NO</strong> se puede deshacer.</p>
                       </div>
                     </div>
                     
@@ -728,7 +940,7 @@ const Ordenes = () => {
                     </div>
                     
                     <div className="ordenes-delete-consequences">
-                      <p><strong>Se eliminará:</strong></p>
+                      <p><strong>Se eliminara:</strong></p>
                       <ul>
                         <li>La orden completa de la base de datos</li>
                         <li>Todas las notificaciones relacionadas</li>
@@ -811,12 +1023,12 @@ const Ordenes = () => {
           </div>
         )}
 
-        {/* Modal para verificar código */}
+        {/* Modal para verificar codigo */}
         {showVerifyModal && (
           <div className="ordenes-modal-overlay">
             <div className="ordenes-modal-content">
               <div className="ordenes-modal-header">
-                <h3 className="ordenes-modal-title">Verificar Código de Orden</h3>
+                <h3 className="ordenes-modal-title">Verificar Codigo de Orden</h3>
                 <button className="ordenes-close-modal" onClick={closeVerifyModal}>✕</button>
               </div>
               <div className="ordenes-modal-body">
@@ -850,6 +1062,127 @@ const Ordenes = () => {
             orden={selectedOrdenDetalle}
             onClose={handleCloseDetalleModal}
           />
+        )}
+
+        {/* Modal de exportacion a CSV */}
+        {showExportModal && (
+          <div className="ordenes-modal-overlay">
+            <div className="ordenes-modal-content ordenes-export-modal">
+              <div className="ordenes-modal-header">
+                <h3 className="ordenes-modal-title">Exportar Ordenes a CSV</h3>
+                <button className="ordenes-close-modal" onClick={closeExportModal}>✕</button>
+              </div>
+              <div className="ordenes-modal-body">
+                <div className="ordenes-export-filtros">
+                  <div className="ordenes-export-filtro-group">
+                    <label className="ordenes-export-label">Fecha desde:</label>
+                    <input
+                      type="date"
+                      value={exportFechaInicio}
+                      onChange={(e) => setExportFechaInicio(e.target.value)}
+                      className="ordenes-export-input"
+                    />
+                  </div>
+                  
+                  <div className="ordenes-export-filtro-group">
+                    <label className="ordenes-export-label">Fecha hasta:</label>
+                    <input
+                      type="date"
+                      value={exportFechaFin}
+                      onChange={(e) => setExportFechaFin(e.target.value)}
+                      className="ordenes-export-input"
+                    />
+                  </div>
+                  
+                  <div className="ordenes-export-buttons-group">
+                    <button 
+                      onClick={obtenerVistaPreviaExportacion}
+                      className="ordenes-export-preview-btn"
+                      disabled={exportLoading}
+                    >
+                      {exportLoading ? 'Cargando...' : 'Vista Previa'}
+                    </button>
+                    <button 
+                      onClick={limpiarFiltroExportacion}
+                      className="ordenes-export-limpiar-btn"
+                    >
+                      Limpiar
+                    </button>
+                  </div>
+                </div>
+
+                {/* Tabla de vista previa */}
+                {exportPreviewData.length > 0 && (
+                  <div className="ordenes-export-preview">
+                    <div className="ordenes-export-preview-header">
+                      <span className="ordenes-export-preview-titulo">
+                        Vista Previa - {exportTotalRegistros} registro(s) encontrado(s)
+                      </span>
+                    </div>
+                    <div className="ordenes-export-preview-table-container">
+                      <table className="ordenes-export-preview-table">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Codigo</th>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {exportPreviewData.slice(0, 10).map((orden, index) => (
+                            <tr key={index}>
+                              <td>{orden.simpleId || orden.id}</td>
+                              <td>{orden.codigo_unico}</td>
+                              <td>{orden.nombre_usuario}</td>
+                              <td>{formatFecha(orden.fecha_creacion)}</td>
+                              <td>{formatPrice(getPrecio(orden))}</td>
+                              <td>{obtenerNombreEstado(orden.estado)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      {exportPreviewData.length > 10 && (
+                        <div className="ordenes-export-preview-more">
+                          ... y {exportPreviewData.length - 10} registro(s) mas
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {exportPreviewData.length === 0 && !exportLoading && (
+                  <div className="ordenes-export-sin-datos">
+                    Selecciona un rango de fechas y haz clic en "Vista Previa" para ver los registros
+                  </div>
+                )}
+
+                {exportLoading && (
+                  <div className="ordenes-export-loading">
+                    <div className="ordenes-export-spinner"></div>
+                    <p>Cargando registros...</p>
+                  </div>
+                )}
+              </div>
+              <div className="ordenes-modal-footer">
+                <button 
+                  className="ordenes-btn ordenes-btn-secondary"
+                  onClick={closeExportModal}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  className="ordenes-btn ordenes-btn-primary"
+                  onClick={exportarACSV}
+                  disabled={exportPreviewData.length === 0 || exportLoading}
+                >
+                  Exportar a CSV ({exportTotalRegistros} registros)
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

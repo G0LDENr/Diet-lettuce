@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useConfig } from '../../context/config';
 import CarritoProductos from './CarritoProductos';
 import CarritoDetallePedido from './CarritoDetallePedido';
+import DireccionesList from '../perfil/DireccionesList';
+import ModalAgregarDireccion from '../perfil/CreateDireccion';
+import ModalGestionarTarjetas from '../perfil/TarjetasList';
+import ModalAgregarTarjeta from '../perfil/ModalAgregarTarjeta';
 import '../../css/Carrito/carrito.css';
 
 // Íconos
@@ -14,17 +18,16 @@ const Carrito = () => {
   const { t, darkMode } = useConfig();
   
   // ========== ESTADOS ==========
-  // Carrito
   const [carritoItems, setCarritoItems] = useState([]);
   const [totalCarritoItems, setTotalCarritoItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  
-  // Pasos del checkout
+  const [showCheckoutPage, setShowCheckoutPage] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [userData, setUserData] = useState(null);
   
-  // Estados para el detalle del pedido (pasos 2, 3, 4)
+  // Estados para el detalle del pedido
   const [infoForm, setInfoForm] = useState({
     nombre_completo: '',
     telefono: ''
@@ -65,7 +68,14 @@ const Carrito = () => {
   const [showPoliticaSeguridad, setShowPoliticaSeguridad] = useState(false);
   const [showTarjetaNumber, setShowTarjetaNumber] = useState(false);
   
-  // Clave para localStorage
+  // Estados para los modales
+  const [showModalDirecciones, setShowModalDirecciones] = useState(false);
+  const [showAgregarDireccionModal, setShowAgregarDireccionModal] = useState(false);
+  const [direccionToEdit, setDireccionToEdit] = useState(null);
+  const [showModalTarjetas, setShowModalTarjetas] = useState(false);
+  const [showAgregarTarjetaModal, setShowAgregarTarjetaModal] = useState(false);
+  const [tarjetaToEdit, setTarjetaToEdit] = useState(null);
+  
   const carritoKey = 'carrito_suplementos';
 
   // ========== FUNCIONES DEL CARRITO ==========
@@ -141,6 +151,7 @@ const Carrito = () => {
         const userStr = localStorage.getItem('user') || localStorage.getItem('userData');
         if (userStr) {
           const user = JSON.parse(userStr);
+          setUserData(user);
           setInfoForm(prev => ({
             ...prev,
             nombre_completo: user.nombre || user.nombre_completo || '',
@@ -221,6 +232,230 @@ const Carrito = () => {
       console.error('Error al obtener tarjetas:', error);
     } finally {
       setLoadingTarjetas(false);
+    }
+  };
+
+  // ========== FUNCIONES DEL MODAL DE DIRECCIONES ==========
+  const handleAbrirModalDirecciones = () => {
+    setShowModalDirecciones(true);
+  };
+
+  const handleCerrarModalDirecciones = () => {
+    setShowModalDirecciones(false);
+  };
+
+  const handleDeleteDireccion = async (id) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/direcciones/me/direcciones/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        await fetchUserDirecciones();
+        setSuccessMessage('Dirección eliminada correctamente');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        setErrorMessage('Error al eliminar la dirección');
+        setTimeout(() => setErrorMessage(''), 3000);
+      }
+    } catch (error) {
+      console.error('Error al eliminar dirección:', error);
+      setErrorMessage('Error de conexión');
+      setTimeout(() => setErrorMessage(''), 3000);
+    }
+  };
+
+  const handleSetPredeterminada = async (id) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/direcciones/me/direcciones/${id}/predeterminada`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        await fetchUserDirecciones();
+        setSuccessMessage('Dirección predeterminada actualizada');
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } else {
+        setErrorMessage('Error al establecer dirección predeterminada');
+        setTimeout(() => setErrorMessage(''), 3000);
+      }
+    } catch (error) {
+      console.error('Error al establecer predeterminada:', error);
+      setErrorMessage('Error de conexión');
+      setTimeout(() => setErrorMessage(''), 3000);
+    }
+  };
+
+  const handleAddDireccion = () => {
+    setShowModalDirecciones(false);
+    setShowAgregarDireccionModal(true);
+    setDireccionToEdit(null);
+  };
+
+  const handleEditDireccion = (direccion) => {
+    setShowModalDirecciones(false);
+    setDireccionToEdit(direccion);
+    setShowAgregarDireccionModal(true);
+  };
+
+  const handleSaveDireccion = async (direccionData) => {
+    try {
+      const token = localStorage.getItem('token');
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      const dataToSend = {
+        ...direccionData,
+        user_id: user.id || userData?.id || user?.id
+      };
+      
+      const url = direccionToEdit 
+        ? `http://127.0.0.1:5000/direcciones/${direccionToEdit.id}`
+        : 'http://127.0.0.1:5000/direcciones/me/add_direccion';
+        
+      const method = direccionToEdit ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dataToSend)
+      });
+
+      if (response.ok) {
+        await fetchUserDirecciones();
+        setShowAgregarDireccionModal(false);
+        setDireccionToEdit(null);
+        setShowModalDirecciones(true);
+        setSuccessMessage(direccionToEdit ? 'Dirección actualizada correctamente' : 'Dirección agregada correctamente');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        return Promise.resolve();
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.msg || 'No se pudo guardar la dirección'}`);
+        return Promise.reject(errorData);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error de conexión');
+      return Promise.reject(error);
+    }
+  };
+
+  // ========== FUNCIONES DEL MODAL DE TARJETAS ==========
+  const handleAbrirModalTarjetas = () => {
+    setShowModalTarjetas(true);
+  };
+
+  const handleCerrarModalTarjetas = () => {
+    setShowModalTarjetas(false);
+  };
+
+  const handleAbrirModalAgregarTarjeta = () => {
+    setShowModalTarjetas(false);
+    setShowAgregarTarjetaModal(true);
+    setTarjetaToEdit(null);
+  };
+
+  const handleCerrarModalAgregarTarjeta = () => {
+    setShowAgregarTarjetaModal(false);
+    setTarjetaToEdit(null);
+    setShowModalTarjetas(true); // ← Vuelve a abrir el modal de gestionar tarjetas
+  };
+
+  const handleDeleteTarjeta = async (id) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/tarjetas/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        await fetchUserTarjetas();
+        setSuccessMessage('Tarjeta eliminada correctamente');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        return true;
+      } else {
+        alert('Error al eliminar la tarjeta');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error de conexión');
+      return false;
+    }
+  };
+
+  const handleSetTarjetaPredeterminada = async (id) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/tarjetas/${id}/predeterminada`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        await fetchUserTarjetas();
+        setSuccessMessage('Tarjeta predeterminada actualizada');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        return true;
+      } else {
+        alert('Error al actualizar tarjeta predeterminada');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error de conexión');
+      return false;
+    }
+  };
+
+  const handleEditTarjeta = (tarjeta) => {
+    setShowModalTarjetas(false);
+    setTarjetaToEdit(tarjeta);
+    setShowAgregarTarjetaModal(true);
+  };
+
+  const handleSaveTarjeta = async (tarjetaData) => {
+    try {
+      const token = localStorage.getItem('token');
+      const url = tarjetaToEdit 
+        ? `http://127.0.0.1:5000/tarjetas/${tarjetaToEdit.id}`
+        : 'http://127.0.0.1:5000/tarjetas/me/add_tarjeta';
+      const method = tarjetaToEdit ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(tarjetaData)
+      });
+
+      if (response.ok) {
+        await fetchUserTarjetas();
+        setShowAgregarTarjetaModal(false);
+        setTarjetaToEdit(null);
+        setShowModalTarjetas(true);
+        setSuccessMessage(tarjetaToEdit ? 'Tarjeta actualizada correctamente' : 'Tarjeta agregada correctamente');
+        setTimeout(() => setSuccessMessage(''), 3000);
+        return Promise.resolve();
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.msg || 'No se pudo guardar la tarjeta'}`);
+        return Promise.reject(errorData);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error de conexión');
+      return Promise.reject(error);
     }
   };
 
@@ -334,11 +569,16 @@ const Carrito = () => {
       setTimeout(() => setErrorMessage(''), 3000);
       return;
     }
+    
     if (currentStep === 1) {
       setCurrentStep(2);
-    } else if (currentStep === 2) {
+      setShowCheckoutPage(true);
+      return;
+    }
+    
+    if (currentStep === 2) {
       const camposRequeridos = ['nombre_completo', 'telefono'];
-      const camposFaltantes = camposRequeridos.filter(campo => !infoForm[campo].trim());
+      const camposFaltantes = camposRequeridos.filter(campo => !infoForm[campo]?.trim());
       if (camposFaltantes.length > 0) {
         setErrorMessage('Por favor completa todos los campos obligatorios');
         setTimeout(() => setErrorMessage(''), 3000);
@@ -350,13 +590,16 @@ const Carrito = () => {
         return;
       }
       setCurrentStep(3);
-    } else if (currentStep === 3) {
+      return;
+    }
+    
+    if (currentStep === 3) {
       if (isAuthenticated && useSavedAddress && selectedAddressId) {
         setCurrentStep(4);
         return;
       }
       const camposRequeridos = ['calle', 'numero_exterior', 'colonia', 'ciudad', 'estado', 'codigo_postal'];
-      const camposFaltantes = camposRequeridos.filter(campo => !direccionForm[campo].trim());
+      const camposFaltantes = camposRequeridos.filter(campo => !direccionForm[campo]?.trim());
       if (camposFaltantes.length > 0) {
         setErrorMessage('Por favor completa todos los campos obligatorios de la dirección');
         setTimeout(() => setErrorMessage(''), 3000);
@@ -368,21 +611,70 @@ const Carrito = () => {
         return;
       }
       setCurrentStep(4);
+      return;
+    }
+    
+    if (currentStep === 4) {
+      if (metodoPago === 'tarjeta') {
+        if (isAuthenticated && useSavedCard && selectedTarjetaId) {
+          const tarjetaSeleccionada = userTarjetas.find(t => t.id === selectedTarjetaId);
+          if (!tarjetaSeleccionada) {
+            setErrorMessage('Por favor selecciona una tarjeta');
+            setTimeout(() => setErrorMessage(''), 3000);
+            return;
+          }
+        } else {
+          const tarjetaErrors = validateTarjeta();
+          if (Object.keys(tarjetaErrors).length > 0) {
+            setErrorMessage('Por favor completa correctamente todos los datos de la tarjeta');
+            setTimeout(() => setErrorMessage(''), 3000);
+            return;
+          }
+        }
+      }
+      setCurrentStep(5);
+      return;
+    }
+    
+    if (currentStep === 5) {
+      handleFinalizarPedido();
     }
   };
 
   const handlePasoAnterior = () => {
-    if (currentStep > 1) {
+    if (currentStep === 2) {
+      setCurrentStep(1);
+      setShowCheckoutPage(false);
+      return;
+    }
+    
+    if (currentStep > 2) {
       setCurrentStep(currentStep - 1);
+      return;
+    }
+    
+    if (currentStep === 1 && showCheckoutPage) {
+      setShowCheckoutPage(false);
     }
   };
 
   const handleGoBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    } else {
-      navigate(-1);
+    if (showCheckoutPage) {
+      if (currentStep === 2) {
+        setShowCheckoutPage(false);
+        setCurrentStep(1);
+        return;
+      }
+      if (currentStep > 2) {
+        setCurrentStep(currentStep - 1);
+        return;
+      }
+      if (currentStep === 1) {
+        setShowCheckoutPage(false);
+        return;
+      }
     }
+    navigate(-1);
   };
 
   const handleSeguirComprando = () => {
@@ -541,13 +833,16 @@ const Carrito = () => {
   }
 
   const getTitle = () => {
-    switch(currentStep) {
-      case 1: return 'Mi Carrito';
-      case 2: return 'Información';
-      case 3: return 'Dirección';
-      case 4: return 'Confirmar Pedido';
-      default: return 'Mi Carrito';
+    if (showCheckoutPage) {
+      switch(currentStep) {
+        case 2: return 'Información Personal';
+        case 3: return 'Dirección de Envío';
+        case 4: return 'Método de Pago';
+        case 5: return 'Resumen del Pedido';
+        default: return 'Checkout';
+      }
     }
+    return 'Mi Carrito';
   };
 
   return (
@@ -560,16 +855,12 @@ const Carrito = () => {
               onClick={handleGoBack}
               className="carrito-shop-back-btn"
               title="Regresar"
+              disabled={!showCheckoutPage && currentStep === 1}
             >
               <img src={backIcon} alt="Regresar" className="carrito-shop-icon-img" />
             </button>
             <div className="carrito-shop-header-title">
               <h2>{getTitle()}</h2>
-              {currentStep === 1 && totalCarritoItems > 0 && (
-                <span className="carrito-shop-count-badge">
-                  {totalCarritoItems} {totalCarritoItems === 1 ? 'suplemento' : 'suplementos'}
-                </span>
-              )}
             </div>
           </div>
           <div className="carrito-shop-header-right">
@@ -585,7 +876,6 @@ const Carrito = () => {
 
       {/* ===== CONTENIDO PRINCIPAL ===== */}
       <main className="carrito-shop-main-content">
-        {/* Mensajes */}
         {successMessage && (
           <div className="carrito-shop-message success">
             <span className="carrito-shop-message-icon">✓</span>
@@ -599,101 +889,164 @@ const Carrito = () => {
           </div>
         )}
 
-        {/* Carrito Vacío */}
-        {carritoItems.length === 0 && currentStep === 1 ? (
-          <div className="carrito-shop-vacio-container">
-            <div className="carrito-shop-vacio-content">
-              <img 
-                src={suplementoGenericoIcon} 
-                alt="Carrito vacío" 
-                className="carrito-shop-vacio-img"
-              />
-              <h3>Tu carrito está vacío</h3>
-              <p>¡Agrega algunos suplementos para comenzar!</p>
-              <button 
-                onClick={handleSeguirComprando}
-                className="carrito-shop-primary-btn"
-              >
-                Ver Suplementos
-              </button>
-            </div>
-          </div>
-        ) : (
+        {!showCheckoutPage && (
           <>
-            {/* PASO 1: SOLO PRODUCTOS (CarritoProductos) + RESUMEN (CarritoDetallePedido) */}
-            {currentStep === 1 && (
-              <div className="carrito-shop-two-columns">
-                {/* Columna Izquierda - Suplementos en el Carrito */}
-                <CarritoProductos 
-                  carritoItems={carritoItems}
-                  actualizarCantidad={actualizarCantidad}
-                  eliminarDelCarrito={eliminarDelCarrito}
-                  vaciarCarrito={vaciarCarrito}
-                  calcularTotal={calcularTotal}
-                  formatPrice={formatPrice}
-                />
-                
-                {/* Columna Derecha - Resumen del Pedido */}
-                <CarritoDetallePedido 
-                  currentStep={currentStep}
-                  handleSiguientePaso={handleSiguientePaso}
-                  totalCarritoItems={totalCarritoItems}
-                  calcularTotal={calcularTotal}
-                  formatPrice={formatPrice}
-                />
+            {carritoItems.length === 0 ? (
+              <div className="carrito-shop-vacio-container">
+                <div className="carrito-shop-vacio-content">
+                  <img 
+                    src={suplementoGenericoIcon} 
+                    alt="Carrito vacío" 
+                    className="carrito-shop-vacio-img"
+                  />
+                  <h3>Tu carrito está vacío</h3>
+                  <p>¡Agrega algunos suplementos para comenzar!</p>
+                  <button 
+                    onClick={handleSeguirComprando}
+                    className="carrito-shop-primary-btn"
+                  >
+                    Ver Suplementos
+                  </button>
+                </div>
               </div>
-            )}
-
-            {/* PASOS 2, 3, 4: Detalle del Pedido completo */}
-            {currentStep > 1 && (
-              <CarritoDetallePedido 
-                currentStep={currentStep}
-                handlePasoAnterior={handlePasoAnterior}
-                handleSiguientePaso={handleSiguientePaso}
-                handleFinalizarPedido={handleFinalizarPedido}
-                carritoItems={carritoItems}
-                totalCarritoItems={totalCarritoItems}
-                calcularTotal={calcularTotal}
-                formatPrice={formatPrice}
-                infoForm={infoForm}
-                handleInfoChange={handleInfoChange}
-                isAuthenticated={isAuthenticated}
-                direccionForm={direccionForm}
-                handleDireccionChange={handleDireccionChange}
-                userDirecciones={userDirecciones}
-                loadingDirecciones={loadingDirecciones}
-                useSavedAddress={useSavedAddress}
-                selectedAddressId={selectedAddressId}
-                showNewAddressForm={showNewAddressForm}
-                handleAddressSelect={handleAddressSelect}
-                setShowNewAddressForm={setShowNewAddressForm}
-                setUseSavedAddress={setUseSavedAddress}
-                metodoPago={metodoPago}
-                setMetodoPago={setMetodoPago}
-                userTarjetas={userTarjetas}
-                loadingTarjetas={loadingTarjetas}
-                selectedTarjetaId={selectedTarjetaId}
-                useSavedCard={useSavedCard}
-                showNewCardForm={showNewCardForm}
-                tarjetaForm={tarjetaForm}
-                aceptoTerminos={aceptoTerminos}
-                showPoliticaSeguridad={showPoliticaSeguridad}
-                showTarjetaNumber={showTarjetaNumber}
-                notasPedido={notasPedido}
-                procesandoPedido={procesandoPedido}
-                handleCardSelect={handleCardSelect}
-                handleTarjetaChange={handleTarjetaChange}
-                setShowNewCardForm={setShowNewCardForm}
-                setUseSavedCard={setUseSavedCard}
-                setAceptoTerminos={setAceptoTerminos}
-                setShowPoliticaSeguridad={setShowPoliticaSeguridad}
-                setShowTarjetaNumber={setShowTarjetaNumber}
-                setNotasPedido={setNotasPedido}
-              />
+            ) : (
+              <div className="carrito-shop-two-columns">
+                <div className="carrito-productos-scroll">
+                  <CarritoProductos 
+                    carritoItems={carritoItems}
+                    actualizarCantidad={actualizarCantidad}
+                    eliminarDelCarrito={eliminarDelCarrito}
+                    vaciarCarrito={vaciarCarrito}
+                    calcularTotal={calcularTotal}
+                    formatPrice={formatPrice}
+                    handleSiguientePaso={handleSiguientePaso}
+                  />
+                </div>
+                
+                <div className="carrito-resumen-fijo">
+                  <CarritoDetallePedido 
+                    currentStep={currentStep}
+                    handleSiguientePaso={handleSiguientePaso}
+                    totalCarritoItems={totalCarritoItems}
+                    calcularTotal={calcularTotal}
+                    formatPrice={formatPrice}
+                  />
+                </div>
+              </div>
             )}
           </>
         )}
+
+        {showCheckoutPage && (
+          <div className="carrito-checkout-page">
+            <CarritoDetallePedido 
+              currentStep={currentStep}
+              handlePasoAnterior={handlePasoAnterior}
+              handleSiguientePaso={handleSiguientePaso}
+              handleFinalizarPedido={handleFinalizarPedido}
+              carritoItems={carritoItems}
+              totalCarritoItems={totalCarritoItems}
+              calcularTotal={calcularTotal}
+              formatPrice={formatPrice}
+              infoForm={infoForm}
+              handleInfoChange={handleInfoChange}
+              isAuthenticated={isAuthenticated}
+              direccionForm={direccionForm}
+              handleDireccionChange={handleDireccionChange}
+              userDirecciones={userDirecciones}
+              loadingDirecciones={loadingDirecciones}
+              useSavedAddress={useSavedAddress}
+              selectedAddressId={selectedAddressId}
+              showNewAddressForm={showNewAddressForm}
+              handleAddressSelect={handleAddressSelect}
+              setShowNewAddressForm={setShowNewAddressForm}
+              setUseSavedAddress={setUseSavedAddress}
+              metodoPago={metodoPago}
+              setMetodoPago={setMetodoPago}
+              userTarjetas={userTarjetas}
+              loadingTarjetas={loadingTarjetas}
+              selectedTarjetaId={selectedTarjetaId}
+              useSavedCard={useSavedCard}
+              showNewCardForm={showNewCardForm}
+              tarjetaForm={tarjetaForm}
+              aceptoTerminos={aceptoTerminos}
+              showPoliticaSeguridad={showPoliticaSeguridad}
+              showTarjetaNumber={showTarjetaNumber}
+              notasPedido={notasPedido}
+              procesandoPedido={procesandoPedido}
+              handleCardSelect={handleCardSelect}
+              handleTarjetaChange={handleTarjetaChange}
+              setShowNewCardForm={setShowNewCardForm}
+              setUseSavedCard={setUseSavedCard}
+              setAceptoTerminos={setAceptoTerminos}
+              setShowPoliticaSeguridad={setShowPoliticaSeguridad}
+              setShowTarjetaNumber={setShowTarjetaNumber}
+              setNotasPedido={setNotasPedido}
+              onAbrirModalDirecciones={handleAbrirModalDirecciones}
+              onAbrirModalTarjetas={handleAbrirModalTarjetas}
+            />
+          </div>
+        )}
       </main>
+
+      {/* ===== MODAL DE GESTIONAR DIRECCIONES ===== */}
+      <DireccionesList
+        isOpen={showModalDirecciones}
+        onClose={handleCerrarModalDirecciones}
+        direcciones={userDirecciones}
+        onDelete={handleDeleteDireccion}
+        onSetPredeterminada={handleSetPredeterminada}
+        onAdd={handleAddDireccion}
+        onEdit={handleEditDireccion}
+        onSelect={handleAddressSelect}
+        darkMode={darkMode}
+        showAddButton={true}
+        showSetDefaultButton={false}
+        isCheckout={true}
+      />
+
+      {/* ===== MODAL DE AGREGAR/EDITAR DIRECCIÓN ===== */}
+      <ModalAgregarDireccion 
+        isOpen={showAgregarDireccionModal}
+        onClose={() => {
+          setShowAgregarDireccionModal(false);
+          setDireccionToEdit(null);
+          setShowModalDirecciones(true);
+        }}
+        onSave={handleSaveDireccion}
+        direccionToEdit={direccionToEdit}
+      />
+
+      {/* ===== MODAL DE GESTIONAR TARJETAS ===== */}
+      <ModalGestionarTarjetas
+        isOpen={showModalTarjetas}
+        onClose={handleCerrarModalTarjetas}
+        tarjetas={userTarjetas}
+        onDelete={handleDeleteTarjeta}
+        onSetPredeterminada={handleSetTarjetaPredeterminada}
+        onAdd={handleAbrirModalAgregarTarjeta}
+        onEdit={handleEditTarjeta}
+        onSelect={handleCardSelect}
+        selectedTarjetaId={selectedTarjetaId}
+        userData={userData}
+        showAddButton={true}
+        isCheckout={true}
+      />
+
+      {/* ===== MODAL DE AGREGAR/EDITAR TARJETA ===== */}
+      <ModalAgregarTarjeta 
+        isOpen={showAgregarTarjetaModal}
+        onClose={handleCerrarModalAgregarTarjeta}
+        userData={userData}
+        tarjetas={userTarjetas}
+        onSuccess={() => {
+          fetchUserTarjetas();
+          setShowAgregarTarjetaModal(false);
+          setShowModalTarjetas(true);
+        }}
+        tarjetaToEdit={tarjetaToEdit}
+        onSave={handleSaveTarjeta}
+      />
     </div>
   );
 };

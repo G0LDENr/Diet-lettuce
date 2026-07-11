@@ -1,0 +1,309 @@
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+  .carrito-detal-info-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .carrito-detal-info-right {
+    margin-top: 0;
+  }
+  
+  .carrito-detal-direccion-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .carrito-detal-direccion-right {
+    margin-top: 0;
+  }
+  
+  .carrito-detal-security-card {
+    position: static;
+  }
+  
+  .carrito-detal-security-features {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .carrito-detal-security-feature {
+    flex: 1;
+    min-width: 140px;
+  }
+  
+  .carrito-detal-metodos-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .carrito-detal-form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .carrito-detal-tarjeta-form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .carrito-detal-info-formulario,
+  .carrito-detal-form-section {
+    padding: 18px;
+  }
+  
+  .carrito-detal-resumen-final-detalle {
+    padding: 18px;
+  }
+  
+  .carrito-product-resumen-card {
+    padding: 20px;
+  }
+  
+  .carrito-detal-security-features {
+    flex-direction: column;
+  }
+  
+  .carrito-detal-security-feature {
+    min-width: auto;
+  }
+  
+  .carrito-detal-security-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .carrito-detal-security-title strong {
+    text-align: center;
+  }
+  
+  .carrito-detal-security-title p {
+    text-align: center;
+  }
+  
+  .carrito-detal-direccion-card {
+    padding: 18px;
+  }
+  
+  .carrito-detal-direccion-card-detalle {
+    padding-left: 0;
+  }
+  
+  .carrito-detal-direccion-card-tipo-text {
+    flex-wrap: wrap;
+  }
+  
+  .carrito-detal-direccion-card-referencias {
+    max-width: 100%;
+  }
+  
+  .carrito-detal-direccion-card-btn {
+    padding: 12px 14px;
+  }
+  
+  .carrito-detal-direccion-card-btn-icon {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+  }
+  
+  .carrito-detal-direccion-card-btn-titulo {
+    font-size: 0.85rem;
+  }
+  
+  .carrito-detal-direccion-card-btn-sub {
+    font-size: 0.75rem;
+  }
+  
+  .carrito-detal-metodo-pago-card {
+    padding: 16px;
+  }
+  
+  .carrito-detal-metodo-icon-circle {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+  }
+  
+  .carrito-detal-metodo-icon {
+    font-size: 1.4rem;
+  }
+  
+  .carrito-detal-metodo-badge {
+    padding: 8px 12px;
+  }
+  
+  .carrito-detal-metodo-badge-icon {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .carrito-detal-input-prefix {
+    width: 38px;
+  }
+  
+  .carrito-detal-prefix-icon {
+    font-size: 0.9rem;
+  }
+  
+  .carrito-detal-form-input {
+    padding: 10px 40px 10px 46px;
+    font-size: 0.9rem;
+  }
+  
+  .carrito-detal-input-check-right {
+    font-size: 1rem;
+    right: 10px;
+  }
+  
+  .carrito-detal-info-left h3,
+  .carrito-detal-direccion-left h3 {
+    font-size: 1.2rem;
+  }
+  
+  .carrito-detal-info-formulario {
+    padding: 14px;
+  }
+  
+  .carrito-detal-security-card {
+    padding: 18px 16px;
+  }
+  
+  .carrito-detal-info-container h3,
+  .carrito-detal-direccion-container h3,
+  .carrito-detal-pago-container h3 {
+    font-size: 1.2rem;
+  }
+  
+  .carrito-detal-resumen-final-detalle {
+    padding: 14px;
+  }
+  
+  .carrito-detal-resumen-row.total {
+    font-size: 1.1rem;
+  }
+  
+  .carrito-detal-total-final {
+    font-size: 1.3rem;
+  }
+  
+  .carrito-product-resumen-card {
+    padding: 16px;
+  }
+  
+  .carrito-product-resumen-header h3 {
+    font-size: 1.1rem;
+  }
+  
+  .carrito-product-resumen-row.total {
+    font-size: 1rem;
+    padding: 12px;
+  }
+  
+  .carrito-product-total-precio {
+    font-size: 1.2rem;
+  }
+  
+  .carrito-product-beneficios {
+    padding: 14px 16px;
+  }
+  
+  .carrito-product-beneficio-item {
+    gap: 10px;
+  }
+  
+  .carrito-product-beneficio-icon {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    font-size: 0.85rem;
+  }
+  
+  .carrito-product-beneficio-titulo {
+    font-size: 0.8rem;
+  }
+  
+  .carrito-product-beneficio-sub {
+    font-size: 0.7rem;
+  }
+  
+  .carrito-detal-direccion-card {
+    padding: 14px;
+  }
+  
+  .carrito-detal-direccion-card-detalle {
+    padding-left: 0;
+  }
+  
+  .carrito-detal-direccion-card-calle {
+    font-size: 0.9rem;
+  }
+  
+  .carrito-detal-direccion-card-colonia {
+    font-size: 0.85rem;
+  }
+  
+  .carrito-detal-direccion-card-cp {
+    font-size: 0.85rem;
+  }
+  
+  .carrito-detal-direccion-card-icon-wrapper {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+  }
+  
+  .carrito-detal-direccion-card-icon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .carrito-detal-direccion-card-referencias {
+    max-width: 100%;
+    padding: 4px 10px;
+  }
+  
+  .carrito-detal-direccion-card-btn {
+    flex-direction: column;
+    text-align: center;
+    padding: 16px;
+  }
+  
+  .carrito-detal-direccion-card-btn-titulo {
+    font-size: 0.85rem;
+  }
+  
+  .carrito-detal-direccion-card-btn-sub {
+    font-size: 0.75rem;
+  }
+  
+  .carrito-detal-metodo-pago-card {
+    flex-wrap: wrap;
+  }
+  
+  .carrito-detal-metodo-radio {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
+  
+  .carrito-detal-metodo-badge {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .carrito-detal-metodo-icon-circle {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+  
+  .carrito-detal-metodo-icon {
+    font-size: 1.2rem;
+  }
+}

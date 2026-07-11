@@ -1,0 +1,218 @@
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.carrito-detal-direccion-container {
+  padding: 20px 0;
+}
+
+.carrito-detal-direccion-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+/* Columna Izquierda - Dirección */
+.carrito-detal-direccion-left {
+  min-width: 0;
+}
+
+.carrito-detal-direccion-left h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 8px 0;
+}
+
+.carrito-detal-direccion-subtitulo {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  margin: 0 0 25px 0;
+}
+
+/* Tarjeta de Dirección */
+.carrito-detal-direccion-card {
+  background: #f6faf7;
+  border-radius: 12px;
+  border: 2px solid #69b081;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(73, 157, 85, 0.1);
+}
+
+.carrito-detal-direccion-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.carrito-detal-direccion-card-icon-wrapper {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: #e7f0e9 !important;
+  border-radius: 20% !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid #e7f0e9 !important;
+}
+
+.carrito-detal-direccion-card-icon {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) saturate(100%) invert(47%) sepia(18%) saturate(849%) hue-rotate(82deg) brightness(92%) contrast(86%);
+  display: block;
+}
+
+.carrito-detal-direccion-card-tipo-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.carrito-detal-direccion-card-tipo-text .carrito-detal-direccion-card-tipo-label {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-dark);
+}
+
+.carrito-detal-direccion-card-pred {
+  font-size: 0.7rem;
+  background: #499d55;
+  color: white;
+  padding: 2px 12px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.carrito-detal-direccion-card-detalle {
+  padding-left: 52px;
+}
+
+.carrito-detal-direccion-card-calle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 2px 0;
+}
+
+.carrito-detal-direccion-card-colonia {
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  margin: 0 0 2px 0;
+}
+
+.carrito-detal-direccion-card-cp {
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  margin: 0 0 12px 0;
+}
+
+.carrito-detal-direccion-card-referencias {
+  background: #e9f2eb;
+  border: 1px solid #accdb2;
+  border-radius: 20px;
+  padding: 5px 14px;
+  margin-top: 4px;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.carrito-detal-direccion-referencia-icon {
+  color: #499d55;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.carrito-detal-direccion-card-referencias span {
+  font-size: 0.85rem;
+  color: var(--text-dark);
+}
+
+/* Botón de acciones de la tarjeta - FUERA DE LA TARJETA */
+.carrito-detal-direccion-card-actions {
+  margin-top: 16px;
+}
+
+.carrito-detal-direccion-card-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--bg-white);
+  border: 2px solid var(--border-light);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.carrito-detal-direccion-card-btn:hover {
+  border-color: #499d55;
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(73, 157, 85, 0.1);
+}
+
+.carrito-detal-direccion-card-btn-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: #e9f1eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.carrito-detal-direccion-btn-icon {
+  color: #499d55;
+  font-size: 1.1rem;
+}
+
+.carrito-detal-direccion-card-btn-texto {
+  flex: 1;
+}
+
+.carrito-detal-direccion-card-btn-titulo {
+  display: block;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+.carrito-detal-direccion-card-btn-sub {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+/* Columna Derecha - Tarjeta de Seguridad de Entrega */
+.carrito-detal-direccion-right {
+  min-width: 0;
+  margin-top: 95px;
+}
+
+.carrito-detal-direccion-right .carrito-detal-security-card {
+  background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+  border-radius: 16px;
+  padding: 24px 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  position: sticky;
+  top: 20px;
+}
+
+/* Formulario de dirección */
+.carrito-detal-direccion-formulario-container {
+  background: var(--bg-white);
+  border-radius: 12px;
+  padding: 25px;
+  border: 1px solid var(--border-light);
+}

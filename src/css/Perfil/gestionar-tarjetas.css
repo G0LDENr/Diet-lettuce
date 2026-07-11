@@ -587,6 +587,192 @@
   color: #4ade80;
 }
 
+/* ===== BOTÓN AGREGAR TARJETA - CHECKOUT (PEQUEÑO Y A LA DERECHA) ===== */
+.tarjeta-add-btn-checkout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.7rem;
+  background-color: #499d55;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.8rem;
+  margin-left: auto;
+  width: auto;
+  min-width: 100px;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.tarjeta-add-btn-checkout:hover {
+  background-color: #3a7d44;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(73, 157, 85, 0.3);
+}
+
+.tarjeta-add-btn-checkout:active {
+  transform: translateY(0px);
+}
+
+.tarjeta-add-btn-checkout svg {
+  font-size: 0.65rem;
+}
+
+/* Modo oscuro */
+.dark-mode .tarjeta-add-btn-checkout {
+  background-color: #D4AF37;
+  color: #000;
+}
+
+.dark-mode .tarjeta-add-btn-checkout:hover {
+  background-color: #b8941f;
+}
+
+/* ===== BADGES ===== */
+.tarjeta-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  margin-left: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+/* Badge Predeterminada - VERDE en PERFIL (original) */
+.tarjeta-badge.predeterminada-badge {
+  background-color: #50831d;
+  color: white;
+}
+
+/* Badge Predeterminada - GRIS en CHECKOUT cuando NO está seleccionada */
+.tarjeta-badge.predeterminada-badge.checkout-gris {
+  background-color: #9ca3af;
+  color: white;
+}
+
+/* Badge Predeterminada - VERDE en CHECKOUT cuando está seleccionada */
+.tarjeta-badge.predeterminada-badge.in-use {
+  background-color: #499d55;
+  color: white;
+  animation: pulseBadge 0.5s ease;
+}
+
+/* Badge "En uso" - SOLO EN CHECKOUT */
+.tarjeta-badge.selected-badge {
+  background-color: #499d55;
+  color: white;
+  animation: pulseBadge 0.5s ease;
+}
+
+@keyframes pulseBadge {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* ===== TARJETA SELECCIONADA (SOLO EN CHECKOUT) ===== */
+.tarjeta-card.selected {
+  border: 2px solid #499d55;
+  background-color: #f0fdf4;
+  box-shadow: 0 0 0 3px rgba(73, 157, 85, 0.2);
+}
+
+.tarjeta-card.selected .tarjeta-card-tipo svg {
+  color: #499d55;
+}
+
+.tarjeta-card.selected .tarjeta-numero {
+  color: #499d55;
+}
+
+/* ===== PERFIL - PREDETERMINADA CON LÍNEA VERDE ===== */
+.tarjeta-card.predeterminada {
+  border-left: 4px solid #50831d;
+  background-color: #f8faf8;
+}
+
+/* ===== CHECKOUT - PREDETERMINADA SIN LÍNEA A MENOS QUE ESTÉ SELECCIONADA ===== */
+.tarjeta-card.predeterminada:not(.selected) {
+  border-left: none;
+  background-color: #ffffff;
+}
+
+.tarjeta-card.predeterminada.selected {
+  border-left: 4px solid #499d55;
+  background-color: #f0fdf4;
+}
+
+/* ===== MODO OSCURO ===== */
+.dark-mode .tarjeta-card.selected {
+  border-color: #D4AF37;
+  background-color: #2a2a2a;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+.dark-mode .tarjeta-card.selected .tarjeta-card-tipo svg {
+  color: #D4AF37;
+}
+
+.dark-mode .tarjeta-card.selected .tarjeta-numero {
+  color: #D4AF37;
+}
+
+/* Perfil - modo oscuro */
+.dark-mode .tarjeta-badge.predeterminada-badge {
+  background-color: #D4AF37;
+  color: #000;
+}
+
+/* Checkout - modo oscuro */
+.dark-mode .tarjeta-badge.predeterminada-badge.checkout-gris {
+  background-color: #6b7280;
+  color: #e2e8f0;
+}
+
+.dark-mode .tarjeta-badge.predeterminada-badge.in-use {
+  background-color: #D4AF37;
+  color: #000;
+}
+
+.dark-mode .tarjeta-badge.selected-badge {
+  background-color: #D4AF37;
+  color: #000;
+}
+
+.dark-mode .tarjeta-card.predeterminada {
+  background-color: #1a1a1a;
+  border-left-color: #D4AF37;
+}
+
+.dark-mode .tarjeta-card.predeterminada:not(.selected) {
+  border-left: none;
+  background-color: #1a1a1a;
+}
+
+.dark-mode .tarjeta-card.predeterminada.selected {
+  border-left-color: #D4AF37;
+  background-color: #2a2a2a;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  .tarjeta-add-btn-checkout {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.6rem;
+    min-width: 80px;
+  }
+  
+  .tarjeta-add-btn-checkout svg {
+    font-size: 0.6rem;
+  }
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 640px) {
   .tarjeta-modal-overlay {

@@ -755,6 +755,9 @@ const Perfil = () => {
         onAdd={handleAddDireccion}
         onEdit={handleEditDireccion}
         userData={userData}
+        showAddButton={false}
+        showSetDefaultButton={true}
+        isCheckout={false}
       />
 
       {/* Modal de Agregar/Editar Dirección */}
@@ -786,6 +789,8 @@ const Perfil = () => {
         onAdd={handleAddTarjeta}
         onEdit={handleEditTarjeta}
         userData={userData}
+        showAddButton={true}
+        isCheckout={false}
       />
 
       {/* Modal de Agregar/Editar Tarjeta */}

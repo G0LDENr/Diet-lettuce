@@ -1,0 +1,379 @@
+/* Paso 5: Resumen Final - REDISEÑADO */
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.carrito-detal-resumen-final {
+  padding: 20px 0;
+}
+
+.carrito-detal-resumen-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 25px;
+  align-items: start;
+}
+
+/* ===== COLUMNA IZQUIERDA ===== */
+.carrito-detal-resumen-left {
+  min-width: 0;
+}
+
+.carrito-detal-resumen-card {
+  background: var(--bg-white);
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid var(--border-light);
+}
+
+.carrito-detal-resumen-seccion {
+  margin-bottom: 16px;
+}
+
+.carrito-detal-resumen-seccion:last-child {
+  margin-bottom: 0;
+}
+
+.carrito-detal-resumen-seccion-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.carrito-detal-resumen-icon-circle {
+  width: 35px;
+  height: 35px;
+  min-width: 35px;
+  background: #ebf4ef;
+  border-radius: 15%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carrito-detal-resumen-section-icon {
+  color: #499d55;
+  font-size: 1.3rem;
+}
+
+.carrito-detal-resumen-seccion h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+/* ===== CONTENIDO DE LAS SECCIONES - MISMO PADDING PARA TODOS ===== */
+.carrito-detal-resumen-seccion .carrito-detal-resumen-productos-list,
+.carrito-detal-resumen-seccion .carrito-detal-resumen-contacto,
+.carrito-detal-resumen-seccion .carrito-detal-resumen-direccion-info,
+.carrito-detal-resumen-seccion .carrito-detal-resumen-pago-info {
+  padding-left: 42px;
+}
+
+/* ===== PRODUCTOS ===== */
+.carrito-detal-resumen-producto {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+}
+
+.carrito-detal-resumen-producto:last-child {
+  border-bottom: none;
+}
+
+/* ===== INFORMACIÓN DE CONTACTO ===== */
+.carrito-detal-resumen-contacto p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.carrito-detal-resumen-label {
+  font-weight: 400;
+  color: var(--text-light);
+}
+
+/* ===== DIRECCIÓN ===== */
+.carrito-detal-resumen-direccion-info p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.carrito-detal-resumen-direccion-calle {
+  color: var(--text-dark) !important;
+  font-weight: 500;
+}
+
+.carrito-detal-resumen-referencias {
+  color: var(--text-light) !important;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+/* ===== MÉTODO DE PAGO ===== */
+.carrito-detal-resumen-pago-info p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.carrito-detal-resumen-tarjeta-info {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin: 2px 0;
+}
+
+/* ===== DIVISIÓN ===== */
+.carrito-detal-resumen-division {
+  height: 1px;
+  background: var(--border-light);
+  margin: 14px 0;
+}
+
+/* ===== TODO LISTO ===== */
+.carrito-detal-resumen-todo-listo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f4f9f6;
+  border: 1px solid #f4f9f6;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 4px;
+}
+
+.carrito-detal-resumen-todo-listo-icon {
+  color: #499d55;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.carrito-detal-resumen-todo-listo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.carrito-detal-resumen-todo-listo-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #3a9b56;
+}
+
+.carrito-detal-resumen-todo-listo-sub {
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+/* ===== COLUMNA DERECHA ===== */
+.carrito-detal-resumen-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.carrito-detal-resumen-right-card {
+  background: var(--bg-white);
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid var(--border-light);
+}
+
+/* Cuadro 1: Resumen del pedido */
+.carrito-detal-resumen-right-card-header {
+  margin-bottom: 12px;
+}
+
+.carrito-detal-resumen-right-card-header h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.carrito-detal-resumen-right-productos {
+  margin-bottom: 8px;
+}
+
+.carrito-detal-resumen-right-producto {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 0.85rem;
+  color: var(--text-dark);
+}
+
+.carrito-detal-resumen-right-division {
+  height: 1px;
+  background: var(--border-light);
+  margin: 10px 0;
+}
+
+.carrito-detal-resumen-right-envio {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+}
+
+.carrito-detal-resumen-right-envio-gratis {
+  color: #499d55;
+  font-weight: 600;
+}
+
+/* ===== TOTAL A PAGAR - CUADRO VERDE ===== */
+.carrito-detal-resumen-right-total-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f4f9f6;
+  border: 1px solid #f4f9f6;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 4px;
+}
+
+.carrito-detal-resumen-right-total-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.carrito-detal-resumen-right-total-price {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #499d55;
+}
+
+/* Cuadro 2: Beneficios */
+.carrito-detal-resumen-right-beneficio {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.carrito-detal-resumen-right-beneficio:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.carrito-detal-resumen-right-beneficio:first-child {
+  padding-top: 0;
+}
+
+.carrito-detal-resumen-right-beneficio-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  background: #e9f1eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #499d55;
+  font-size: 0.9rem;
+}
+
+.carrito-detal-resumen-right-beneficio-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.carrito-detal-resumen-right-beneficio-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.carrito-detal-resumen-right-beneficio-sub {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+  .carrito-detal-resumen-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .carrito-detal-resumen-right {
+    flex-direction: row;
+    gap: 20px;
+  }
+  
+  .carrito-detal-resumen-right-card {
+    flex: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .carrito-detal-resumen-card {
+    padding: 18px;
+  }
+  
+  .carrito-detal-resumen-right {
+    flex-direction: column;
+  }
+  
+  .carrito-detal-resumen-right-card {
+    padding: 16px;
+  }
+  
+  .carrito-detal-resumen-right-total-price {
+    font-size: 1.1rem;
+  }
+  
+  .carrito-detal-resumen-seccion .carrito-detal-resumen-productos-list,
+  .carrito-detal-resumen-seccion .carrito-detal-resumen-contacto,
+  .carrito-detal-resumen-seccion .carrito-detal-resumen-direccion-info,
+  .carrito-detal-resumen-seccion .carrito-detal-resumen-pago-info {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .carrito-detal-resumen-card {
+    padding: 14px;
+  }
+  
+  .carrito-detal-resumen-right-card {
+    padding: 14px;
+  }
+  
+  .carrito-detal-resumen-todo-listo {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .carrito-detal-resumen-right-beneficio {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .carrito-detal-resumen-right-beneficio-text {
+    text-align: center;
+  }
+  
+  .carrito-detal-resumen-seccion-header {
+    justify-content: center;
+  }
+  
+  .carrito-detal-resumen-seccion .carrito-detal-resumen-productos-list,
+  .carrito-detal-resumen-seccion .carrito-detal-resumen-contacto,
+  .carrito-detal-resumen-seccion .carrito-detal-resumen-direccion-info,
+  .carrito-detal-resumen-seccion .carrito-detal-resumen-pago-info {
+    padding-left: 0;
+  }
+  
+  .carrito-detal-resumen-right-total-box {
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+  }
+}

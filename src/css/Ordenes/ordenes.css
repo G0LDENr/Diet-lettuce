@@ -1713,6 +1713,44 @@
   animation: spin 1s linear infinite;
 }
 
+/* Botón de Análisis */
+.ordenes-analytics-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  background: #96bd44;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ordenes-analytics-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.ordenes-analytics-btn:active {
+  transform: translateY(0);
+}
+
+.ordenes-analytics-btn .ordenes-btn-icon-text {
+  font-size: 18px;
+}
+
+/* Modo oscuro */
+.dark-mode .ordenes-analytics-btn {
+  background: linear-gradient(135deg, #5a6fd6 0%, #6a3f8f 100%);
+}
+
+.dark-mode .ordenes-analytics-btn:hover {
+  box-shadow: 0 4px 12px rgba(90, 111, 214, 0.4);
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }

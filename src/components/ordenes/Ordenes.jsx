@@ -3,8 +3,10 @@ import CreateOrdenForm from '../../components/ordenes/create-ordenes';
 import EditOrdenForm from '../../components/ordenes/edit-ordenes';
 import VerificarCodigo from '../../components/ordenes/verificar-codigo';
 import ModalDetallePedido from '../../components/ordenes/detalles-ordenes';
+import AnalisisOrdenes from '../../components/ordenes/analisis-ordenes';
 import { useConfig } from '../../context/config';
 import '../../css/Ordenes/ordenes.css';
+import '../../css/Ordenes/analisis-ordenes.css';
 
 import editIcon from '../../img/edit.png';
 import deleteIcon from '../../img/delete.png';
@@ -44,6 +46,9 @@ const Ordenes = () => {
   const [exportPreviewData, setExportPreviewData] = useState([]);
   const [exportLoading, setExportLoading] = useState(false);
   const [exportTotalRegistros, setExportTotalRegistros] = useState(0);
+
+  // Estado para el modal de análisis
+  const [showAnalisisModal, setShowAnalisisModal] = useState(false);
   
   const ordenesPerPage = 7;
 
@@ -464,6 +469,14 @@ const Ordenes = () => {
   const handleExport = () => {
     setShowExportModal(true);
   };
+
+  const handleOpenAnalisis = () => {
+    setShowAnalisisModal(true);
+  };
+
+  const handleCloseAnalisis = () => {
+    setShowAnalisisModal(false);
+  };
   
   const closeExportModal = () => {
     setShowExportModal(false);
@@ -623,6 +636,17 @@ const Ordenes = () => {
             >
               <img src={refreshIcon} alt="Actualizar" className="ordenes-btn-icon-refresh" />
             </button>
+            
+            {/* Botón de Análisis */}
+            <button 
+              className="ordenes-analytics-btn"
+              onClick={handleOpenAnalisis}
+              title="Ver análisis de órdenes"
+            >
+              <span className="ordenes-btn-icon-text"></span>
+              Análisis
+            </button>
+            
             <button 
               className="ordenes-verify-btn"
               onClick={handleVerifyCode}
@@ -1184,6 +1208,13 @@ const Ordenes = () => {
             </div>
           </div>
         )}
+
+        {/* Modal de Análisis de Órdenes */}
+        <AnalisisOrdenes
+          open={showAnalisisModal}
+          onClose={handleCloseAnalisis}
+        />
+
       </div>
     </div>
   );

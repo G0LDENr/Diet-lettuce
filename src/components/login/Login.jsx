@@ -17,7 +17,6 @@ const Login = ({ onToggle }) => {
     // Textos según el idioma
     const texts = {
         es: {
-            title: "Iniciar Sesión",
             email: "Correo electrónico",
             emailPlaceholder: "correo@example.com",
             password: "Contraseña",
@@ -35,7 +34,6 @@ const Login = ({ onToggle }) => {
             welcomeUser: "Bienvenido"
         },
         en: {
-            title: "Login",
             email: "Email",
             emailPlaceholder: "email@example.com",
             password: "Password",
@@ -127,7 +125,6 @@ const Login = ({ onToggle }) => {
 
     return (
         <div className="auth-form-inner">
-            <h2 className="auth-form-title">{t.title}</h2>
             
             {successMessage && (
                 <div className="auth-success-message">

@@ -365,7 +365,7 @@ const Carrito = () => {
   const handleCerrarModalAgregarTarjeta = () => {
     setShowAgregarTarjetaModal(false);
     setTarjetaToEdit(null);
-    setShowModalTarjetas(true); // ← Vuelve a abrir el modal de gestionar tarjetas
+    setShowModalTarjetas(true);
   };
 
   const handleDeleteTarjeta = async (id) => {
@@ -658,23 +658,30 @@ const Carrito = () => {
     }
   };
 
+  // ===== FUNCIÓN PARA EL BOTÓN DE REGRESO DEL MENÚ (CORREGIDA) =====
   const handleGoBack = () => {
+    // Si estamos en checkout (pasos 2-5)
     if (showCheckoutPage) {
+      // Si estamos en el paso 2 (Información), volvemos al carrito
       if (currentStep === 2) {
         setShowCheckoutPage(false);
         setCurrentStep(1);
         return;
       }
+      // Si estamos en el paso 3 o superior, retrocedemos un paso
       if (currentStep > 2) {
         setCurrentStep(currentStep - 1);
         return;
       }
+      // Si estamos en el paso 1 pero con checkout visible (caso raro)
       if (currentStep === 1) {
         setShowCheckoutPage(false);
         return;
       }
     }
-    navigate(-1);
+    
+    // Si no estamos en checkout, navegamos a la página de productos
+    navigate('/productos');
   };
 
   const handleSeguirComprando = () => {
@@ -855,7 +862,6 @@ const Carrito = () => {
               onClick={handleGoBack}
               className="carrito-shop-back-btn"
               title="Regresar"
-              disabled={!showCheckoutPage && currentStep === 1}
             >
               <img src={backIcon} alt="Regresar" className="carrito-shop-icon-img" />
             </button>

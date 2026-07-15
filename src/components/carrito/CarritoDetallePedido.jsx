@@ -210,7 +210,7 @@ const CarritoDetallePedido = ({
         <div className="carrito-product-resumen-card">
           <div className="carrito-product-resumen-header">
             <h3>
-              <PiShoppingCart  className="carrito-resumen-icon" />
+              <PiShoppingCart className="carrito-resumen-icon" />
               Resumen del Pedido
             </h3>
             <p className="carrito-resumen-subtotal-text">
@@ -411,17 +411,13 @@ const CarritoDetallePedido = ({
 
   // ========== PASO 3: DIRECCIÓN ==========
   const renderPasoDireccion = () => {
-    // Buscar la dirección seleccionada primero
     const direccionSeleccionada = userDirecciones.find(dir => dir.id === selectedAddressId);
-    // Si no hay seleccionada, usar la predeterminada
     const direccionDefault = userDirecciones.find(dir => dir.predeterminada);
-    // Mostrar la seleccionada si existe, si no la predeterminada, si no la primera
     const direccionMostrar = direccionSeleccionada || direccionDefault || userDirecciones[0];
 
     return (
       <div className="carrito-detal-direccion-container">
         <div className="carrito-detal-direccion-grid">
-          {/* Columna Izquierda - Dirección */}
           <div className="carrito-detal-direccion-left">
             <h3>Dirección de entrega</h3>
             <p className="carrito-detal-direccion-subtitulo">
@@ -430,9 +426,7 @@ const CarritoDetallePedido = ({
 
             {isAuthenticated && userDirecciones.length > 0 && !showNewAddressForm ? (
               <>
-                {/* Tarjeta de Dirección */}
                 <div className="carrito-detal-direccion-card">
-                  {/* Cabecera con círculo + icono + texto */}
                   <div className="carrito-detal-direccion-card-header">
                     <div className="carrito-detal-direccion-card-icon-wrapper">
                       <img 
@@ -451,7 +445,6 @@ const CarritoDetallePedido = ({
                     </div>
                   </div>
 
-                  {/* Detalles de la dirección */}
                   <div className="carrito-detal-direccion-card-detalle">
                     <p className="carrito-detal-direccion-card-calle">
                       <strong>{direccionMostrar?.calle} #{direccionMostrar?.numero_exterior}</strong>
@@ -472,7 +465,6 @@ const CarritoDetallePedido = ({
                   </div>
                 </div>
 
-                {/* Botón FUERA de la tarjeta */}
                 <div className="carrito-detal-direccion-card-actions">
                   <button 
                     className="carrito-detal-direccion-card-btn"
@@ -619,7 +611,6 @@ const CarritoDetallePedido = ({
             )}
           </div>
 
-          {/* Columna Derecha - Tarjeta de Seguridad de Entrega */}
           <div className="carrito-detal-direccion-right">
             <div className="carrito-detal-security-card">
               <div className="carrito-detal-security-header">
@@ -661,7 +652,6 @@ const CarritoDetallePedido = ({
 
   // ========== PASO 4: PAGO ==========
   const renderPasoPago = () => {
-    // Encontrar la tarjeta seleccionada
     const tarjetaSeleccionada = userTarjetas.find(t => t.id === selectedTarjetaId);
 
     return (
@@ -673,7 +663,6 @@ const CarritoDetallePedido = ({
           </p>
           
           <div className="carrito-detal-metodos-grid">
-            {/* Pago en Efectivo */}
             <div 
               className={`carrito-detal-metodo-pago-card ${metodoPago === 'efectivo' ? 'seleccionado' : ''}`}
               onClick={() => setMetodoPago('efectivo')}
@@ -715,7 +704,6 @@ const CarritoDetallePedido = ({
               </div>
             </div>
             
-            {/* Pago con Tarjeta */}
             <div 
               className={`carrito-detal-metodo-pago-card ${metodoPago === 'tarjeta' ? 'seleccionado' : ''}`}
               onClick={() => setMetodoPago('tarjeta')}
@@ -770,7 +758,6 @@ const CarritoDetallePedido = ({
 
             {isAuthenticated && userTarjetas.length > 0 && !showNewCardForm ? (
               <>
-                {/* Tarjeta seleccionada */}
                 <div className="carrito-detal-tarjeta-card">
                   <div className="carrito-detal-tarjeta-card-header">
                     <div className="carrito-detal-tarjeta-card-tipo">
@@ -800,7 +787,6 @@ const CarritoDetallePedido = ({
                   </div>
                 </div>
 
-                {/* Botón para seleccionar una tarjeta diferente */}
                 <div className="carrito-detal-tarjeta-card-actions-bottom">
                   <button 
                     className="carrito-detal-tarjeta-card-btn"
@@ -984,7 +970,7 @@ const CarritoDetallePedido = ({
     );
   };
 
-  // ========== PASO 5: RESUMEN FINAL (REDISEÑADO) ==========
+  // ========== PASO 5: RESUMEN FINAL ==========
   const renderResumenFinal = () => {
     const direccionMostrada = isAuthenticated && useSavedAddress && selectedAddressId 
       ? userDirecciones.find(d => d.id === selectedAddressId)
@@ -997,14 +983,12 @@ const CarritoDetallePedido = ({
     return (
       <div className="carrito-detal-resumen-final">
         <div className="carrito-detal-resumen-grid">
-          {/* Columna Izquierda - Detalle del Pedido */}
           <div className="carrito-detal-resumen-left">
             <div className="carrito-detal-resumen-card">
-              {/* Productos */}
               <div className="carrito-detal-resumen-seccion">
                 <div className="carrito-detal-resumen-seccion-header">
                   <div className="carrito-detal-resumen-icon-circle">
-                    <PiShoppingCart  className="carrito-detal-resumen-section-icon" />
+                    <PiShoppingCart className="carrito-detal-resumen-section-icon" />
                   </div>
                   <h4>Productos</h4>
                 </div>
@@ -1020,7 +1004,6 @@ const CarritoDetallePedido = ({
 
               <div className="carrito-detal-resumen-division"></div>
 
-              {/* Información de contacto */}
               <div className="carrito-detal-resumen-seccion">
                 <div className="carrito-detal-resumen-seccion-header">
                   <div className="carrito-detal-resumen-icon-circle">
@@ -1036,7 +1019,6 @@ const CarritoDetallePedido = ({
 
               <div className="carrito-detal-resumen-division"></div>
 
-              {/* Dirección */}
               <div className="carrito-detal-resumen-seccion">
                 <div className="carrito-detal-resumen-seccion-header">
                   <div className="carrito-detal-resumen-icon-circle">
@@ -1059,7 +1041,6 @@ const CarritoDetallePedido = ({
 
               <div className="carrito-detal-resumen-division"></div>
 
-              {/* Método de pago */}
               <div className="carrito-detal-resumen-seccion">
                 <div className="carrito-detal-resumen-seccion-header">
                   <div className="carrito-detal-resumen-icon-circle">
@@ -1080,9 +1061,8 @@ const CarritoDetallePedido = ({
 
               <div className="carrito-detal-resumen-division"></div>
 
-              {/* Todo Listo */}
               <div className="carrito-detal-resumen-todo-listo">
-                <GoShieldCheck  className="carrito-detal-resumen-todo-listo-icon" />
+                <GoShieldCheck className="carrito-detal-resumen-todo-listo-icon" />
                 <div className="carrito-detal-resumen-todo-listo-text">
                   <span className="carrito-detal-resumen-todo-listo-title">¡Todo Listo!</span>
                   <span className="carrito-detal-resumen-todo-listo-sub">Revisa tu información antes de finalizar</span>
@@ -1091,9 +1071,7 @@ const CarritoDetallePedido = ({
             </div>
           </div>
 
-          {/* Columna Derecha */}
           <div className="carrito-detal-resumen-right">
-            {/* Cuadro 1: Resumen del pedido */}
             <div className="carrito-detal-resumen-right-card">
               <div className="carrito-detal-resumen-right-card-header">
                 <h4>Resumen del pedido</h4>
@@ -1118,7 +1096,6 @@ const CarritoDetallePedido = ({
               </div>
             </div>
 
-            {/* Cuadro 2: Beneficios */}
             <div className="carrito-detal-resumen-right-card">
               <div className="carrito-detal-resumen-right-beneficio">
                 <div className="carrito-detal-resumen-right-beneficio-icon">
@@ -1216,29 +1193,20 @@ const CarritoDetallePedido = ({
     }
   };
 
+  // ===== NAVEGACIÓN - SOLO BOTÓN "CONTINUAR" =====
   const renderNavigation = () => {
     const isLastStep = currentStep === 5;
-    const isFirstStep = currentStep === 2;
     const nextLabel = isLastStep ? 'Finalizar Pedido' : 'Continuar';
 
     if (currentStep === 1) return null;
 
     return (
       <div className="carrito-detal-checkout-navigation">
-        {!isFirstStep && (
-          <button 
-            onClick={handlePasoAnterior}
-            className="carrito-detal-btn-nav back-btn"
-          >
-            ← Atrás
-          </button>
-        )}
-        
         <button 
           onClick={isLastStep ? handleFinalizarPedido : handleSiguientePasoLocal}
           disabled={isLastStep && procesandoPedido}
           className="carrito-detal-btn-nav next-btn"
-          style={{ marginLeft: isFirstStep ? 'auto' : '0' }}
+          style={{ marginLeft: 'auto' }}
         >
           {isLastStep && procesandoPedido ? (
             <>

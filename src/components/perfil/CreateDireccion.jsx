@@ -16,17 +16,22 @@ const ModalAgregarDireccion = ({ isOpen, onClose, onSave, direccionToEdit = null
   });
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [coloniasSugerencias, setColoniasSugerencias] = useState([]);
-  const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
-  const [inputColonia, setInputColonia] = useState('');
-  const [cargandoColonias, setCargandoColonias] = useState(false);
-  const [timeoutId, setTimeoutId] = useState(null);
+  const [submitError, setSubmitError] = useState('');
   
   const isEditing = !!direccionToEdit;
 
+  // Resetear todos los estados cuando se cierra el modal
   useEffect(() => {
-    if (direccionToEdit) {
+    if (!isOpen) {
+      setIsSaving(false);
+      setSubmitError('');
+      setErrors({});
+    }
+  }, [isOpen]);
+
+  // Cargar datos de edición cuando se abre el modal
+  useEffect(() => {
+    if (direccionToEdit && isOpen) {
       setFormData({
         calle: direccionToEdit.calle || '',
         numero_exterior: direccionToEdit.numero_exterior || '',
@@ -38,8 +43,9 @@ const ModalAgregarDireccion = ({ isOpen, onClose, onSave, direccionToEdit = null
         referencias: direccionToEdit.referencias || '',
         tipo: direccionToEdit.tipo || 'casa'
       });
-      setInputColonia(direccionToEdit.colonia || '');
-    } else {
+      setSubmitError('');
+      setErrors({});
+    } else if (!direccionToEdit && isOpen) {
       setFormData({
         calle: '',
         numero_exterior: '',
@@ -51,121 +57,10 @@ const ModalAgregarDireccion = ({ isOpen, onClose, onSave, direccionToEdit = null
         referencias: '',
         tipo: 'casa'
       });
-      setInputColonia('');
+      setSubmitError('');
+      setErrors({});
     }
-  }, [direccionToEdit]);
-
-  useEffect(() => {
-    if (successMessage) {
-      const timer = setTimeout(() => {
-        setSuccessMessage('');
-        onClose();
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [successMessage, onClose]);
-
-  const buscarInfoPorCP = async (cp) => {
-    if (!cp || cp.length !== 5 || !/^\d{5}$/.test(cp)) {
-      setColoniasSugerencias([]);
-      setMostrarSugerencias(false);
-      return;
-    }
-
-    setCargandoColonias(true);
-    try {
-      const response = await fetch(`http://127.0.0.1:5000/direcciones/codigo_postal/${cp}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Datos recibidos:', data);
-        
-        if (data.ciudad && data.ciudad !== '') {
-          setFormData(prev => ({ ...prev, ciudad: data.ciudad }));
-        }
-        if (data.estado && data.estado !== '') {
-          setFormData(prev => ({ ...prev, estado: data.estado }));
-        }
-        
-        if (data.colonias && data.colonias.length > 0) {
-          setColoniasSugerencias(data.colonias);
-          setMostrarSugerencias(true);
-        } else {
-          setColoniasSugerencias([]);
-          setMostrarSugerencias(false);
-        }
-      } else {
-        setColoniasSugerencias([]);
-        setMostrarSugerencias(false);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      setColoniasSugerencias([]);
-      setMostrarSugerencias(false);
-    } finally {
-      setCargandoColonias(false);
-    }
-  };
-
-  const handleCodigoPostalChange = (e) => {
-    const cp = e.target.value;
-    setFormData(prev => ({ ...prev, codigo_postal: cp }));
-    
-    if (errors.codigo_postal) {
-      setErrors(prev => ({ ...prev, codigo_postal: '' }));
-    }
-
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-
-    const newTimeoutId = setTimeout(() => {
-      if (cp.length === 5 && /^\d{5}$/.test(cp)) {
-        buscarInfoPorCP(cp);
-      } else {
-        setColoniasSugerencias([]);
-        setMostrarSugerencias(false);
-      }
-    }, 500);
-    
-    setTimeoutId(newTimeoutId);
-  };
-
-  const seleccionarColonia = (colonia) => {
-    setFormData(prev => ({ ...prev, colonia: colonia }));
-    setInputColonia(colonia);
-    setMostrarSugerencias(false);
-    if (errors.colonia) {
-      setErrors(prev => ({ ...prev, colonia: '' }));
-    }
-  };
-
-  const handleColoniaChange = (e) => {
-    const value = e.target.value;
-    setInputColonia(value);
-    setFormData(prev => ({ ...prev, colonia: value }));
-    
-    if (coloniasSugerencias.length > 0 && value) {
-      const filtradas = coloniasSugerencias.filter(c => 
-        c.toLowerCase().includes(value.toLowerCase())
-      );
-      setColoniasSugerencias(filtradas);
-      setMostrarSugerencias(filtradas.length > 0);
-    } else if (coloniasSugerencias.length > 0 && !value) {
-      setMostrarSugerencias(true);
-    } else {
-      setMostrarSugerencias(false);
-    }
-    
-    if (errors.colonia) {
-      setErrors(prev => ({ ...prev, colonia: '' }));
-    }
-  };
+  }, [direccionToEdit, isOpen]);
 
   const handleKeyDown = (e, nextFieldId) => {
     if (e.key === 'Enter') {
@@ -182,6 +77,7 @@ const ModalAgregarDireccion = ({ isOpen, onClose, onSave, direccionToEdit = null
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setSubmitError('');
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
@@ -201,22 +97,40 @@ const ModalAgregarDireccion = ({ isOpen, onClose, onSave, direccionToEdit = null
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    setSubmitError('');
+    
+    if (!validate()) {
+      const firstErrorField = document.querySelector('.input-error');
+      if (firstErrorField) {
+        firstErrorField.focus();
+      }
+      return;
+    }
     
     setIsSaving(true);
     try {
       await onSave(formData);
-      setSuccessMessage(isEditing ? '¡Dirección actualizada correctamente!' : '¡Dirección agregada correctamente!');
+      onClose();
     } catch (error) {
       console.error('Error al guardar:', error);
+      setSubmitError(error.message || 'Error al guardar la dirección. Intenta nuevamente.');
       setIsSaving(false);
+    }
+  };
+
+  // Función para cerrar el modal de forma segura
+  const handleClose = () => {
+    if (!isSaving) {
+      setIsSaving(false);
+      setSubmitError('');
+      onClose();
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="add-dir-modal-overlay" onClick={onClose}>
+    <div className="add-dir-modal-overlay" onClick={handleClose}>
       <div className="add-dir-modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="add-dir-modal-header">
           <div className="add-dir-modal-logo">
@@ -228,13 +142,19 @@ const ModalAgregarDireccion = ({ isOpen, onClose, onSave, direccionToEdit = null
               {isEditing ? 'Actualiza los datos de tu dirección' : 'Ingresa los datos de tu nueva dirección'}
             </div>
           </div>
-          <button className="add-dir-modal-close" onClick={onClose}>✕</button>
+          <button 
+            className="add-dir-modal-close" 
+            onClick={handleClose}
+            disabled={isSaving}
+          >
+            ✕
+          </button>
         </div>
 
-        {successMessage && (
-          <div className="add-dir-modal-success-message">
-            <FaCheckCircle className="success-icon" />
-            <span>{successMessage}</span>
+        {submitError && (
+          <div className="add-dir-modal-error-message">
+            <span className="error-icon">⚠️</span>
+            <span>{submitError}</span>
           </div>
         )}
 
@@ -296,8 +216,8 @@ const ModalAgregarDireccion = ({ isOpen, onClose, onSave, direccionToEdit = null
                   id="codigo_postal"
                   name="codigo_postal"
                   value={formData.codigo_postal}
-                  onChange={handleCodigoPostalChange}
-                  onKeyDown={(e) => handleKeyDown(e, 'colonia_input')}
+                  onChange={handleChange}
+                  onKeyDown={(e) => handleKeyDown(e, 'colonia')}
                   className={errors.codigo_postal ? 'input-error' : ''}
                   placeholder="12345"
                   maxLength="5"
@@ -308,41 +228,19 @@ const ModalAgregarDireccion = ({ isOpen, onClose, onSave, direccionToEdit = null
             </div>
 
             <div className="add-dir-form-row">
-              <div className="add-dir-form-group add-dir-colonia-group">
-                <label htmlFor="colonia_input">Colonia</label>
-                <div className="add-dir-colonia-container">
-                  <input
-                    type="text"
-                    id="colonia_input"
-                    value={inputColonia}
-                    onChange={handleColoniaChange}
-                    onKeyDown={(e) => handleKeyDown(e, 'ciudad')}
-                    className={errors.colonia ? 'input-error' : ''}
-                    placeholder="Nombre de la colonia"
-                    disabled={isSaving}
-                    autoComplete="off"
-                  />
-                  {cargandoColonias && (
-                    <div className="add-dir-cargando">
-                      <FaSpinner className="spinner-icon" />
-                      <span>Buscando colonias...</span>
-                    </div>
-                  )}
-                  {mostrarSugerencias && coloniasSugerencias.length > 0 && !cargandoColonias && (
-                    <div className="add-dir-sugerencias">
-                      {coloniasSugerencias.map((colonia, index) => (
-                        <div
-                          key={index}
-                          className="add-dir-sugerencia-item"
-                          onClick={() => seleccionarColonia(colonia)}
-                        >
-                          <FaSearch className="sugerencia-icon" />
-                          <span>{colonia}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+              <div className="add-dir-form-group">
+                <label htmlFor="colonia">Colonia</label>
+                <input
+                  type="text"
+                  id="colonia"
+                  name="colonia"
+                  value={formData.colonia}
+                  onChange={handleChange}
+                  onKeyDown={(e) => handleKeyDown(e, 'ciudad')}
+                  className={errors.colonia ? 'input-error' : ''}
+                  placeholder="Nombre de la colonia"
+                  disabled={isSaving}
+                />
                 {errors.colonia && <span className="add-dir-error-message">{errors.colonia}</span>}
               </div>
             </div>
@@ -412,11 +310,27 @@ const ModalAgregarDireccion = ({ isOpen, onClose, onSave, direccionToEdit = null
             </div>
 
             <div className="add-dir-modal-footer">
-              <button type="button" className="add-dir-btn-cancel" onClick={onClose} disabled={isSaving}>
+              <button 
+                type="button" 
+                className="add-dir-btn-cancel" 
+                onClick={handleClose}
+                disabled={isSaving}
+              >
                 Cancelar
               </button>
-              <button type="submit" className="add-dir-btn-save" disabled={isSaving}>
-                {isSaving ? 'Guardando...' : (isEditing ? 'Actualizar Dirección' : 'Agregar Dirección')}
+              <button 
+                type="submit" 
+                className="add-dir-btn-save" 
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <>
+                    <FaSpinner className="spinner-icon" />
+                    Guardando...
+                  </>
+                ) : (
+                  isEditing ? 'Actualizar Dirección' : 'Agregar Dirección'
+                )}
               </button>
             </div>
           </form>

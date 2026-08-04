@@ -1,24 +1,68 @@
-import React, { useState } from 'react';
-import { FaCreditCard, FaEye, FaEyeSlash, FaCheckCircle } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaCreditCard } from 'react-icons/fa';
 import '../../css/Perfil/create-tarjeta.css';
 
-const ModalAgregarTarjeta = ({ isOpen, onClose, userData, tarjetas, onSuccess }) => {
+const ModalAgregarTarjeta = ({ 
+  isOpen, 
+  onClose, 
+  userData, 
+  tarjetas, 
+  onSuccess,
+  tarjetaToEdit = null
+}) => {
   const [formData, setFormData] = useState({
-    nombre_titular: userData?.nombre || '',
+    nombre_titular: '',
     numero_tarjeta: '',
     mes_expiracion: '',
     anio_expiracion: ''
   });
-  const [showTarjetaNumber, setShowTarjetaNumber] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+
+  const isEditing = !!tarjetaToEdit;
+
+  // ===== FUNCIÓN PARA FORMATEAR NÚMERO DE TARJETA CON ESPACIOS =====
+  const formatCardNumber = (value) => {
+    if (!value) return '';
+    const clean = value.replace(/\s/g, '');
+    const formatted = clean.replace(/(\d{4})/g, '$1 ').trim();
+    return formatted;
+  };
+
+  // ===== RESETEAR EL FORMULARIO CUANDO SE ABRE EL MODAL =====
+  useEffect(() => {
+    if (isOpen) {
+      if (isEditing && tarjetaToEdit) {
+        let numeroMostrar = tarjetaToEdit.numero_completo || '';
+        if (!numeroMostrar) {
+          numeroMostrar = tarjetaToEdit.numero_enmascarado || '';
+        }
+        const numeroFormateado = formatCardNumber(numeroMostrar);
+        
+        setFormData({
+          nombre_titular: tarjetaToEdit.nombre_titular || '',
+          numero_tarjeta: numeroFormateado,
+          mes_expiracion: tarjetaToEdit.mes_expiracion || '',
+          anio_expiracion: tarjetaToEdit.anio_expiracion || ''
+        });
+      } else {
+        setFormData({
+          nombre_titular: userData?.nombre || '',
+          numero_tarjeta: '',
+          mes_expiracion: '',
+          anio_expiracion: ''
+        });
+      }
+      setErrors({});
+      setLoading(false);
+    }
+  }, [isOpen, userData, tarjetaToEdit, isEditing]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     
     if (name === 'numero_tarjeta') {
-      const formatted = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim().slice(0, 19);
+      const formatted = formatCardNumber(value);
       setFormData(prev => ({ ...prev, [name]: formatted }));
     } else if (name === 'mes_expiracion') {
       const mes = value.replace(/[^0-9]/g, '').slice(0, 2);
@@ -69,35 +113,50 @@ const ModalAgregarTarjeta = ({ isOpen, onClose, userData, tarjetas, onSuccess })
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const userId = user.id || userData?.id;
       
-      const response = await fetch(`http://127.0.0.1:5000/tarjetas/user/${userId}`, {
-        method: 'POST',
+      const numeroCompleto = formData.numero_tarjeta.replace(/\s/g, '');
+      const ultimosDigitos = numeroCompleto.slice(-4);
+      
+      const url = isEditing 
+        ? `http://127.0.0.1:5000/tarjetas/${tarjetaToEdit.id}`
+        : `http://127.0.0.1:5000/tarjetas/user/${userId}`;
+      
+      const method = isEditing ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           nombre_titular: formData.nombre_titular,
-          numero_tarjeta: formData.numero_tarjeta.replace(/\s/g, ''),
+          numero_tarjeta: numeroCompleto,
           mes_expiracion: formData.mes_expiracion,
           anio_expiracion: formData.anio_expiracion
         })
       });
 
       if (response.ok) {
-        setSuccessMessage('¡Tarjeta agregada correctamente!');
-        setTimeout(() => {
-          setSuccessMessage('');
-          onSuccess();
-          onClose();
-        }, 2000);
+        const data = await response.json();
+        
+        const tarjetaConNumero = {
+          ...(data.tarjeta || data),
+          numero_completo: numeroCompleto,
+          ultimos_digitos: ultimosDigitos
+        };
+        
+        // ELIMINADO: setSuccessMessage
+        // ELIMINADO: setTimeout con mensaje de éxito
+        onSuccess(tarjetaConNumero);
+        onClose();
       } else {
         const errorData = await response.json();
-        alert(`❌ Error: ${errorData.msg || 'Error al agregar tarjeta'}`);
+        alert(`❌ Error: ${errorData.msg || 'Error al guardar la tarjeta'}`);
+        setLoading(false);
       }
     } catch (error) {
       console.error('Error:', error);
       alert('❌ Error de conexión');
-    } finally {
       setLoading(false);
     }
   };
@@ -112,18 +171,15 @@ const ModalAgregarTarjeta = ({ isOpen, onClose, userData, tarjetas, onSuccess })
             <FaCreditCard />
           </div>
           <div className="add-tarjeta-modal-header-info">
-            <h3>Agregar Tarjeta</h3>
-            <div className="add-tarjeta-modal-header-subtitle">Ingresa los datos de tu nueva tarjeta</div>
+            <h3>{isEditing ? 'Editar Tarjeta' : 'Agregar Tarjeta'}</h3>
+            <div className="add-tarjeta-modal-header-subtitle">
+              {isEditing ? 'Actualiza los datos de tu tarjeta' : 'Ingresa los datos de tu nueva tarjeta'}
+            </div>
           </div>
           <button className="add-tarjeta-modal-close" onClick={onClose}>✕</button>
         </div>
 
-        {successMessage && (
-          <div className="add-tarjeta-modal-success-message">
-            <FaCheckCircle className="success-icon" />
-            <span>{successMessage}</span>
-          </div>
-        )}
+        {/* ===== ELIMINADO: Mensaje de éxito ===== */}
 
         <div className="add-tarjeta-modal-body">
           <form onSubmit={handleSubmit} autoComplete="off">
@@ -162,17 +218,10 @@ const ModalAgregarTarjeta = ({ isOpen, onClose, userData, tarjetas, onSuccess })
                   onChange={handleChange}
                   className={errors.numero_tarjeta ? 'input-error' : ''}
                   placeholder="1234 5678 9012 3456"
-                  maxLength="19"
+                  maxLength="23"
                   disabled={loading}
                   autoComplete="new-password"
                 />
-                <button 
-                  type="button" 
-                  className="add-tarjeta-eye-btn"
-                  onClick={() => setShowTarjetaNumber(!showTarjetaNumber)}
-                >
-                  {showTarjetaNumber ? <FaEyeSlash /> : <FaEye />}
-                </button>
               </div>
               {errors.numero_tarjeta && <span className="add-tarjeta-error-message">{errors.numero_tarjeta}</span>}
             </div>
@@ -228,7 +277,7 @@ const ModalAgregarTarjeta = ({ isOpen, onClose, userData, tarjetas, onSuccess })
                 Cancelar
               </button>
               <button type="submit" className="add-tarjeta-btn-save" disabled={loading}>
-                {loading ? 'Guardando...' : 'Agregar Tarjeta'}
+                {loading ? 'Guardando...' : (isEditing ? 'Actualizar Tarjeta' : 'Agregar Tarjeta')}
               </button>
             </div>
           </form>

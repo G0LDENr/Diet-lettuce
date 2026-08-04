@@ -4,28 +4,26 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faEye, faEyeSlash, faPlus, faTrash,
   faChevronLeft, faChevronRight, faHome, faBriefcase, faMapMarkerAlt,
-  faCreditCard, faCheckCircle, faChild, faUser, faLock, faCalendarAlt, faPhone
+  faCreditCard, faCheckCircle, faChild, faUser, faLock, faCalendarAlt, 
+  faPhone, faEnvelope, faIdCard, faCalendar, faMapPin, faBuilding,
+  faCity, faGlobe, faHashtag, faStickyNote, faUserTie, faBirthdayCake
 } from '@fortawesome/free-solid-svg-icons';
 
 const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
     const navigate = useNavigate();
     const [currentStep, setCurrentStep] = useState(initialStep);
     const [skipTarjeta, setSkipTarjeta] = useState(false);
-    const [accountType, setAccountType] = useState('personal'); // 'personal' o 'infantil'
+    const [accountType, setAccountType] = useState('personal');
     const [formData, setFormData] = useState({
-        // Paso 1: Información personal
         name: '',
         email: '',
         password: '',
         confirmPassword: '',
         phone: '',
         gender: '',
-        // Edad para AMBOS tipos de cuenta
         edad: '',
-        // Campos para cuentas infantiles
-        tutor_nombre: '',  // Nombre del tutor (para cuenta infantil)
-        tutor_telefono: '', // Teléfono del tutor (para cuenta infantil)
-        // Paso 2: Direcciones (para ambos tipos de cuenta)
+        tutor_nombre: '',
+        tutor_telefono: '',
         direcciones: [
             {
                 calle: '',
@@ -40,7 +38,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                 predeterminada: true
             }
         ],
-        // Paso 3: Tarjeta de crédito (para ambos tipos de cuenta)
         tarjeta: {
             nombre_titular: '',
             numero_tarjeta: '',
@@ -57,12 +54,10 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
     const [showTarjetaNumber, setShowTarjetaNumber] = useState(false);
     const [language, setLanguage] = useState('es');
 
-    // Actualizar el step cuando cambie externamente
     React.useEffect(() => {
         setCurrentStep(initialStep);
     }, [initialStep]);
 
-    // Función para manejar cambio de paso y notificar al padre
     const handleStepChange = (newStep) => {
         setCurrentStep(newStep);
         if (onStepChange) {
@@ -70,7 +65,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
         }
     };
 
-    // Textos según el idioma
     const texts = {
         es: {
             step1: "Información Personal",
@@ -101,7 +95,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                 M: "Masculino",
                 F: "Femenino",
             },
-            // Textos para edad según tipo de cuenta
             edadPersonal: "Edad",
             edadPersonalPlaceholder: "Tu edad (mayor de 18 años)",
             edadInfantil: "Edad del niño/a",
@@ -140,7 +133,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             eliminarDireccion: "Eliminar dirección",
             seleccionarPredeterminada: "Marcar como predeterminada",
             
-            // Textos para tarjeta
             tarjetaTitle: "Tarjeta de Crédito",
             skipTarjeta: "Omitir este paso (lo haré después)",
             nombreTitular: "Nombre del titular",
@@ -153,13 +145,11 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             anioExpiracionPlaceholder: "AAAA",
             tarjetaPredeterminada: "Usar como método de pago predeterminado",
             
-            // Botones de navegación
             siguiente: "Siguiente",
             anterior: "Anterior",
             registrar: "Registrarse",
             loading: "Creando cuenta...",
             
-            // Otros textos
             haveAccount: "¿Ya tienes cuenta?",
             login: "Inicia sesión aquí",
             brandTagline: "No es antojo... es una experiencia..",
@@ -211,7 +201,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                 M: "Male",
                 F: "Female",
             },
-            // Texts for age according to account type
             edadPersonal: "Age",
             edadPersonalPlaceholder: "Your age (over 18)",
             edadInfantil: "Child's age",
@@ -250,7 +239,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             eliminarDireccion: "Remove address",
             seleccionarPredeterminada: "Set as default",
             
-            // Card texts
             tarjetaTitle: "Credit Card",
             skipTarjeta: "Skip this step (I'll do it later)",
             nombreTitular: "Cardholder name",
@@ -263,13 +251,11 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             anioExpiracionPlaceholder: "YYYY",
             tarjetaPredeterminada: "Use as default payment method",
             
-            // Navigation buttons
             siguiente: "Next",
             anterior: "Previous",
             registrar: "Sign Up",
             loading: "Creating account...",
             
-            // Other texts
             haveAccount: "Already have an account?",
             login: "Login here",
             brandTagline: "It's not a craving... it's an experience.",
@@ -368,7 +354,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
     };
 
     const validateStep1 = () => {
-        // Validar campos básicos
         if (!formData.name || !formData.email || !formData.password) {
             setError(t.errorComplete);
             return false;
@@ -385,7 +370,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             return false;
         }
 
-        // Validar edad para AMBOS tipos de cuenta
         if (!formData.edad) {
             setError(t.errorEdadRequerida);
             return false;
@@ -397,19 +381,17 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             return false;
         }
 
-        // Validaciones específicas según tipo de cuenta
         if (accountType === 'personal') {
             if (edad < 18) {
                 setError(t.errorEdadPersonal);
                 return false;
             }
-        } else { // infantil
+        } else {
             if (edad < 3 || edad > 17) {
                 setError(t.errorEdadInfantil);
                 return false;
             }
 
-            // Validar datos del tutor para cuenta infantil
             if (!formData.tutor_nombre || !formData.tutor_telefono) {
                 setError(t.errorTutorData);
                 return false;
@@ -420,7 +402,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
     };
 
     const validateStep2 = () => {
-        // Validar direcciones para ambos tipos de cuenta
         const direccionCompleta = formData.direcciones.some(dir => 
             dir.calle && 
             dir.numero_exterior && 
@@ -446,10 +427,8 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
     };
 
     const validateTarjeta = () => {
-        // Si el usuario eligió omitir, no validar (para ambos tipos de cuenta)
         if (skipTarjeta) return true;
         
-        // Si todos los campos de tarjeta están vacíos, considerar como omitido
         if (!formData.tarjeta.nombre_titular && 
             !formData.tarjeta.numero_tarjeta && 
             !formData.tarjeta.mes_expiracion && 
@@ -457,7 +436,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             return true;
         }
 
-        // Validar campos requeridos
         if (!formData.tarjeta.nombre_titular || 
             !formData.tarjeta.numero_tarjeta || 
             !formData.tarjeta.mes_expiracion || 
@@ -466,21 +444,18 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             return false;
         }
 
-        // Validar número de tarjeta (13-19 dígitos)
         const numeroLimpio = formData.tarjeta.numero_tarjeta.replace(/\s/g, '');
         if (!/^\d{13,19}$/.test(numeroLimpio)) {
             setError(t.errorTarjetaNumero);
             return false;
         }
 
-        // Validar mes (1-12)
         const mes = parseInt(formData.tarjeta.mes_expiracion);
         if (isNaN(mes) || mes < 1 || mes > 12) {
             setError(t.errorTarjetaFecha);
             return false;
         }
 
-        // Validar año (actual o futuro)
         const anio = parseInt(formData.tarjeta.anio_expiracion);
         const fechaActual = new Date();
         const anioActual = fechaActual.getFullYear();
@@ -491,7 +466,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             return false;
         }
 
-        // Si el año es el actual, validar que el mes sea actual o futuro
         if (anio === anioActual && mes < mesActual) {
             setError(t.errorTarjetaFecha);
             return false;
@@ -502,24 +476,22 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
 
     const handleNextStep = () => {
         if (currentStep === 0) {
-            // Si está en selector de tipo de cuenta, ir al paso 1
             handleStepChange(1);
         } else if (currentStep === 1) {
             if (validateStep1()) {
                 setError('');
-                handleStepChange(2); // Ambos tipos de cuenta van al paso 2 (direcciones)
+                handleStepChange(2);
             }
         } else if (currentStep === 2) {
             if (validateStep2()) {
                 setError('');
-                handleStepChange(3); // Ambos tipos de cuenta van al paso 3 (tarjeta)
+                handleStepChange(3);
             }
         }
     };
 
     const handlePrevStep = () => {
         if (currentStep === 1) {
-            // Volver al selector de tipo de cuenta
             handleStepChange(0);
         } else if (currentStep === 2) {
             handleStepChange(1);
@@ -590,7 +562,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
         }
 
         try {
-            // Preparar datos del usuario según tipo de cuenta
             const userData = {
                 name: formData.name,
                 email: formData.email,
@@ -598,21 +569,18 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                 telefono: formData.phone,
                 sexo: formData.gender,
                 tipo_cuenta: accountType,
-                edad: parseInt(formData.edad) // Edad para AMBOS tipos de cuenta
+                edad: parseInt(formData.edad)
             };
 
-            // Agregar campos específicos para cuenta infantil
             if (accountType === 'infantil') {
                 userData.tutor_nombre = formData.tutor_nombre;
                 userData.tutor_telefono = formData.tutor_telefono;
             }
 
-            // Agregar dirección (para ambos tipos de cuenta)
             if (formData.direcciones.length > 0) {
                 userData.direccion = formData.direcciones[0];
             }
 
-            // Si hay datos de tarjeta y no se omitió, agregarlos (para ambos tipos de cuenta)
             if (!skipTarjeta && formData.tarjeta.nombre_titular && formData.tarjeta.numero_tarjeta) {
                 userData.tarjeta = {
                     nombre_titular: formData.tarjeta.nombre_titular,
@@ -643,7 +611,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                 return;
             }
 
-            // Iniciar sesión automáticamente
             console.log('Iniciando sesión automáticamente...');
             const loginResponse = await fetch('http://127.0.0.1:5000/user/login', {
                 method: 'POST',
@@ -661,19 +628,16 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             console.log('Respuesta login:', loginData);
 
             if (loginResponse.ok) {
-                // Guardar token y datos del usuario
                 localStorage.setItem('token', loginData.access_token);
                 localStorage.setItem('user', JSON.stringify(loginData.user));
                 localStorage.setItem('userData', JSON.stringify(loginData.user));
                 
-                // Redirigir según rol y tipo de cuenta
                 if (loginData.user && loginData.user.rol !== undefined) {
                     redirectByRole(loginData.user.rol, loginData.user);
                 } else {
                     navigate('/home');
                 }
             } else {
-                // Si el login automático falla, redirigir al login manual
                 navigate('/auth', { 
                     state: { 
                         message: language === 'es' 
@@ -702,7 +666,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
         setShowTarjetaNumber(!showTarjetaNumber);
     };
 
-    // Formatear número de tarjeta (agregar espacios cada 4 dígitos)
     const formatCardNumber = (value) => {
         const v = value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
         const matches = v.match(/\d{4,16}/g);
@@ -720,7 +683,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
         }
     };
 
-    // Renderizar selección de tipo de cuenta
     const renderAccountTypeSelector = () => (
         <div className="auth-account-type">
             <h2 className="auth-form-title">{t.accountTypeTitle}</h2>
@@ -762,7 +724,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
         </div>
     );
 
-    // Renderizar paso 1 (Información personal según tipo de cuenta)
     const renderStep1 = () => (
         <>
             <h2 className="auth-form-title">
@@ -790,144 +751,170 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             )}
             
             <form onSubmit={(e) => { e.preventDefault(); handleNextStep(); }} className="auth-form">
+                {/* Nombre con icono */}
                 <div className="auth-form-group">
                     <label htmlFor="name">
                         {accountType === 'infantil' ? t.childNamePlaceholder : t.name} *
                     </label>
-                    <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        className="auth-form-input"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        placeholder={accountType === 'infantil' ? t.childNamePlaceholder : t.namePlaceholder}
-                        required
-                        disabled={loading}
-                    />
+                    <div className="auth-input-wrapper">
+                        <FontAwesomeIcon icon={faUser} className="auth-input-icon" />
+                        <input
+                            id="name"
+                            name="name"
+                            type="text"
+                            className="auth-form-input"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            placeholder={accountType === 'infantil' ? t.childNamePlaceholder : t.namePlaceholder}
+                            required
+                            disabled={loading}
+                        />
+                    </div>
                 </div>
                 
+                {/* Email con icono */}
                 <div className="auth-form-group">
                     <label htmlFor="email">
                         {accountType === 'infantil' ? t.childEmailPlaceholder : t.email} *
                     </label>
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        className="auth-form-input"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder={accountType === 'infantil' ? t.childEmailPlaceholder : t.emailPlaceholder}
-                        required
-                        disabled={loading}
-                    />
+                    <div className="auth-input-wrapper">
+                        <FontAwesomeIcon icon={faEnvelope} className="auth-input-icon" />
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            className="auth-form-input"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            placeholder={accountType === 'infantil' ? t.childEmailPlaceholder : t.emailPlaceholder}
+                            required
+                            disabled={loading}
+                        />
+                    </div>
                 </div>
 
-                {/* Campo de edad para AMBOS tipos de cuenta - SIN ICONO */}
+                {/* Edad con icono */}
                 <div className="auth-form-group">
                     <label htmlFor="edad">
                         {accountType === 'infantil' ? t.edadInfantil : t.edadPersonal} *
                     </label>
-                    <input
-                        id="edad"
-                        name="edad"
-                        type="number"
-                        min={accountType === 'infantil' ? "3" : "18"}
-                        max={accountType === 'infantil' ? "17" : "120"}
-                        className="auth-form-input"
-                        value={formData.edad}
-                        onChange={handleInputChange}
-                        placeholder={accountType === 'infantil' ? t.edadInfantilPlaceholder : t.edadPersonalPlaceholder}
-                        required
-                        disabled={loading}
-                    />
-                </div>
-
-                {accountType === 'personal' && (
-                    <div className="auth-form-group">
-                        <label htmlFor="phone">{t.phone}</label>
+                    <div className="auth-input-wrapper">
+                        <FontAwesomeIcon icon={faBirthdayCake} className="auth-input-icon" />
                         <input
-                            id="phone"
-                            name="phone"
-                            type="tel"
+                            id="edad"
+                            name="edad"
+                            type="number"
+                            min={accountType === 'infantil' ? "3" : "18"}
+                            max={accountType === 'infantil' ? "17" : "120"}
                             className="auth-form-input"
-                            value={formData.phone}
+                            value={formData.edad}
                             onChange={handleInputChange}
-                            placeholder={t.phonePlaceholder}
+                            placeholder={accountType === 'infantil' ? t.edadInfantilPlaceholder : t.edadPersonalPlaceholder}
+                            required
                             disabled={loading}
                         />
                     </div>
+                </div>
+
+                {/* Teléfono con icono (solo personal) */}
+                {accountType === 'personal' && (
+                    <div className="auth-form-group">
+                        <label htmlFor="phone">{t.phone}</label>
+                        <div className="auth-input-wrapper">
+                            <FontAwesomeIcon icon={faPhone} className="auth-input-icon" />
+                            <input
+                                id="phone"
+                                name="phone"
+                                type="tel"
+                                className="auth-form-input"
+                                value={formData.phone}
+                                onChange={handleInputChange}
+                                placeholder={t.phonePlaceholder}
+                                disabled={loading}
+                            />
+                        </div>
+                    </div>
                 )}
 
+                {/* Datos del tutor (solo infantil) */}
                 {accountType === 'infantil' && (
                     <>
                         <div className="auth-form-section">
                             <h3 className="auth-section-title">
-                                <FontAwesomeIcon icon={faUser} style={{ marginRight: '10px' }} />
+                                <FontAwesomeIcon icon={faUserTie} style={{ marginRight: '10px' }} />
                                 {t.tutorInfo}
                             </h3>
                             
                             <div className="auth-form-group">
                                 <label htmlFor="tutor_nombre">
-                                    <FontAwesomeIcon icon={faUser} style={{ marginRight: '5px' }} />
                                     {t.tutor_nombre} *
                                 </label>
-                                <input
-                                    id="tutor_nombre"
-                                    name="tutor_nombre"
-                                    type="text"
-                                    className="auth-form-input"
-                                    value={formData.tutor_nombre}
-                                    onChange={handleInputChange}
-                                    placeholder={t.tutor_nombrePlaceholder}
-                                    required
-                                    disabled={loading}
-                                />
+                                <div className="auth-input-wrapper">
+                                    <FontAwesomeIcon icon={faUser} className="auth-input-icon" />
+                                    <input
+                                        id="tutor_nombre"
+                                        name="tutor_nombre"
+                                        type="text"
+                                        className="auth-form-input"
+                                        value={formData.tutor_nombre}
+                                        onChange={handleInputChange}
+                                        placeholder={t.tutor_nombrePlaceholder}
+                                        required
+                                        disabled={loading}
+                                    />
+                                </div>
                             </div>
 
                             <div className="auth-form-group">
                                 <label htmlFor="tutor_telefono">
-                                    <FontAwesomeIcon icon={faPhone} style={{ marginRight: '5px' }} />
                                     {t.tutor_telefono} *
                                 </label>
-                                <input
-                                    id="tutor_telefono"
-                                    name="tutor_telefono"
-                                    type="tel"
-                                    className="auth-form-input"
-                                    value={formData.tutor_telefono}
-                                    onChange={handleInputChange}
-                                    placeholder={t.tutor_telefonoPlaceholder}
-                                    required
-                                    disabled={loading}
-                                />
+                                <div className="auth-input-wrapper">
+                                    <FontAwesomeIcon icon={faPhone} className="auth-input-icon" />
+                                    <input
+                                        id="tutor_telefono"
+                                        name="tutor_telefono"
+                                        type="tel"
+                                        className="auth-form-input"
+                                        value={formData.tutor_telefono}
+                                        onChange={handleInputChange}
+                                        placeholder={t.tutor_telefonoPlaceholder}
+                                        required
+                                        disabled={loading}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </>
                 )}
 
+                {/* Sexo con icono */}
                 <div className="auth-form-group">
                     <label htmlFor="gender">{t.gender}</label>
-                    <select
-                        id="gender"
-                        name="gender"
-                        className="auth-form-input"
-                        value={formData.gender}
-                        onChange={handleInputChange}
-                        disabled={loading}
-                    >
-                        <option value="">{t.genderOptions.select}</option>
-                        <option value="M">{t.genderOptions.M}</option>
-                        <option value="F">{t.genderOptions.F}</option>
-                    </select>
+                    <div className="auth-input-wrapper">
+                        <FontAwesomeIcon icon={faIdCard} className="auth-input-icon" />
+                        <select
+                            id="gender"
+                            name="gender"
+                            className="auth-form-input"
+                            value={formData.gender}
+                            onChange={handleInputChange}
+                            disabled={loading}
+                        >
+                            <option value="">{t.genderOptions.select}</option>
+                            <option value="M">{t.genderOptions.M}</option>
+                            <option value="F">{t.genderOptions.F}</option>
+                        </select>
+                    </div>
                 </div>
                 
+                {/* Contraseña con icono */}
                 <div className="auth-form-group">
                     <label htmlFor="password">
                         {accountType === 'infantil' ? t.childPasswordPlaceholder : t.password} *
                     </label>
                     <div className="auth-password-container">
+                        <FontAwesomeIcon icon={faLock} className="auth-input-icon" />
                         <input
                             id="password"
                             name="password"
@@ -952,9 +939,11 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                     </div>
                 </div>
 
+                {/* Confirmar contraseña con icono */}
                 <div className="auth-form-group">
                     <label htmlFor="confirmPassword">{t.confirmPassword} *</label>
                     <div className="auth-password-container">
+                        <FontAwesomeIcon icon={faLock} className="auth-input-icon" />
                         <input
                             id="confirmPassword"
                             name="confirmPassword"
@@ -1000,7 +989,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
         </>
     );
 
-    // Renderizar paso 2 (Direcciones - para ambos tipos de cuenta)
     const renderStep2 = () => (
         <>
             <h2 className="auth-form-title">{t.step2}</h2>
@@ -1044,133 +1032,170 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                         </div>
                         
                         <div className="auth-direccion-grid">
+                            {/* Calle con icono */}
                             <div className="auth-form-group">
                                 <label htmlFor={`calle-${index}`}>{t.calle} *</label>
-                                <input
-                                    id={`calle-${index}`}
-                                    type="text"
-                                    className="auth-form-input"
-                                    value={direccion.calle}
-                                    onChange={(e) => handleDireccionChange(index, 'calle', e.target.value)}
-                                    placeholder={t.callePlaceholder}
-                                    required
-                                    disabled={loading}
-                                />
+                                <div className="auth-input-wrapper">
+                                    <FontAwesomeIcon icon={faMapPin} className="auth-input-icon" />
+                                    <input
+                                        id={`calle-${index}`}
+                                        type="text"
+                                        className="auth-form-input"
+                                        value={direccion.calle}
+                                        onChange={(e) => handleDireccionChange(index, 'calle', e.target.value)}
+                                        placeholder={t.callePlaceholder}
+                                        required
+                                        disabled={loading}
+                                    />
+                                </div>
                             </div>
                             
+                            {/* Número Exterior con icono */}
                             <div className="auth-form-group">
                                 <label htmlFor={`numero_exterior-${index}`}>{t.numeroExterior} *</label>
-                                <input
-                                    id={`numero_exterior-${index}`}
-                                    type="text"
-                                    className="auth-form-input"
-                                    value={direccion.numero_exterior}
-                                    onChange={(e) => handleDireccionChange(index, 'numero_exterior', e.target.value)}
-                                    placeholder={t.numeroExteriorPlaceholder}
-                                    required
-                                    disabled={loading}
-                                />
+                                <div className="auth-input-wrapper">
+                                    <FontAwesomeIcon icon={faHashtag} className="auth-input-icon" />
+                                    <input
+                                        id={`numero_exterior-${index}`}
+                                        type="text"
+                                        className="auth-form-input"
+                                        value={direccion.numero_exterior}
+                                        onChange={(e) => handleDireccionChange(index, 'numero_exterior', e.target.value)}
+                                        placeholder={t.numeroExteriorPlaceholder}
+                                        required
+                                        disabled={loading}
+                                    />
+                                </div>
                             </div>
                             
+                            {/* Número Interior con icono */}
                             <div className="auth-form-group">
                                 <label htmlFor={`numero_interior-${index}`}>{t.numeroInterior}</label>
-                                <input
-                                    id={`numero_interior-${index}`}
-                                    type="text"
-                                    className="auth-form-input"
-                                    value={direccion.numero_interior}
-                                    onChange={(e) => handleDireccionChange(index, 'numero_interior', e.target.value)}
-                                    placeholder={t.numeroInteriorPlaceholder}
-                                    disabled={loading}
-                                />
+                                <div className="auth-input-wrapper">
+                                    <FontAwesomeIcon icon={faHashtag} className="auth-input-icon" />
+                                    <input
+                                        id={`numero_interior-${index}`}
+                                        type="text"
+                                        className="auth-form-input"
+                                        value={direccion.numero_interior}
+                                        onChange={(e) => handleDireccionChange(index, 'numero_interior', e.target.value)}
+                                        placeholder={t.numeroInteriorPlaceholder}
+                                        disabled={loading}
+                                    />
+                                </div>
                             </div>
                             
+                            {/* Colonia con icono */}
                             <div className="auth-form-group">
                                 <label htmlFor={`colonia-${index}`}>{t.colonia} *</label>
-                                <input
-                                    id={`colonia-${index}`}
-                                    type="text"
-                                    className="auth-form-input"
-                                    value={direccion.colonia}
-                                    onChange={(e) => handleDireccionChange(index, 'colonia', e.target.value)}
-                                    placeholder={t.coloniaPlaceholder}
-                                    required
-                                    disabled={loading}
-                                />
+                                <div className="auth-input-wrapper">
+                                    <FontAwesomeIcon icon={faBuilding} className="auth-input-icon" />
+                                    <input
+                                        id={`colonia-${index}`}
+                                        type="text"
+                                        className="auth-form-input"
+                                        value={direccion.colonia}
+                                        onChange={(e) => handleDireccionChange(index, 'colonia', e.target.value)}
+                                        placeholder={t.coloniaPlaceholder}
+                                        required
+                                        disabled={loading}
+                                    />
+                                </div>
                             </div>
                             
+                            {/* Ciudad con icono */}
                             <div className="auth-form-group">
                                 <label htmlFor={`ciudad-${index}`}>{t.ciudad} *</label>
-                                <input
-                                    id={`ciudad-${index}`}
-                                    type="text"
-                                    className="auth-form-input"
-                                    value={direccion.ciudad}
-                                    onChange={(e) => handleDireccionChange(index, 'ciudad', e.target.value)}
-                                    placeholder={t.ciudadPlaceholder}
-                                    required
-                                    disabled={loading}
-                                />
+                                <div className="auth-input-wrapper">
+                                    <FontAwesomeIcon icon={faCity} className="auth-input-icon" />
+                                    <input
+                                        id={`ciudad-${index}`}
+                                        type="text"
+                                        className="auth-form-input"
+                                        value={direccion.ciudad}
+                                        onChange={(e) => handleDireccionChange(index, 'ciudad', e.target.value)}
+                                        placeholder={t.ciudadPlaceholder}
+                                        required
+                                        disabled={loading}
+                                    />
+                                </div>
                             </div>
                             
+                            {/* Estado con icono */}
                             <div className="auth-form-group">
                                 <label htmlFor={`estado-${index}`}>{t.estado} *</label>
-                                <input
-                                    id={`estado-${index}`}
-                                    type="text"
-                                    className="auth-form-input"
-                                    value={direccion.estado}
-                                    onChange={(e) => handleDireccionChange(index, 'estado', e.target.value)}
-                                    placeholder={t.estadoPlaceholder}
-                                    required
-                                    disabled={loading}
-                                />
+                                <div className="auth-input-wrapper">
+                                    <FontAwesomeIcon icon={faGlobe} className="auth-input-icon" />
+                                    <input
+                                        id={`estado-${index}`}
+                                        type="text"
+                                        className="auth-form-input"
+                                        value={direccion.estado}
+                                        onChange={(e) => handleDireccionChange(index, 'estado', e.target.value)}
+                                        placeholder={t.estadoPlaceholder}
+                                        required
+                                        disabled={loading}
+                                    />
+                                </div>
                             </div>
                             
+                            {/* Código Postal con icono */}
                             <div className="auth-form-group">
                                 <label htmlFor={`codigo_postal-${index}`}>{t.codigoPostal} *</label>
-                                <input
-                                    id={`codigo_postal-${index}`}
-                                    type="text"
-                                    className="auth-form-input"
-                                    value={direccion.codigo_postal}
-                                    onChange={(e) => handleDireccionChange(index, 'codigo_postal', e.target.value)}
-                                    placeholder={t.codigoPostalPlaceholder}
-                                    required
-                                    disabled={loading}
-                                    maxLength="5"
-                                    pattern="\d{5}"
-                                />
+                                <div className="auth-input-wrapper">
+                                    <FontAwesomeIcon icon={faMapPin} className="auth-input-icon" />
+                                    <input
+                                        id={`codigo_postal-${index}`}
+                                        type="text"
+                                        className="auth-form-input"
+                                        value={direccion.codigo_postal}
+                                        onChange={(e) => handleDireccionChange(index, 'codigo_postal', e.target.value)}
+                                        placeholder={t.codigoPostalPlaceholder}
+                                        required
+                                        disabled={loading}
+                                        maxLength="5"
+                                        pattern="\d{5}"
+                                    />
+                                </div>
                             </div>
                             
+                            {/* Tipo de dirección con icono */}
                             <div className="auth-form-group">
                                 <label htmlFor={`tipo-${index}`}>{t.tipoDireccion}</label>
-                                <select
-                                    id={`tipo-${index}`}
-                                    className="auth-form-input"
-                                    value={direccion.tipo}
-                                    onChange={(e) => handleDireccionChange(index, 'tipo', e.target.value)}
-                                    disabled={loading}
-                                >
-                                    <option value="casa">{t.tipoOptions.casa}</option>
-                                    <option value="trabajo">{t.tipoOptions.trabajo}</option>
-                                    <option value="otro">{t.tipoOptions.otro}</option>
-                                </select>
+                                <div className="auth-input-wrapper">
+                                    <FontAwesomeIcon icon={faHome} className="auth-input-icon" />
+                                    <select
+                                        id={`tipo-${index}`}
+                                        className="auth-form-input"
+                                        value={direccion.tipo}
+                                        onChange={(e) => handleDireccionChange(index, 'tipo', e.target.value)}
+                                        disabled={loading}
+                                    >
+                                        <option value="casa">{t.tipoOptions.casa}</option>
+                                        <option value="trabajo">{t.tipoOptions.trabajo}</option>
+                                        <option value="otro">{t.tipoOptions.otro}</option>
+                                    </select>
+                                </div>
                             </div>
                             
+                            {/* Referencias con icono */}
                             <div className="auth-form-group auth-full-width">
                                 <label htmlFor={`referencias-${index}`}>{t.referencias}</label>
-                                <textarea
-                                    id={`referencias-${index}`}
-                                    className="auth-form-input"
-                                    value={direccion.referencias}
-                                    onChange={(e) => handleDireccionChange(index, 'referencias', e.target.value)}
-                                    placeholder={t.referenciasPlaceholder}
-                                    disabled={loading}
-                                    rows="3"
-                                />
+                                <div className="auth-input-wrapper">
+                                    <FontAwesomeIcon icon={faStickyNote} className="auth-input-icon" style={{ top: '16px' }} />
+                                    <textarea
+                                        id={`referencias-${index}`}
+                                        className="auth-form-input"
+                                        value={direccion.referencias}
+                                        onChange={(e) => handleDireccionChange(index, 'referencias', e.target.value)}
+                                        placeholder={t.referenciasPlaceholder}
+                                        disabled={loading}
+                                        rows="3"
+                                    />
+                                </div>
                             </div>
                             
+                            {/* Checkbox predeterminada */}
                             <div className="auth-form-group auth-checkbox-group">
                                 <label className="auth-checkbox-label">
                                     <input
@@ -1220,7 +1245,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
         </>
     );
 
-    // Renderizar paso 3 (Tarjeta - para ambos tipos de cuenta)
     const renderStep3 = () => (
         <>
             <h2 className="auth-form-title">
@@ -1259,22 +1283,28 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
             {!skipTarjeta && (
                 <form onSubmit={handleSubmit} className="auth-form">
                     <div className="auth-tarjeta-form">
+                        {/* Nombre del titular con icono */}
                         <div className="auth-form-group">
                             <label htmlFor="nombre_titular">{t.nombreTitular}</label>
-                            <input
-                                id="nombre_titular"
-                                type="text"
-                                className="auth-form-input"
-                                value={formData.tarjeta.nombre_titular}
-                                onChange={(e) => handleTarjetaChange('nombre_titular', e.target.value)}
-                                placeholder={t.nombreTitularPlaceholder}
-                                disabled={loading}
-                            />
+                            <div className="auth-input-wrapper">
+                                <FontAwesomeIcon icon={faUser} className="auth-input-icon" />
+                                <input
+                                    id="nombre_titular"
+                                    type="text"
+                                    className="auth-form-input"
+                                    value={formData.tarjeta.nombre_titular}
+                                    onChange={(e) => handleTarjetaChange('nombre_titular', e.target.value)}
+                                    placeholder={t.nombreTitularPlaceholder}
+                                    disabled={loading}
+                                />
+                            </div>
                         </div>
                         
+                        {/* Número de tarjeta con icono */}
                         <div className="auth-form-group">
                             <label htmlFor="numero_tarjeta">{t.numeroTarjeta}</label>
                             <div className="auth-password-container">
+                                <FontAwesomeIcon icon={faCreditCard} className="auth-input-icon" />
                                 <input
                                     id="numero_tarjeta"
                                     type={showTarjetaNumber ? "text" : "password"}
@@ -1298,36 +1328,44 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                             </div>
                         </div>
                         
+                        {/* Fecha de expiración con icono */}
                         <div className="auth-tarjeta-fecha">
                             <div className="auth-form-group" style={{ flex: 1 }}>
                                 <label htmlFor="mes_expiracion">{t.mesExpiracion}</label>
-                                <input
-                                    id="mes_expiracion"
-                                    type="text"
-                                    className="auth-form-input"
-                                    value={formData.tarjeta.mes_expiracion}
-                                    onChange={(e) => handleTarjetaChange('mes_expiracion', e.target.value.replace(/[^0-9]/g, '').slice(0, 2))}
-                                    placeholder={t.mesExpiracionPlaceholder}
-                                    disabled={loading}
-                                    maxLength="2"
-                                />
+                                <div className="auth-input-wrapper">
+                                    <FontAwesomeIcon icon={faCalendar} className="auth-input-icon" />
+                                    <input
+                                        id="mes_expiracion"
+                                        type="text"
+                                        className="auth-form-input"
+                                        value={formData.tarjeta.mes_expiracion}
+                                        onChange={(e) => handleTarjetaChange('mes_expiracion', e.target.value.replace(/[^0-9]/g, '').slice(0, 2))}
+                                        placeholder={t.mesExpiracionPlaceholder}
+                                        disabled={loading}
+                                        maxLength="2"
+                                    />
+                                </div>
                             </div>
                             
                             <div className="auth-form-group" style={{ flex: 1 }}>
                                 <label htmlFor="anio_expiracion">{t.anioExpiracion}</label>
-                                <input
-                                    id="anio_expiracion"
-                                    type="text"
-                                    className="auth-form-input"
-                                    value={formData.tarjeta.anio_expiracion}
-                                    onChange={(e) => handleTarjetaChange('anio_expiracion', e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
-                                    placeholder={t.anioExpiracionPlaceholder}
-                                    disabled={loading}
-                                    maxLength="4"
-                                />
+                                <div className="auth-input-wrapper">
+                                    <FontAwesomeIcon icon={faCalendarAlt} className="auth-input-icon" />
+                                    <input
+                                        id="anio_expiracion"
+                                        type="text"
+                                        className="auth-form-input"
+                                        value={formData.tarjeta.anio_expiracion}
+                                        onChange={(e) => handleTarjetaChange('anio_expiracion', e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
+                                        placeholder={t.anioExpiracionPlaceholder}
+                                        disabled={loading}
+                                        maxLength="4"
+                                    />
+                                </div>
                             </div>
                         </div>
                         
+                        {/* Checkbox predeterminada */}
                         <div className="auth-form-group auth-checkbox-group">
                             <label className="auth-checkbox-label">
                                 <input
@@ -1403,7 +1441,6 @@ const Register = ({ onToggle, initialStep = 0, onStepChange }) => {
                 renderAccountTypeSelector()
             ) : (
                 <>
-                    {/* Indicador de pasos - igual para ambos tipos de cuenta */}
                     <div className="auth-step-indicator" style={{ marginBottom: '30px' }}>
                         <div className={`auth-step ${currentStep === 1 ? 'active' : ''}`}>
                             <div className="auth-step-number">1</div>

@@ -6,7 +6,7 @@ import { useConfig, Config } from '../../context/config';
 import Logo from "../../img/Isotipo_balancea.png";
 import Logo2 from "../../img/Logo_balancea_blanco_titulo.png";
 import "../../css/Login/auth.css";
-import { FaLeaf, FaHeart, FaStar, FaEnvelope, FaLock, FaShieldAlt, FaCreditCard, FaHeadset, FaArrowLeft, FaGlobe, FaMoon, FaSun } from 'react-icons/fa';
+import { FaLeaf, FaHeart, FaStar, FaShieldAlt, FaCreditCard, FaHeadset, FaArrowLeft, FaGlobe, FaMoon, FaSun } from 'react-icons/fa';
 
 const AuthContainer = () => {
     const navigate = useNavigate();
@@ -128,17 +128,17 @@ const AuthContainer = () => {
                 {/* Lado izquierdo - Sección de marca */}
                 <div className="auth-brand-section">
                     <div className="auth-brand-content">
-                        {/* Logo 1 - SIN CÍRCULO */}
+                        {/* Logo 1 */}
                         <div className="auth-logo-container">
                             <img src={Logo} alt="Crazy Lettuces Logo" className="auth-logo-image"/>
                         </div>
 
-                        {/* Logo 2 - SIN CÍRCULO */}
+                        {/* Logo 2 */}
                         <div className="auth-logo-container auth-secondary-logo">
                             <img src={Logo2} alt="Secondary Logo" className="auth-logo-image"/>
                         </div>
                         
-                        {/* Tres círculos más pequeños */}
+                        {/* Tres círculos */}
                         <div className="auth-brand-features">
                             <div className="auth-feature-item">
                                 <div className="auth-feature-circle">

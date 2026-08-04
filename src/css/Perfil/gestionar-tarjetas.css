@@ -20,8 +20,8 @@
   border-radius: 20px;
   width: 100%;
   max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
+  max-height: none; /* Cambiado: sin scroll */
+  overflow: visible; /* Cambiado: sin scroll */
   box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
   animation: tarjetaModalFadeIn 0.3s ease;
 }
@@ -104,6 +104,8 @@
 
 .tarjeta-modal-body {
   padding: 1.5rem;
+  overflow: visible; /* Cambiado: sin scroll */
+  max-height: none; /* Cambiado: sin scroll */
 }
 
 .tarjeta-search-container {
@@ -200,6 +202,7 @@
 .tarjeta-card-actions {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .tarjeta-edit-btn,
@@ -421,26 +424,8 @@
   border-style: solid;
 }
 
-.tarjeta-modal-success-message {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin: 0 1.5rem 0.75rem 1.5rem;
-  padding: 0.5rem 0.75rem;
-  background-color: #d4edda;
-  border: 1px solid #c3e6cb;
-  border-radius: 6px;
-  color: #155724;
-  font-size: 0.7rem;
-  font-weight: 500;
-  animation: fadeInDown 0.3s ease, fadeOutUp 0.3s ease 2.7s forwards;
-}
-
-.tarjeta-modal-success-message .success-icon {
-  font-size: 0.75rem;
-  color: #28a745;
-}
+/* ===== ELIMINADO: Mensaje de éxito ===== */
+/* .tarjeta-modal-success-message ya no existe */
 
 @keyframes fadeInDown {
   from { opacity: 0; transform: translateY(-10px); }
@@ -581,11 +566,7 @@
   color: #9ca3af;
 }
 
-.dark-mode .tarjeta-modal-success-message {
-  background-color: #1e3a2c;
-  border-color: #2d5a3d;
-  color: #4ade80;
-}
+/* ELIMINADO: .dark-mode .tarjeta-modal-success-message */
 
 /* ===== BOTÓN AGREGAR TARJETA - CHECKOUT (PEQUEÑO Y A LA DERECHA) ===== */
 .tarjeta-add-btn-checkout {
@@ -760,6 +741,76 @@
   background-color: #2a2a2a;
 }
 
+/* ===== BOTÓN COPIAR NÚMERO DE TARJETA ===== */
+.tarjeta-copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.tarjeta-copy-btn:hover {
+  background-color: #f3f4f6;
+  color: #50831d;
+  transform: scale(1.1);
+}
+
+.tarjeta-copy-btn:active {
+  transform: scale(0.95);
+}
+
+.tarjeta-copy-btn .copy-success {
+  color: #50831d;
+}
+
+/* Modo oscuro */
+.dark-mode .tarjeta-copy-btn {
+  color: #9ca3af;
+}
+
+.dark-mode .tarjeta-copy-btn:hover {
+  background-color: #374151;
+  color: #D4AF37;
+}
+
+.dark-mode .tarjeta-copy-btn .copy-success {
+  color: #50831d;
+}
+
+/* ===== BOTÓN ESTABLECER COMO PREDETERMINADA (ICONO ESTRELLA) ===== */
+.tarjeta-set-default-btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  color: #50831d; /* Color dorado para la estrella */
+}
+
+.tarjeta-set-default-btn-icon:hover {
+  background-color: #f4f9ea; /* Fondo amarillo claro */
+  transform: scale(1.1);
+}
+
+.tarjeta-set-default-btn-icon:active {
+  transform: scale(0.95);
+}
+
+/* Modo oscuro */
+.dark-mode .tarjeta-set-default-btn-icon {
+  color: #50831d;
+}
+
+.dark-mode .tarjeta-set-default-btn-icon:hover {
+  background-color: #78350f; /* Fondo amarillo oscuro */
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 480px) {
   .tarjeta-add-btn-checkout {
@@ -784,7 +835,7 @@
     max-width: none;
     margin: 0;
     border-radius: 16px;
-    max-height: 95vh;
+    max-height: none; /* Cambiado: sin scroll */
   }
   
   .tarjeta-modal-header {

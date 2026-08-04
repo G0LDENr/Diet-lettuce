@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaSearch, FaEdit, FaTrash, FaPlus, FaMapMarkerAlt, FaCheckCircle, FaHome, FaBuilding, FaCheck, FaTimes, FaCity, FaMapPin, FaInfoCircle } from 'react-icons/fa';
+import { FaSearch, FaEdit, FaTrash, FaPlus, FaMapMarkerAlt, FaCheckCircle, FaHome, FaBuilding, FaCheck, FaTimes, FaCity, FaMapPin, FaInfoCircle, FaStar } from 'react-icons/fa';
 import { PiWarningFill } from "react-icons/pi";
 import { GoShield } from "react-icons/go";
 import '../../css/Perfil/gestionar-direcciones.css';
@@ -177,6 +177,17 @@ const DireccionesList = ({
                           )}
                         </div>
                         <div className="dir-card-actions" onClick={(e) => e.stopPropagation()}>
+                          {/* Botón Establecer como predeterminada - SOLO si NO es predeterminada y está en modo gestión */}
+                          {!isPredeterminada && showSetDefaultButton && !isCheckout && (
+                            <button 
+                              className="dir-set-default-btn-icon"
+                              onClick={() => handleSetPredeterminada(direccion.id)}
+                              title="Establecer como predeterminada"
+                            >
+                              <FaStar />
+                            </button>
+                          )}
+                          
                           <button 
                             className="dir-edit-btn"
                             onClick={() => {
@@ -187,6 +198,7 @@ const DireccionesList = ({
                           >
                             <FaEdit />
                           </button>
+                          
                           <button 
                             className="dir-delete-btn"
                             onClick={() => handleDeleteClick(direccion)}
@@ -203,16 +215,7 @@ const DireccionesList = ({
                         <p className="dir-direccion"><strong>CP:</strong> {direccion.codigo_postal}</p>
                         {direccion.referencias && <p className="dir-referencias"><strong>Referencias:</strong> {direccion.referencias}</p>}
                       </div>
-                      {!isPredeterminada && showSetDefaultButton && (
-                        <div className="dir-card-footer" onClick={(e) => e.stopPropagation()}>
-                          <button 
-                            className="dir-set-default-btn"
-                            onClick={() => handleSetPredeterminada(direccion.id)}
-                          >
-                            <FaCheck /> Establecer como predeterminada
-                          </button>
-                        </div>
-                      )}
+                      {/* ELIMINADO: Footer con botón grande de establecer como predeterminada */}
                     </div>
                   );
                 })}

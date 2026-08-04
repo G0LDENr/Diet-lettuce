@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faEyeSlash, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 
 const Login = ({ onToggle }) => {
     const navigate = useNavigate();
@@ -148,22 +148,26 @@ const Login = ({ onToggle }) => {
             <form onSubmit={handleSubmit} className="auth-form">
                 <div className="auth-form-group">
                     <label htmlFor="email">{t.email}</label>
-                    <input
-                        id="email"
-                        type="email"
-                        className="auth-form-input"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder={t.emailPlaceholder}
-                        required
-                        disabled={loading}
-                        autoComplete="email"
-                    />
+                    <div className="auth-input-wrapper">
+                        <FontAwesomeIcon icon={faEnvelope} className="auth-input-icon" />
+                        <input
+                            id="email"
+                            type="email"
+                            className="auth-form-input"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder={t.emailPlaceholder}
+                            required
+                            disabled={loading}
+                            autoComplete="email"
+                        />
+                    </div>
                 </div>
                 
                 <div className="auth-form-group">
                     <label htmlFor="password">{t.password}</label>
                     <div className="auth-password-container">
+                        <FontAwesomeIcon icon={faLock} className="auth-input-icon" />
                         <input
                             id="password"
                             type={showPassword ? "text" : "password"}

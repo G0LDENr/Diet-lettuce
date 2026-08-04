@@ -3,11 +3,13 @@ import CreateUserForm from '../../components/users/create-user';
 import EditUserForm from '../../components/users/edit-user';
 import { useConfig } from '../../context/config';
 import '../../css/Users/users.css';
+import { agregarActividadAdmin } from '../../services/actividadAdminService';
 
 // Importa tus imágenes
 import editIcon from '../../img/edit.png';
 import deleteIcon from '../../img/delete.png';
 import locationIcon from '../../img/ubicacion.png';
+import { FaUsers, FaUserShield, FaUser, FaCalendarAlt } from 'react-icons/fa';
 
 const Users = () => {
   const { darkMode } = useConfig();
@@ -25,17 +27,55 @@ const Users = () => {
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState('');
   
-  // Estados para el modal de eliminación
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   
-  const usersPerPage = 10;
+  const usersPerPage = 6;
+
+  const getAdminNombre = () => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        return user.nombre || 'Administrador';
+      } catch (error) {
+        return 'Administrador';
+      }
+    }
+    return 'Administrador';
+  };
+
+  // ===== ESTADÍSTICAS =====
+  const totalUsuarios = users.length;
+  const totalAdministradores = users.filter(u => u.rol === 1).length;
+  const totalUsuariosNormales = users.filter(u => u.rol === 2).length;
+
+  // Función para contar usuarios creados este mes
+  const getUsuariosCreadosEsteMes = () => {
+    const ahora = new Date();
+    const mesActual = ahora.getMonth();
+    const anioActual = ahora.getFullYear();
+    
+    return users.filter(user => {
+      if (!user.fecha_registro) return false;
+      const fecha = new Date(user.fecha_registro);
+      return fecha.getMonth() === mesActual && fecha.getFullYear() === anioActual;
+    }).length;
+  };
+
+  const totalUsuariosCreadosEsteMes = getUsuariosCreadosEsteMes();
+
+  const stats = [
+    { icon: FaUsers, label: 'Total Usuarios', value: totalUsuarios, color: '#50831d', bg: '#eef3e8' },
+    { icon: FaUserShield, label: 'Administradores', value: totalAdministradores, color: '#50831d', bg: '#eef3e8' },
+    { icon: FaUser, label: 'Usuarios', value: totalUsuariosNormales, color: '#50831d', bg: '#eef3e8' },
+    { icon: FaCalendarAlt, label: 'Creados este mes', value: totalUsuariosCreadosEsteMes, color: '#50831d', bg: '#eef3e8' }
+  ];
 
   useEffect(() => {
     fetchUsers();
-    // Obtener el ID del usuario actual del localStorage
     const userData = localStorage.getItem('user');
     if (userData) {
       try {
@@ -63,20 +103,14 @@ const Users = () => {
       if (response.ok) {
         const data = await response.json();
         
-        // ORDENAR LOS USUARIOS POR ID (como en MySQL)
         const sortedUsers = data.sort((a, b) => {
-          // Para MySQL: a.id y b.id son números
-          // Para MongoDB: a.id y b.id son strings (ObjectId)
-          // Comparar como números si son números, o como strings si son ObjectId
           if (typeof a.id === 'number' && typeof b.id === 'number') {
             return a.id - b.id;
           } else {
-            // Para ObjectId de MongoDB, comparar como strings (mantiene orden cronológico)
             return a.id.localeCompare(b.id);
           }
         });
         
-        // Si quieres mostrar un número secuencial basado en el orden real
         const usersWithSequentialId = sortedUsers.map((user, index) => ({
           ...user,
           sequentialId: index + 1
@@ -97,7 +131,6 @@ const Users = () => {
   useEffect(() => {
     let filtered = users;
 
-    // Filtro por término de búsqueda
     if (searchTerm.trim() !== '') {
       filtered = filtered.filter(user => 
         user.sequentialId.toString().includes(searchTerm) || 
@@ -109,12 +142,10 @@ const Users = () => {
       );
     }
 
-    // Filtro por rol
     if (roleFilter !== '') {
       filtered = filtered.filter(user => user.rol.toString() === roleFilter);
     }
 
-    // Filtro por sexo
     if (sexFilter !== '') {
       filtered = filtered.filter(user => user.sexo === sexFilter);
     }
@@ -130,14 +161,12 @@ const Users = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Función para abrir el modal de eliminación
   const openDeleteModal = (user) => {
     setUserToDelete(user);
     setDeleteError('');
     setShowDeleteModal(true);
   };
 
-  // Función para cerrar el modal de eliminación
   const closeDeleteModal = () => {
     setShowDeleteModal(false);
     setUserToDelete(null);
@@ -145,7 +174,6 @@ const Users = () => {
     setDeleteLoading(false);
   };
 
-  // Función para confirmar la eliminación
   const confirmDelete = async () => {
     if (!userToDelete) return;
 
@@ -154,8 +182,7 @@ const Users = () => {
 
     try {
       const token = localStorage.getItem('token');
-      
-      console.log('🔍 Eliminando usuario:', userToDelete.id, userToDelete.nombre);
+      const adminNombre = getAdminNombre();
       
       const response = await fetch(`http://127.0.0.1:5000/user/${userToDelete.id}`, {
         method: 'DELETE',
@@ -170,10 +197,13 @@ const Users = () => {
       if (response.ok) {
         console.log('✅ Usuario eliminado exitosamente');
         
-        // Recargar la lista completa para mantener el orden correcto
-        await fetchUsers();
+        agregarActividadAdmin(
+          'usuario',
+          'eliminar',
+          `${adminNombre} eliminó al usuario: ${userToDelete.nombre}`
+        );
         
-        // Cerrar el modal
+        await fetchUsers();
         closeDeleteModal();
       } else {
         let errorMsg = `Error ${response.status}: ${response.statusText}`;
@@ -222,7 +252,6 @@ const Users = () => {
     setSelectedUser(null);
   };
 
-  // Funciones para dirección
   const handleShowAddress = (direccion) => {
     if (direccion && direccion.trim() !== '') {
       setSelectedAddress(direccion);
@@ -306,18 +335,25 @@ const Users = () => {
     <div className={`users-container ${darkMode ? 'dark-mode' : ''}`}>
       <div className="users-content">
         
-        <div className="users-section-header">
-          <h3 className="users-section-title">Gestión de Usuarios</h3>
-          <button 
-            className="users-add-btn"
-            onClick={handleAddUser}
-            title="Agregar nuevo usuario"
-          >
-            <span className="users-btn-icon">+</span>
-            Agregar Usuario
-          </button>
+        {/* ===== TÍTULO ===== */}
+        <h2 className="users-main-title">Gestión de Usuarios</h2>
+
+        {/* ===== CUADROS DE ESTADÍSTICAS ===== */}
+        <div className="users-stats-grid">
+          {stats.map((stat, index) => (
+            <div key={index} className="users-stat-card">
+              <div className="users-stat-icon" style={{ background: stat.bg, color: stat.color }}>
+                <stat.icon />
+              </div>
+              <div className="users-stat-info">
+                <span className="users-stat-label">{stat.label}</span>
+                <span className="users-stat-number">{stat.value}</span>
+              </div>
+            </div>
+          ))}
         </div>
 
+        {/* ===== BUSCADOR, FILTROS Y BOTÓN AGREGAR ===== */}
         <div className="users-search-section">
           <div className="users-filters-row">
             <div className="users-search-container users-main-search">
@@ -353,6 +389,15 @@ const Users = () => {
                 <option value="Femenino">Femenino</option>
               </select>
             </div>
+
+            <button 
+              className="users-add-btn"
+              onClick={handleAddUser}
+              title="Agregar nuevo usuario"
+            >
+              <span className="users-btn-icon">+</span>
+              Agregar Usuario
+            </button>
           </div>
         </div>
 
@@ -361,7 +406,7 @@ const Users = () => {
             <thead>
               <tr>
                 <th className="users-th">ID</th>
-                <th className="users-th">Nombre</th>
+                <th className="users-th">Usuario</th>
                 <th className="users-th">Email</th>
                 <th className="users-th">Teléfono</th>
                 <th className="users-th">Dirección</th>
@@ -378,16 +423,28 @@ const Users = () => {
                   return (
                     <tr key={user.id} className="users-row">
                       <td className="users-td users-id">
-                        {/* Mostrar el ID secuencial basado en el orden real */}
                         {user.sequentialId}
                       </td>
-                      <td className="users-td users-name">{user.nombre || 'N/A'}</td>
+                      <td className="users-td users-name">
+                        <div className="users-name-cell">
+                          {user.rol === 1 ? (
+                            <FaUserShield className="users-name-icon admin" title="Administrador" />
+                          ) : (
+                            <FaUser className="users-name-icon user" title="Usuario" />
+                          )}
+                          <span className="users-name-text">{user.nombre || 'N/A'}</span>
+                        </div>
+                      </td>
                       <td className="users-td users-email">{user.correo || 'N/A'}</td>
                       <td className="users-td users-phone">{user.telefono || 'N/A'}</td>
                       <td className="users-td users-address-col">
                         {getAddressDisplay(user.direccion)}
                       </td>
-                      <td className="users-td users-role">{getRoleText(user.rol)}</td>
+                      <td className="users-td users-role">
+                        <span className={`users-role-badge ${user.rol === 1 ? 'admin' : 'user'}`}>
+                          {getRoleText(user.rol)}
+                        </span>
+                      </td>
                       <td className="users-td users-sex">{user.sexo || 'N/A'}</td>
                       <td className="users-td users-actions-cell">
                         <div className="users-actions-buttons">
@@ -431,63 +488,61 @@ const Users = () => {
             </tbody>
           </table>
 
-          {filteredUsers.length > usersPerPage && (
+          {/* ===== PAGINACIÓN ===== */}
+          {filteredUsers.length > 0 && (
             <div className="users-pagination-container">
-              <div className="users-pagination-controls">
-                <button 
-                  onClick={() => paginate(currentPage - 1)} 
-                  disabled={currentPage === 1}
-                  className="users-pagination-btn users-prev-btn"
-                >
-                  Anterior
-                </button>
-                
-                <div className="users-pagination-numbers">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter(number => 
-                      number === 1 || 
-                      number === totalPages || 
-                      (number >= currentPage - 1 && number <= currentPage + 1)
-                    )
-                    .map((number, index, array) => {
-                      const showEllipsis = index > 0 && number - array[index - 1] > 1;
-                      return (
-                        <React.Fragment key={number}>
-                          {showEllipsis && <span className="users-pagination-ellipsis">...</span>}
-                          <button
-                            onClick={() => paginate(number)}
-                            className={`users-pagination-btn ${currentPage === number ? 'users-active' : ''}`}
-                          >
-                            {number}
-                          </button>
-                        </React.Fragment>
-                      );
-                    })}
+              <div className="users-pagination-wrapper">
+                <div className="users-pagination-left">
+                  <span className="users-pagination-info">
+                    Mostrando {indexOfFirstUser + 1} - {Math.min(indexOfLastUser, filteredUsers.length)} de {filteredUsers.length} usuarios
+                  </span>
                 </div>
-                
-                <button 
-                  onClick={() => paginate(currentPage + 1)} 
-                  disabled={currentPage === totalPages}
-                  className="users-pagination-btn users-next-btn"
-                >
-                  Siguiente
-                </button>
+                <div className="users-pagination-right">
+                  <button 
+                    onClick={() => paginate(currentPage - 1)} 
+                    disabled={currentPage === 1}
+                    className="users-pagination-btn users-prev-btn"
+                  >
+                    &laquo; Anterior
+                  </button>
+                  
+                  <div className="users-pagination-numbers">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(number => 
+                        number === 1 || 
+                        number === totalPages || 
+                        (number >= currentPage - 1 && number <= currentPage + 1)
+                      )
+                      .map((number, index, array) => {
+                        const showEllipsis = index > 0 && number - array[index - 1] > 1;
+                        return (
+                          <React.Fragment key={number}>
+                            {showEllipsis && <span className="users-pagination-ellipsis">...</span>}
+                            <button
+                              onClick={() => paginate(number)}
+                              className={`users-pagination-btn ${currentPage === number ? 'users-active' : ''}`}
+                            >
+                              {number}
+                            </button>
+                          </React.Fragment>
+                        );
+                      })}
+                  </div>
+                  
+                  <button 
+                    onClick={() => paginate(currentPage + 1)} 
+                    disabled={currentPage === totalPages}
+                    className="users-pagination-btn users-next-btn"
+                  >
+                    Siguiente &raquo;
+                  </button>
+                </div>
               </div>
-
-              <div className="users-count-info">
-                Mostrando {currentUsers.length} de {filteredUsers.length} usuarios
-              </div>
-            </div>
-          )}
-
-          {filteredUsers.length <= usersPerPage && filteredUsers.length > 0 && (
-            <div className="users-count-info">
-              Mostrando {currentUsers.length} de {filteredUsers.length} usuarios
             </div>
           )}
         </div>
 
-        {/* Modal para dirección */}
+        {/* Modales... (resto igual) */}
         {showAddressModal && (
           <div className="users-modal-overlay">
             <div className="users-modal-content users-address-modal">
@@ -531,7 +586,6 @@ const Users = () => {
           </div>
         )}
 
-        {/* Modal para crear usuario */}
         {showCreateModal && (
           <div className="users-modal-overlay">
             <div className="users-modal-content create-user-modal">
@@ -542,7 +596,13 @@ const Users = () => {
               <div className="users-modal-body">
                 <CreateUserForm 
                   onClose={closeCreateModal}
-                  onUserCreated={() => {
+                  onUserCreated={(nuevoUsuario) => {
+                    const adminNombre = getAdminNombre();
+                    agregarActividadAdmin(
+                      'usuario',
+                      'crear',
+                      `${adminNombre} creó al usuario: ${nuevoUsuario?.nombre || 'Nuevo usuario'}`
+                    );
                     fetchUsers();
                   }}
                 />
@@ -551,7 +611,6 @@ const Users = () => {
           </div>
         )}
 
-        {/* Modal para editar usuario */}
         {showEditModal && selectedUser && (
           <div className="users-modal-overlay">
             <div className="users-modal-content">
@@ -563,7 +622,13 @@ const Users = () => {
                 <EditUserForm 
                   user={selectedUser}
                   onClose={closeEditModal}
-                  onUserUpdated={() => {
+                  onUserUpdated={(usuarioActualizado) => {
+                    const adminNombre = getAdminNombre();
+                    agregarActividadAdmin(
+                      'usuario',
+                      'editar',
+                      `${adminNombre} editó al usuario: ${usuarioActualizado?.nombre || selectedUser?.nombre || 'Usuario'}`
+                    );
                     fetchUsers();
                   }}
                 />
@@ -572,7 +637,6 @@ const Users = () => {
           </div>
         )}
 
-        {/* Modal de confirmación de eliminación */}
         {showDeleteModal && userToDelete && (
           <div className="users-modal-overlay">
             <div className="users-modal-content users-delete-modal">

@@ -405,7 +405,7 @@ const AnalisisOrdenes = ({ open, onClose }) => {
                       ${estadisticas?.error_promedio?.toFixed(2) || 'N/A'}
                     </span>
                     <div style={{ fontSize: '0.7rem', color: '#888', marginTop: '4px' }}>
-                      {estadisticas?.error_promedio > 5 ? '⚠️ Alto - Necesita mejorar' : '✅ Bajo - Modelo confiable'}
+                      {estadisticas?.error_promedio > 5 ? 'Alto - Necesita mejorar' : 'Bajo - Modelo confiable'}
                     </div>
                   </div>
                   <div className="analisis-error-card">
@@ -443,7 +443,7 @@ const AnalisisOrdenes = ({ open, onClose }) => {
                   Estas gráficas muestran cómo se distribuyen los clientes y la calidad de la segmentación.
                 </p>
                 
-                <h5>📊 Calidad de los Grupos (WCSS)</h5>
+                <h5>Calidad de los Grupos (WCSS)</h5>
                 <p style={{ color: '#666', fontSize: '0.85rem' }}>
                   Mide qué tan compactos están los grupos. Un valor más bajo significa grupos más homogéneos.
                 </p>
@@ -460,7 +460,7 @@ const AnalisisOrdenes = ({ open, onClose }) => {
                     <span className="analisis-wcss-label">Porcentaje de Compactación</span>
                     <span className="analisis-wcss-value">{wcss?.porcentaje?.toFixed(2) || 'N/A'}%</span>
                     <div style={{ fontSize: '0.7rem', color: '#888' }}>
-                      {wcss?.porcentaje < 30 ? '✅ Excelente' : wcss?.porcentaje < 50 ? '👍 Bueno' : '⚠️ Puede mejorar'}
+                      {wcss?.porcentaje < 30 ? 'Excelente' : wcss?.porcentaje < 50 ? 'Bueno' : 'Puede mejorar'}
                     </div>
                   </div>
                 </div>
@@ -468,7 +468,7 @@ const AnalisisOrdenes = ({ open, onClose }) => {
                 {/* Gráfica Elbow */}
                 {graficas?.elbow && (
                   <div className="analisis-grafica-container">
-                    <h5>📈 ¿Cuántos grupos son ideales? (Método del Codo)</h5>
+                    <h5>¿Cuántos grupos son ideales? (Método del Codo)</h5>
                     <p style={{ color: '#666', fontSize: '0.85rem' }}>
                       El punto donde la curva "dobla" indica el número óptimo de grupos de clientes.
                     </p>
@@ -498,9 +498,9 @@ const AnalisisOrdenes = ({ open, onClose }) => {
                         {silhouette?.interpretacion || 'N/A'}
                       </span>
                       <div style={{ fontSize: '0.7rem', color: '#888', marginTop: '4px' }}>
-                        {silhouette?.interpretacion === 'Excelente' ? '🎯 Grupos muy bien definidos' :
-                         silhouette?.interpretacion === 'Bueno' ? '👍 Grupos claramente diferenciados' :
-                         silhouette?.interpretacion === 'Regular' ? '⚠️ Grupos con algo de solapamiento' :
+                        {silhouette?.interpretacion === 'Excelente' ? 'Grupos muy bien definidos' :
+                         silhouette?.interpretacion === 'Bueno' ? 'Grupos claramente diferenciados' :
+                         silhouette?.interpretacion === 'Regular' ? 'Grupos con algo de solapamiento' :
                          '❌ Grupos poco definidos'}
                       </div>
                     </div>
@@ -508,9 +508,9 @@ const AnalisisOrdenes = ({ open, onClose }) => {
                       <span className="analisis-silhouette-label">Número Óptimo de Grupos</span>
                       <span className="analisis-silhouette-value">{silhouette?.k_optimo || 'N/A'}</span>
                       <div style={{ fontSize: '0.7rem', color: '#888', marginTop: '4px' }}>
-                        {silhouette?.k_optimo === 3 ? '✅ 3 grupos (Recomendado)' : 
-                         silhouette?.k_optimo === 2 ? '👥 2 grupos' : 
-                         `📊 ${silhouette?.k_optimo} grupos`}
+                        {silhouette?.k_optimo === 3 ? '3 grupos (Recomendado)' : 
+                         silhouette?.k_optimo === 2 ? '2 grupos' : 
+                         `${silhouette?.k_optimo} grupos`}
                       </div>
                     </div>
                   </div>
@@ -519,7 +519,7 @@ const AnalisisOrdenes = ({ open, onClose }) => {
                 {/* Gráfica de Clusters */}
                 {graficas?.clusters && (
                   <div className="analisis-grafica-container">
-                    <h5>📍 Visualización de Grupos de Clientes</h5>
+                    <h5>Visualización de Grupos de Clientes</h5>
                     <p style={{ color: '#666', fontSize: '0.85rem' }}>
                       Cada punto representa un cliente. Los clientes del mismo color pertenecen al mismo grupo.
                       La "X" marca el centro de cada grupo.
@@ -545,7 +545,7 @@ const AnalisisOrdenes = ({ open, onClose }) => {
                 
                 <div className="analisis-pca-container">
                   <div className="analisis-pca-card">
-                    <h5>🎯 Factor Principal 1</h5>
+                    <h5>Factor Principal 1</h5>
                     <p>Representa el <strong>{Math.round(pca?.componentes?.componente_1?.varianza_explicada * 100)}%</strong> de la diferencia entre clientes</p>
                     <p style={{ fontSize: '0.8rem', color: '#666' }}>
                       Este factor combina las siguientes características:
@@ -567,7 +567,7 @@ const AnalisisOrdenes = ({ open, onClose }) => {
                   </div>
 
                   <div className="analisis-pca-card">
-                    <h5>🎯 Factor Principal 2</h5>
+                    <h5>Factor Principal 2</h5>
                     <p>Representa el <strong>{Math.round(pca?.componentes?.componente_2?.varianza_explicada * 100)}%</strong> de la diferencia entre clientes</p>
                     <p style={{ fontSize: '0.8rem', color: '#666' }}>
                       Este factor complementa al anterior con:
@@ -592,7 +592,7 @@ const AnalisisOrdenes = ({ open, onClose }) => {
                 {/* Varianza acumulada */}
                 {pca?.varianza_acumulada && (
                   <div className="analisis-varianza-container">
-                    <h5>📊 ¿Cuánta información capturamos?</h5>
+                    <h5>¿Cuánta información capturamos?</h5>
                     <p style={{ color: '#666', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
                       Muestra el porcentaje de información que cada factor explica sobre los clientes.
                     </p>
@@ -624,7 +624,7 @@ const AnalisisOrdenes = ({ open, onClose }) => {
                               <td>{acumulada}%</td>
                               <td style={{ fontSize: '0.8rem', color: '#666' }}>
                                 {interpretacion}
-                                {acumulada > 80 && index === 1 && ' ✅ Suficiente para análisis'}
+                                {acumulada > 80 && index === 1 && ' Suficiente para análisis'}
                               </td>
                             </tr>
                           );

@@ -20,6 +20,9 @@ import { SlLocationPin } from "react-icons/sl";
 import { MdOutlineSecurity, MdOutlineSystemUpdate } from "react-icons/md";
 import { FaGear } from "react-icons/fa6";
 
+// Importar servicio de actividades
+import { getActividades, agregarActividad } from '../../services/actividadService';
+
 const Perfil = () => {
   const navigate = useNavigate();
   const { darkMode } = useConfig();
@@ -31,8 +34,8 @@ const Perfil = () => {
   const [productosFav, setProductosFav] = useState(0);
   const [loadingDirecciones, setLoadingDirecciones] = useState(false);
   const [loadingTarjetas, setLoadingTarjetas] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
   const [paisUsuario, setPaisUsuario] = useState('México');
+  const [actividades, setActividades] = useState([]);
   
   // Estados para los modales
   const [showEditModal, setShowEditModal] = useState(false);
@@ -48,13 +51,13 @@ const Perfil = () => {
 
   const isAuthenticated = localStorage.getItem('token') !== null;
 
-  // Actividades recientes
-  const actividadesRecientes = [
-    { id: 1, icon: HiOutlineShoppingBag, text: "Pedido #1234 - Entregado", date: "Hace 2 días", circleColor: "#eef3e8", iconColor: "#426a1c" },
-    { id: 2, icon: FaCreditCard, text: "Tarjeta agregada", date: "Hace 5 días", circleColor: "#eef3e8", iconColor: "#426a1c" },
-    { id: 3, icon: FaMapMarkerAlt, text: "Nueva dirección agregada", date: "Hace 1 semana", circleColor: "#eef3e8", iconColor: "#426a1c" },
-    { id: 4, icon: FaHeart, text: "Producto añadido a favoritos", date: "Hace 2 semanas", circleColor: "#eef3e8", iconColor: "#426a1c" }
-  ];
+  // Cargar actividades al iniciar (solo 3 más recientes)
+  useEffect(() => {
+    if (isAuthenticated) {
+      const actividadesGuardadas = getActividades();
+      setActividades(actividadesGuardadas);
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -89,15 +92,22 @@ const Perfil = () => {
 
   // Filtrar direcciones para mostrar: predeterminada + segunda dirección
   useEffect(() => {
-    if (direcciones.length > 0) {
-      const predeterminada = direcciones.find(d => d.predeterminada === true);
-      const segunda = direcciones.find(d => d.predeterminada !== true);
-      const mostrar = [];
-      if (predeterminada) mostrar.push(predeterminada);
-      if (segunda) mostrar.push(segunda);
+    if (direcciones.length === 0) {
+      setDireccionesMostrar([]);
+      return;
+    }
+
+    const predeterminada = direcciones.find(d => d.predeterminada === true);
+    
+    if (predeterminada) {
+      const otras = direcciones.filter(d => d.id !== predeterminada.id);
+      const mostrar = [predeterminada];
+      if (otras.length > 0) {
+        mostrar.push(otras[0]);
+      }
       setDireccionesMostrar(mostrar);
     } else {
-      setDireccionesMostrar([]);
+      setDireccionesMostrar(direcciones.slice(0, 2));
     }
   }, [direcciones]);
 
@@ -184,6 +194,19 @@ const Perfil = () => {
 
       if (response.ok) {
         await fetchDirecciones();
+        // Registrar actividad - SOLO CALLE Y CIUDAD
+        const direccionEliminada = direcciones.find(d => d.id === direccionId);
+        if (direccionEliminada) {
+          const nuevaActividad = agregarActividad(
+            'direccion',
+            'eliminar',
+            `Dirección eliminada: ${direccionEliminada.calle}, ${direccionEliminada.ciudad}`
+          );
+          if (nuevaActividad) {
+            const actividadesActualizadas = getActividades();
+            setActividades(actividadesActualizadas);
+          }
+        }
         return true;
       } else {
         alert('Error al eliminar la dirección');
@@ -252,11 +275,40 @@ const Perfil = () => {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        
+        if (!direccionToEdit && direcciones.length === 0) {
+          const nuevaDireccionId = data.direccion?.id || data.id;
+          if (nuevaDireccionId) {
+            await fetch(`http://127.0.0.1:5000/direcciones/${nuevaDireccionId}/predeterminada`, {
+              method: 'PUT',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ user_id: user.id || userData?.id })
+            });
+          }
+        }
+        
         await fetchDirecciones();
         setShowAgregarDireccionModal(false);
         setDireccionToEdit(null);
-        setSuccessMessage(direccionToEdit ? 'Dirección actualizada correctamente' : 'Dirección agregada correctamente');
-        setTimeout(() => setSuccessMessage(''), 3000);
+        
+        // Registrar actividad - SOLO CALLE Y CIUDAD
+        const mensaje = direccionToEdit 
+          ? `Dirección editada: ${direccionData.calle}, ${direccionData.ciudad}`
+          : `Dirección agregada: ${direccionData.calle}, ${direccionData.ciudad}`;
+        const nuevaActividad = agregarActividad(
+          'direccion',
+          direccionToEdit ? 'editar' : 'crear',
+          mensaje
+        );
+        if (nuevaActividad) {
+          const actividadesActualizadas = getActividades();
+          setActividades(actividadesActualizadas);
+        }
+        
         return Promise.resolve();
       } else {
         const errorData = await response.json();
@@ -284,8 +336,19 @@ const Perfil = () => {
 
       if (response.ok) {
         await fetchTarjetas();
-        setSuccessMessage('Tarjeta eliminada correctamente');
-        setTimeout(() => setSuccessMessage(''), 3000);
+        // Registrar actividad
+        const tarjetaEliminada = tarjetas.find(t => t.id === tarjetaId);
+        if (tarjetaEliminada) {
+          const nuevaActividad = agregarActividad(
+            'tarjeta',
+            'eliminar',
+            `Tarjeta eliminada: ${tarjetaEliminada.nombre_titular}`
+          );
+          if (nuevaActividad) {
+            const actividadesActualizadas = getActividades();
+            setActividades(actividadesActualizadas);
+          }
+        }
         return true;
       } else {
         alert('Error al eliminar la tarjeta');
@@ -302,7 +365,10 @@ const Perfil = () => {
   const handleSetTarjetaPredeterminada = async (tarjetaId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://127.0.0.1:5000/tarjetas/${tarjetaId}/predeterminada`, {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const userId = user.id || userData?.id;
+      
+      const response = await fetch(`http://127.0.0.1:5000/tarjetas/user/${userId}/predeterminada/${tarjetaId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -312,16 +378,16 @@ const Perfil = () => {
 
       if (response.ok) {
         await fetchTarjetas();
-        setSuccessMessage('Tarjeta predeterminada actualizada');
-        setTimeout(() => setSuccessMessage(''), 3000);
         return true;
       } else {
-        alert('Error al actualizar tarjeta predeterminada');
+        const errorData = await response.json();
+        console.error('Error del backend:', errorData);
+        alert(`Error: ${errorData.msg || 'Error al actualizar tarjeta predeterminada'}`);
         return false;
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('Error de conexión');
+      console.error('Error de conexión:', error);
+      alert('Error de conexión al servidor');
       return false;
     }
   };
@@ -348,8 +414,21 @@ const Perfil = () => {
         await fetchTarjetas();
         setShowAgregarTarjetaModal(false);
         setTarjetaToEdit(null);
-        setSuccessMessage(tarjetaToEdit ? 'Tarjeta actualizada correctamente' : 'Tarjeta agregada correctamente');
-        setTimeout(() => setSuccessMessage(''), 3000);
+        
+        // Registrar actividad
+        const mensaje = tarjetaToEdit 
+          ? `Tarjeta editada: ${tarjetaData.nombre_titular}`
+          : `Tarjeta agregada: ${tarjetaData.nombre_titular}`;
+        const nuevaActividad = agregarActividad(
+          'tarjeta',
+          tarjetaToEdit ? 'editar' : 'crear',
+          mensaje
+        );
+        if (nuevaActividad) {
+          const actividadesActualizadas = getActividades();
+          setActividades(actividadesActualizadas);
+        }
+        
         return Promise.resolve();
       } else {
         const errorData = await response.json();
@@ -375,13 +454,22 @@ const Perfil = () => {
     setShowAgregarDireccionModal(true);
   };
 
-  // Función para abrir modal de agregar tarjeta
+  // ===== FUNCIONES PARA TARJETAS =====
+  const handleOpenTarjetasModal = () => {
+    setShowTarjetasModal(true);
+    setShowAgregarTarjetaModal(false);
+  };
+
   const handleAddTarjeta = () => {
     setTarjetaToEdit(null);
     setShowAgregarTarjetaModal(true);
   };
 
-  // Función para abrir modal de edición de tarjeta
+  const handleCloseAgregarTarjeta = () => {
+    setShowAgregarTarjetaModal(false);
+    setTarjetaToEdit(null);
+  };
+
   const handleEditTarjeta = (tarjeta) => {
     setTarjetaToEdit(tarjeta);
     setShowAgregarTarjetaModal(true);
@@ -408,8 +496,18 @@ const Perfil = () => {
       if (response.ok) {
         const updatedUser = await response.json();
         setUserData(updatedUser.user);
-        setSuccessMessage('Perfil actualizado exitosamente');
-        setTimeout(() => setSuccessMessage(''), 3000);
+        
+        // Registrar actividad
+        const nuevaActividad = agregarActividad(
+          'perfil',
+          'actualizar',
+          'Perfil actualizado'
+        );
+        if (nuevaActividad) {
+          const actividadesActualizadas = getActividades();
+          setActividades(actividadesActualizadas);
+        }
+        
         return Promise.resolve();
       } else {
         const errorData = await response.json();
@@ -451,6 +549,52 @@ const Perfil = () => {
     }
   };
 
+  // Función para formatear tiempo relativo
+  const formatTiempoRelativo = (fechaISO) => {
+    const fecha = new Date(fechaISO);
+    const ahora = new Date();
+    const diffMs = ahora - fecha;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHoras = Math.floor(diffMs / 3600000);
+    const diffDias = Math.floor(diffMs / 86400000);
+    
+    if (diffMin < 1) return 'Hace un momento';
+    if (diffMin < 60) return `Hace ${diffMin} minuto${diffMin > 1 ? 's' : ''}`;
+    if (diffHoras < 24) return `Hace ${diffHoras} hora${diffHoras > 1 ? 's' : ''}`;
+    if (diffDias < 7) return `Hace ${diffDias} día${diffDias > 1 ? 's' : ''}`;
+    if (diffDias < 30) return `Hace ${Math.floor(diffDias / 7)} semana${Math.floor(diffDias / 7) > 1 ? 's' : ''}`;
+    
+    return fecha.toLocaleDateString('es-MX', { 
+      day: 'numeric', 
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  // Función para obtener icono según tipo de actividad
+  const getActividadIcon = (tipo, accion) => {
+    const iconMap = {
+      'tarjeta': {
+        'crear': { icon: FaCreditCard, label: 'Tarjeta agregada' },
+        'eliminar': { icon: FaCreditCard, label: 'Tarjeta eliminada' },
+        'editar': { icon: FaCreditCard, label: 'Tarjeta editada' }
+      },
+      'direccion': {
+        'crear': { icon: FaMapMarkerAlt, label: 'Dirección agregada' },
+        'eliminar': { icon: FaMapMarkerAlt, label: 'Dirección eliminada' },
+        'editar': { icon: FaMapMarkerAlt, label: 'Dirección editada' }
+      },
+      'perfil': {
+        'actualizar': { icon: FaUser, label: 'Perfil actualizado' }
+      },
+      'pedido': {
+        'crear': { icon: HiOutlineShoppingBag, label: 'Pedido realizado' }
+      }
+    };
+    
+    return iconMap[tipo]?.[accion] || { icon: FaInfoCircle, label: 'Actividad' };
+  };
+
   if (loading) {
     return (
       <div className={`perfil-container ${darkMode ? 'dark-mode' : ''}`}>
@@ -482,13 +626,6 @@ const Perfil = () => {
       </div>
 
       <div className="perfil-content">
-        {successMessage && (
-          <div className="perfil-message-container success">
-            <div className="perfil-message-icon">✓</div>
-            <div className="perfil-message-text">{successMessage}</div>
-          </div>
-        )}
-
         {!isAuthenticated && (
           <div className="perfil-warning-container">
             <div className="perfil-warning-icon">⚠️</div>
@@ -506,7 +643,6 @@ const Perfil = () => {
           <>
             {/* Fila principal: Tarjeta de info + 4 cuadros de estadísticas */}
             <div className="perfil-main-row">
-              {/* Tarjeta de Información Personal */}
               <div className="perfil-info-card">
                 <div className="perfil-info-left">
                   <div className="perfil-avatar-circle">
@@ -529,7 +665,6 @@ const Perfil = () => {
                 </div>
               </div>
 
-              {/* Grid de 4 cuadros de estadísticas */}
               <div className="perfil-stats-grid">
                 <div className="perfil-stat-card">
                   <div className="perfil-stat-icon" style={{ background: '#eef3e8', color: '#50831d' }}>
@@ -562,7 +697,6 @@ const Perfil = () => {
               </div>
             </div>
 
-            {/* Segunda fila: 4 cuadros grandes */}
             <div className="perfil-second-row">
               {/* Cuadro 1: Información Personal */}
               <div className="perfil-info-section">
@@ -620,23 +754,28 @@ const Perfil = () => {
                   <h3>Actividad Reciente</h3>
                 </div>
                 <div className="perfil-section-content">
-                  {actividadesRecientes.map((actividad) => (
-                    <div key={actividad.id} className="activity-row">
-                      <div 
-                        className="activity-icon-circle" 
-                        style={{ background: actividad.circleColor }}
-                      >
-                        <actividad.icon 
-                          className="activity-icon" 
-                          style={{ color: actividad.iconColor }} 
-                        />
-                      </div>
-                      <div className="activity-details">
-                        <span className="activity-text">{actividad.text}</span>
-                        <span className="activity-date">{actividad.date}</span>
-                      </div>
+                  {actividades.length > 0 ? (
+                    actividades.map((actividad) => {
+                      const { icon: Icon, label } = getActividadIcon(actividad.tipo, actividad.accion);
+                      const tiempo = formatTiempoRelativo(actividad.fecha);
+                      
+                      return (
+                        <div key={actividad.id} className="activity-row">
+                          <div className="activity-icon-circle" style={{ background: '#eef3e8' }}>
+                            <Icon className="activity-icon" style={{ color: '#50831d' }} />
+                          </div>
+                          <div className="activity-details">
+                            <span className="activity-text">{actividad.descripcion}</span>
+                            <span className="activity-date">{tiempo}</span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="no-activity" style={{ padding: '1rem', textAlign: 'center', color: '#999', fontSize: '0.8rem' }}>
+                      <p>No hay actividad reciente</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
 
@@ -705,7 +844,7 @@ const Perfil = () => {
                     <FaChevronRight className="security-arrow" />
                   </button>
 
-                  <button className="security-btn" style={{ marginTop: '0.75rem' }} onClick={() => setShowTarjetasModal(true)}>
+                  <button className="security-btn" style={{ marginTop: '0.75rem' }} onClick={handleOpenTarjetasModal}>
                     <div className="security-btn-left">
                       <div className="security-icon-circle">
                         <FaCreditCard />
@@ -737,7 +876,7 @@ const Perfil = () => {
         )}
       </div>
 
-      {/* Modal de Editar Perfil */}
+      {/* Modales */}
       <ModalEditarPerfil 
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
@@ -745,7 +884,6 @@ const Perfil = () => {
         onSave={handleUpdateProfile}
       />
 
-      {/* Modal de Gestionar Direcciones */}
       <ModalGestionarDirecciones 
         isOpen={showDireccionesModal}
         onClose={() => setShowDireccionesModal(false)}
@@ -760,7 +898,6 @@ const Perfil = () => {
         isCheckout={false}
       />
 
-      {/* Modal de Agregar/Editar Dirección */}
       <ModalAgregarDireccion 
         isOpen={showAgregarDireccionModal}
         onClose={() => {
@@ -771,7 +908,6 @@ const Perfil = () => {
         direccionToEdit={direccionToEdit}
       />
 
-      {/* Modal de Cambiar Contraseña */}
       <ModalCambiarPassword 
         isOpen={showPasswordModal}
         onClose={() => setShowPasswordModal(false)}
@@ -779,7 +915,6 @@ const Perfil = () => {
         navigate={navigate}
       />
 
-      {/* Modal de Gestionar Tarjetas */}
       <ModalGestionarTarjetas 
         isOpen={showTarjetasModal}
         onClose={() => setShowTarjetasModal(false)}
@@ -793,22 +928,29 @@ const Perfil = () => {
         isCheckout={false}
       />
 
-      {/* Modal de Agregar/Editar Tarjeta */}
       <ModalAgregarTarjeta 
         isOpen={showAgregarTarjetaModal}
-        onClose={() => {
+        onClose={handleCloseAgregarTarjeta}
+        userData={userData}
+        tarjetas={tarjetas}
+        tarjetaToEdit={tarjetaToEdit}
+        onSuccess={(tarjetaCreada) => {
+          if (tarjetaCreada && tarjetaCreada.numero_completo) {
+            if (tarjetaToEdit) {
+              setTarjetas(prev => prev.map(t => 
+                t.id === tarjetaCreada.id ? tarjetaCreada : t
+              ));
+            } else {
+              setTarjetas(prev => [...prev, tarjetaCreada]);
+            }
+          } else {
+            fetchTarjetas();
+          }
           setShowAgregarTarjetaModal(false);
           setTarjetaToEdit(null);
         }}
-        userData={userData}
-        tarjetas={tarjetas}
-        onSuccess={() => {
-          fetchTarjetas();
-          setShowAgregarTarjetaModal(false);
-        }}
       />
 
-      {/* Modal de Información del Sistema */}
       <ModalInformacionSistema 
         isOpen={showSistemaModal}
         onClose={() => setShowSistemaModal(false)}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaCreditCard, FaSearch, FaEdit, FaTrash, FaPlus, FaCheckCircle, FaEye, FaEyeSlash, FaTimes, FaExclamationTriangle } from 'react-icons/fa';
-import { VscStarFull } from "react-icons/vsc";
+import { FaCreditCard, FaSearch, FaEdit, FaTrash, FaPlus, FaCheckCircle, FaTimes, FaExclamationTriangle, FaCopy, FaStar } from 'react-icons/fa';
 import { GoShield } from "react-icons/go";
 import '../../css/Perfil/gestionar-tarjetas.css';
 
@@ -23,13 +22,13 @@ const ModalGestionarTarjetas = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(3);
   const [filteredTarjetas, setFilteredTarjetas] = useState([]);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [showCardNumber, setShowCardNumber] = useState({});
   const [selectedId, setSelectedId] = useState(selectedTarjetaId || null);
+  const [copiedId, setCopiedId] = useState(null);
   
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [tarjetaAEliminar, setTarjetaAEliminar] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (tarjetas) {
@@ -56,6 +55,26 @@ const ModalGestionarTarjetas = ({
       }
     }
   }, [tarjetas, isCheckout, selectedTarjetaId]);
+
+  // Limpiar mensaje de error después de 3 segundos
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
+
+  // ===== FUNCIÓN PARA OBTENER LOS ÚLTIMOS 4 DÍGITOS =====
+  const getUltimosDigitos = (numeroEnmascarado) => {
+    if (!numeroEnmascarado) return '****';
+    const match = numeroEnmascarado.match(/(\d{4})$/);
+    if (match) {
+      return match[1];
+    }
+    return '****';
+  };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -94,20 +113,38 @@ const ModalGestionarTarjetas = ({
         setShowConfirmModal(false);
         setTarjetaAEliminar(null);
         setIsDeleting(false);
-        setSuccessMessage('Tarjeta eliminada correctamente');
-        setTimeout(() => setSuccessMessage(''), 3000);
       }
     }, 1500);
   };
 
-  const handleSetPredeterminada = (id) => {
-    onSetPredeterminada(id);
-    setSuccessMessage('Tarjeta predeterminada actualizada');
-    setTimeout(() => setSuccessMessage(''), 3000);
+  // ===== FUNCIÓN MODIFICADA: Manejar errores correctamente =====
+  const handleSetPredeterminada = async (id) => {
+    try {
+      // Intentar establecer como predeterminada
+      await onSetPredeterminada(id);
+      // Si es exitoso, no hacemos nada más
+    } catch (error) {
+      console.error('Error al establecer predeterminada:', error);
+      setErrorMessage('Error al establecer la tarjeta como predeterminada');
+    }
   };
 
-  const toggleShowNumber = (id) => {
-    setShowCardNumber(prev => ({ ...prev, [id]: !prev[id] }));
+  // ===== FUNCIÓN PARA COPIAR EL NÚMERO COMPLETO =====
+  const handleCopyNumber = (tarjeta) => {
+    if (tarjeta.numero_completo) {
+      navigator.clipboard.writeText(tarjeta.numero_completo).then(() => {
+        setCopiedId(tarjeta.id);
+        setTimeout(() => setCopiedId(null), 2000);
+      }).catch(err => {
+        console.error('Error al copiar:', err);
+      });
+      return;
+    }
+    alert('⚠️ No se puede copiar el número completo.\nSolo están disponibles los últimos 4 dígitos.\n\nPara poder copiar el número completo, agrega la tarjeta nuevamente.');
+  };
+
+  const handleAddClick = () => {
+    onAdd();
   };
 
   const detectarTipoTarjeta = (numeroEnmascarado) => {
@@ -125,10 +162,6 @@ const ModalGestionarTarjetas = ({
       case 'amex': return 'American Express';
       default: return 'Tarjeta';
     }
-  };
-
-  const handleAddClick = () => {
-    onAdd();
   };
 
   if (!isOpen) return null;
@@ -149,10 +182,11 @@ const ModalGestionarTarjetas = ({
           <button className="tarjeta-modal-close" onClick={onClose}>✕</button>
         </div>
 
-        {successMessage && (
-          <div className="tarjeta-modal-success-message">
-            <FaCheckCircle className="success-icon" />
-            <span>{successMessage}</span>
+        {/* ===== MENSAJE DE ERROR ===== */}
+        {errorMessage && (
+          <div className="tarjeta-modal-error-message">
+            <span className="error-icon">⚠️</span>
+            <span>{errorMessage}</span>
           </div>
         )}
 
@@ -183,11 +217,6 @@ const ModalGestionarTarjetas = ({
             {currentTarjetas.length === 0 ? (
               <div className="tarjeta-empty-state">
                 <p>No hay tarjetas registradas</p>
-                {!isCheckout && (
-                  <button className="tarjeta-add-btn" onClick={handleAddClick}>
-                    <FaPlus /> Agregar tarjeta
-                  </button>
-                )}
               </div>
             ) : (
               <>
@@ -198,11 +227,14 @@ const ModalGestionarTarjetas = ({
                               detectarTipoTarjeta(tarjeta.numero_enmascarado);
                   
                   const isSelected = isCheckout && selectedId === tarjeta.id;
+                  const isPredeterminada = tarjeta.predeterminada;
+                  
+                  const ultimosDigitos = getUltimosDigitos(tarjeta.numero_enmascarado);
                   
                   return (
                     <div 
                       key={tarjeta.id} 
-                      className={`tarjeta-card ${isSelected ? 'selected' : ''} ${tarjeta.predeterminada && !isCheckout ? 'predeterminada' : ''}`}
+                      className={`tarjeta-card ${isSelected ? 'selected' : ''} ${isPredeterminada && !isCheckout ? 'predeterminada' : ''}`}
                       onClick={() => handleSelectTarjeta(tarjeta)}
                       style={{ cursor: isCheckout ? 'pointer' : 'default' }}
                     >
@@ -211,8 +243,7 @@ const ModalGestionarTarjetas = ({
                           <FaCreditCard />
                           <span>{tipo}</span>
                           
-                          {/* Badge Predeterminada */}
-                          {tarjeta.predeterminada && (
+                          {isPredeterminada && (
                             <span className={`tarjeta-badge predeterminada-badge ${
                               isCheckout 
                                 ? (isSelected ? 'in-use' : 'checkout-gris') 
@@ -222,12 +253,24 @@ const ModalGestionarTarjetas = ({
                             </span>
                           )}
                           
-                          {/* Badge "En uso" - SOLO EN CHECKOUT */}
-                          {isCheckout && isSelected && !tarjeta.predeterminada && (
+                          {isCheckout && isSelected && !isPredeterminada && (
                             <span className="tarjeta-badge selected-badge">En uso</span>
                           )}
                         </div>
+                        
+                        {/* ===== ACCIONES DE LA TARJETA ===== */}
                         <div className="tarjeta-card-actions" onClick={(e) => e.stopPropagation()}>
+                          {/* ===== BOTÓN ESTABLECER COMO PREDETERMINADA - ICONO ESTRELLA ===== */}
+                          {!isPredeterminada && !isCheckout && (
+                            <button 
+                              className="tarjeta-set-default-btn-icon"
+                              onClick={() => handleSetPredeterminada(tarjeta.id)}
+                              title="Establecer como predeterminada"
+                            >
+                              <FaStar />
+                            </button>
+                          )}
+                          
                           <button 
                             className="tarjeta-edit-btn"
                             onClick={() => onEdit(tarjeta)}
@@ -235,28 +278,33 @@ const ModalGestionarTarjetas = ({
                           >
                             <FaEdit />
                           </button>
+                          
                           <button 
                             className="tarjeta-delete-btn"
                             onClick={() => handleDeleteClick(tarjeta)}
                             title="Eliminar tarjeta"
-                            disabled={tarjeta.predeterminada && filteredTarjetas.length > 1}
+                            disabled={isPredeterminada && filteredTarjetas.length > 1}
                           >
                             <FaTrash />
                           </button>
                         </div>
                       </div>
+                      
                       <div className="tarjeta-card-body">
                         <div className="tarjeta-numero">
-                          {showCardNumber[tarjeta.id] ? (
-                            <span>{tarjeta.numero_enmascarado || "**** **** **** ****"}</span>
-                          ) : (
-                            <span>•••• •••• •••• {tarjeta.ultimos_digitos || "****"}</span>
-                          )}
+                          <span>
+                            •••• •••• •••• {ultimosDigitos}
+                          </span>
                           <button 
-                            className="tarjeta-eye-btn"
-                            onClick={() => toggleShowNumber(tarjeta.id)}
+                            className="tarjeta-copy-btn"
+                            onClick={() => handleCopyNumber(tarjeta)}
+                            title="Copiar número de tarjeta"
                           >
-                            {showCardNumber[tarjeta.id] ? <FaEyeSlash /> : <FaEye />}
+                            {copiedId === tarjeta.id ? (
+                              <FaCheckCircle className="copy-success" />
+                            ) : (
+                              <FaCopy />
+                            )}
                           </button>
                         </div>
                         <div className="tarjeta-info-row">
@@ -264,17 +312,6 @@ const ModalGestionarTarjetas = ({
                           <span className="tarjeta-fecha">Exp: {tarjeta.mes_expiracion}/{tarjeta.anio_expiracion}</span>
                         </div>
                       </div>
-                      {/* Botón "Establecer como predeterminada" - SOLO EN PERFIL */}
-                      {!tarjeta.predeterminada && !isCheckout && (
-                        <div className="tarjeta-card-footer" onClick={(e) => e.stopPropagation()}>
-                          <button 
-                            className="tarjeta-set-default-btn"
-                            onClick={() => handleSetPredeterminada(tarjeta.id)}
-                          >
-                            <VscStarFull /> Establecer como predeterminada
-                          </button>
-                        </div>
-                      )}
                     </div>
                   );
                 })}
